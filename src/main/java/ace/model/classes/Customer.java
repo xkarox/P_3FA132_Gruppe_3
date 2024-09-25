@@ -19,6 +19,7 @@ public class Customer implements ICustomer
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
+        this.gender = gender;
     }
 
     @Override
