@@ -1,4 +1,4 @@
-package ace.model;
+package ace.model.interfaces;
 
 import java.util.UUID;
 
