@@ -9,11 +9,11 @@ Only commit finished and functional work to main. <br/>
 Main has to be functional at all times. <br/>
 Releases are based one main.
 ## Branches
-- {type}_{type_id}_{user_name}_{task_description}
-  - task_#123_jddk_implement_interface
+- {type}\_{type_id}\_{user_name}\_{task_description}
+  - task_123_jddk_implement_interface
 
 ## Commit
-- {type_id}_{user_name}_{commit_description}
+- {type_id}\_{user_name}\_{commit_description}
   - #123_jddk_add_interface
 
 ### Naming 
