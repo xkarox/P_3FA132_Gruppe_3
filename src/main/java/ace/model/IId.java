@@ -1,8 +1,9 @@
-package dev.hv.model;
+package ace.model;
 
 import java.util.UUID;
 
-public interface IId {
+public interface IId
+{
 
    UUID getId();
 

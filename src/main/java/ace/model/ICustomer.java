@@ -1,10 +1,12 @@
-package dev.hv.model;
+package ace.model;
 
 import java.time.LocalDate;
 
-public interface ICustomer extends IId {
+public interface ICustomer extends IId
+{
 
-   enum Gender {
+   enum Gender
+   {
       D, // divers
       M, // männlich
       U, // unbekannt

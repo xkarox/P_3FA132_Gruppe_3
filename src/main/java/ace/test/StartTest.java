@@ -1,9 +1,9 @@
-package dev.hv.test;
+package ace.test;
 
 public class StartTest {
 
-   public static int getJavaMainVersion() {
-
+   public static int getJavaMainVersion()
+   {
       final String[] versionElements = getJavaVersion().split("\\.");
       final int discard = Integer.parseInt(versionElements[0]);
       int version;

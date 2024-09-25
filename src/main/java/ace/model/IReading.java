@@ -1,8 +1,9 @@
-package dev.hv.model;
+package ace.model;
 
 import java.time.LocalDate;
 
-public interface IReading extends IId {
+public interface IReading extends IId
+{
 
    enum KindOfMeter {
       HEIZUNG, STROM, UNBEKANNT, WASSER;
