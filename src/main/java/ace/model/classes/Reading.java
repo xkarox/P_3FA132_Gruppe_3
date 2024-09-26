@@ -2,107 +2,108 @@ package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IReading;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
 public class Reading implements IReading
 {
-    private String comment;
-    private Customer customer;
-    private LocalDate dateOfReading;
-    private KindOfMeter kindOfMeter;
-    private double meterCount;
-    private String meterId;
-    private boolean substitute;
+    private String _comment;
+    private Customer _customer;
+    private LocalDate _dateOfReading;
+    private KindOfMeter _kindOfMeter;
+    private double _meterCount;
+    private String _meterId;
+    private boolean _substitute;
 
     @Override
     public String getComment()
     {
-        return this.comment;
+        return this._comment;
     }
 
     @Override
     public ICustomer getCustomer()
     {
-        return this.customer;
+        return this._customer;
     }
 
     @Override
     public LocalDate getDateOfReading()
     {
-        return this.dateOfReading;
+        return this._dateOfReading;
     }
 
     @Override
     public KindOfMeter getKindOfMeter()
     {
-        return this.kindOfMeter;
+        return this._kindOfMeter;
     }
 
     @Override
     public Double getMeterCount()
     {
-        return this.meterCount;
+        return this._meterCount;
     }
 
     @Override
     public String getMeterId()
     {
-        return this.meterId;
+        return this._meterId;
     }
 
     @Override
     public Boolean getSubstitute()
     {
-        return this.substitute;
+        return this._substitute;
     }
 
     @Override
     public String printDateOfReading()
     {
-        return this.dateOfReading.toString();
+        return this._dateOfReading.toString();
     }
 
     @Override
     public void setComment(String comment)
     {
-        this.comment = comment;
+        this._comment = comment;
     }
 
     @Override
     public void setCustomer(ICustomer customer)
     {
-        this.customer = customer;
+        this._customer = customer;
     }
 
     @Override
     public void setDateOfReading(LocalDate dateOfReading)
     {
-        this.dateOfReading = dateOfReading;
+        this._dateOfReading = dateOfReading;
     }
 
     @Override
     public void setKindOfMeter(KindOfMeter kindOfMeter)
     {
-        this.kindOfMeter = kindOfMeter;
+        this._kindOfMeter = kindOfMeter;
     }
 
     @Override
     public void setMeterCount(Double meterCount)
     {
-        this.meterCount = meterCount;
+        this._meterCount = meterCount;
     }
 
     @Override
     public void setMeterId(String meterId)
     {
-        this.meterId = meterId;
+        this._meterId = meterId;
     }
 
     @Override
     public void setSubstitute(Boolean substitute)
     {
-        this.substitute = substitute;
+        this._substitute = substitute;
     }
 
     @Override
