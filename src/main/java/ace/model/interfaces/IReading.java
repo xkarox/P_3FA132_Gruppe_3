@@ -17,11 +17,11 @@ public interface IReading extends IId
 
    KindOfMeter getKindOfMeter();
 
-   Double getMeterCount();
+   double getMeterCount();
 
    String getMeterId();
 
-   Boolean getSubstitute();
+   boolean getSubstitute();
 
    String printDateOfReading();
 
@@ -33,10 +33,10 @@ public interface IReading extends IId
 
    void setKindOfMeter(KindOfMeter kindOfMeter);
 
-   void setMeterCount(Double meterCount);
+   void setMeterCount(double meterCount);
 
    void setMeterId(String meterId);
 
-   void setSubstitute(Boolean substitute);
+   void setSubstitute(boolean substitute);
 
 }

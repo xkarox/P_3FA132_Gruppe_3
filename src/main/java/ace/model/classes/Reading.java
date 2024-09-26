@@ -21,6 +21,7 @@ public class Reading implements IReading
     {
         this._id = UUID.randomUUID();
     }
+
     @Override
     public String getComment()
     {
@@ -46,7 +47,7 @@ public class Reading implements IReading
     }
 
     @Override
-    public Double getMeterCount()
+    public double getMeterCount()
     {
         return this._meterCount;
     }
@@ -58,7 +59,7 @@ public class Reading implements IReading
     }
 
     @Override
-    public Boolean getSubstitute()
+    public boolean getSubstitute()
     {
         return this._substitute;
     }
@@ -94,7 +95,7 @@ public class Reading implements IReading
     }
 
     @Override
-    public void setMeterCount(Double meterCount)
+    public void setMeterCount(double meterCount)
     {
         this._meterCount = meterCount;
     }
@@ -106,7 +107,7 @@ public class Reading implements IReading
     }
 
     @Override
-    public void setSubstitute(Boolean substitute)
+    public void setSubstitute(boolean substitute)
     {
         this._substitute = substitute;
     }
