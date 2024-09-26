@@ -18,7 +18,7 @@ public class DatabaseConnection implements IDatabaseConnection
     public Connection getConnection()
     {
         if (this._connection == null)
-            throw new RuntimeException("Could not connect to db");
+            throw new RuntimeException("Connection not initialised");
         return _connection;
     }
 
@@ -33,9 +33,9 @@ public class DatabaseConnection implements IDatabaseConnection
 
         try {
             _connection = DriverManager.getConnection(url, user, password);
-            if (_connection != null)
+            if (_connection == null)
             {
-                throw new RuntimeException("Could not connect to db");
+                throw new RuntimeException("Could not initialise connection");
             }
         } catch (SQLException e) // Could not connect to db
         {
@@ -114,7 +114,7 @@ public class DatabaseConnection implements IDatabaseConnection
     {
         try
         {
-            this._connection.close();
+            getConnection().close();
         } catch (SQLException e)
         {
             throw new RuntimeException(e);
