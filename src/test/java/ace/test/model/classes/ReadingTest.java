@@ -1,6 +1,8 @@
 package ace.test.model.classes;
 
+import ace.model.classes.Customer;
 import ace.model.classes.Reading;
+import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IReading.KindOfMeter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,7 @@ public class ReadingTest
     public void setUp()
     {
         _reading = new Reading();
-        _customer = new Customer();
+        _customer = new Customer("Peter", "Hoffmann", LocalDate.now(), ICustomer.Gender.M);
         _kindOfMeter = KindOfMeter.STROM;
     }
 

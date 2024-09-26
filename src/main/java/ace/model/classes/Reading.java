@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public class Reading implements IReading
 {
+    private UUID _id;
     private String _comment;
     private Customer _customer;
     private LocalDate _dateOfReading;
@@ -16,6 +17,10 @@ public class Reading implements IReading
     private String _meterId;
     private boolean _substitute;
 
+    public Reading()
+    {
+        this._id = UUID.randomUUID();
+    }
     @Override
     public String getComment()
     {
@@ -73,7 +78,7 @@ public class Reading implements IReading
     @Override
     public void setCustomer(ICustomer customer)
     {
-        this._customer = customer;
+        this._customer = (Customer) customer;
     }
 
     @Override
@@ -109,12 +114,12 @@ public class Reading implements IReading
     @Override
     public UUID getId()
     {
-        return this.uuId;
+        return this._id;
     }
 
     @Override
     public void setId(UUID id)
     {
-        this.uuId = id;
+        this._id = id;
     }
 }
