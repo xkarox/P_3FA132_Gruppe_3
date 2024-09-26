@@ -1,7 +1,7 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -11,12 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CustomerTest
 {
-    private static Customer customer;
+    private Customer customer;
+    private final String uuidSeed = "123e4567-e89b-12d3-a456-426614174000";
 
-    @BeforeAll
-    static void setUp()
+    @BeforeEach
+    void setUp()
     {
-        UUID id = UUID.randomUUID();
+        UUID id = UUID.fromString(uuidSeed);
         String firstName = "John";
         String lastName = "Doe";
         LocalDate birthDate = LocalDate.of(2000, 1, 1);
@@ -92,20 +93,19 @@ public class CustomerTest
         String lastName = customer.getLastName();
         assertEquals(newLastName, lastName, "Last name does not match the new last name");
     }
-
+//    change to use new uuid for testing
     @Test
     void testGetId()
     {
-        UUID id = customer.getId();
-        assertEquals(id, customer.getId(), "ID does not match the expected ID");
+        UUID expectedId = UUID.fromString(uuidSeed);
+        assertEquals(expectedId, customer.getId(), "ID does not match the expected ID");
     }
 
     @Test
     void testSetId()
     {
-        UUID newId = UUID.randomUUID();
+        UUID newId = UUID.fromString("169e4567-e89b-69d3-a456-426914174001");
         customer.setId(newId);
-        UUID id = customer.getId();
-        assertEquals(newId, id, "ID does not match the new ID");
+        assertEquals(newId, customer.getId(), "ID does not match the new ID");
     }
 }
