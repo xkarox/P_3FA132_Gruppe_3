@@ -1,4 +1,4 @@
-package ace.model;
+package ace.database;
 
 import ace.model.interfaces.IDatabaseConnection;
 import java.sql.Connection;
@@ -14,6 +14,7 @@ import java.util.Properties;
 public class DatabaseConnection implements IDatabaseConnection
 {
     private Connection _connection;
+    private final DbHelperService _helperService = new DbHelperService();
 
     public Connection getConnection()
     {
@@ -48,7 +49,11 @@ public class DatabaseConnection implements IDatabaseConnection
     @Override
     public void createAllTables()
     {
-        throw new RuntimeException("Not implemented");
+        List<String> tables = this._helperService.createSqlTableSchema();
+        for (String createTableCommand : tables)
+        {
+            executeSqlCommand(createTableCommand);
+        }
     }
 
     @Override
@@ -58,14 +63,7 @@ public class DatabaseConnection implements IDatabaseConnection
         for (String tableName : tableNames)
         {
             String sql = "TRUNCATE TABLE " + tableName;
-
-            try (Statement stmt = this._connection.createStatement())
-            {
-                stmt.executeUpdate(sql);
-            } catch (SQLException e)
-            {
-                throw new RuntimeException(e);
-            }
+            executeSqlCommand(sql);
         }
     }
 
@@ -76,14 +74,7 @@ public class DatabaseConnection implements IDatabaseConnection
         for (String tableName : tableNames)
         {
             String sql = "DROP TABLE IF EXISTS " + tableName;
-
-            try (Statement stmt = this._connection.createStatement())
-            {
-                stmt.executeUpdate(sql); // Remove table
-            } catch (SQLException e)
-            {
-                throw new RuntimeException(e);
-            }
+            executeSqlCommand(sql);
         }
     }
 
@@ -115,6 +106,17 @@ public class DatabaseConnection implements IDatabaseConnection
         try
         {
             getConnection().close();
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void executeSqlCommand(String sql)
+    {
+        try (Statement stmt = this.getConnection().createStatement())
+        {
+            stmt.executeUpdate(sql);
         } catch (SQLException e)
         {
             throw new RuntimeException(e);
