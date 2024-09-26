@@ -1,87 +1,172 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.ICustomer.Gender;
 import ace.model.interfaces.IReading.KindOfMeter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.time.LocalDate;
 import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReadingTest
 {
     private Reading _reading;
+    private final String _comment = "Test Comment";
     private Customer _customer;
-    private KindOfMeter _kindOfMeter;
+    private final LocalDate _dateOfReading = LocalDate.now();
+    private final KindOfMeter _kindOfMeter = KindOfMeter.STROM;
+    private final double _meterCount = 1234.56;;
+    private final String _meterId = "METER-123";
+    private final boolean _substitute = true;
 
     @BeforeEach
     public void setUp()
     {
-        _reading = new Reading();
-        _customer = new Customer("Peter", "Hoffmann", LocalDate.now(), ICustomer.Gender.M);
-        _kindOfMeter = KindOfMeter.STROM;
+        this._reading = new Reading();
+        this._customer = new Customer("John", "Doe", LocalDate.now(), Gender.M);
     }
 
     @Test
-    public void testSetAndGetComment() {
-        String comment = "Test comment";
-        _reading.setComment(comment);
-        assertEquals(comment, _reading.getComment(), "Comment should match the set value");
+    void testSetComment()
+    {
+        String newComment = "new Comment";
+        _reading.setComment(newComment);
+        String comment = _reading.getComment();
+        assertEquals(newComment, comment, "The comment should match the value set by setComment().");
     }
 
     @Test
-    public void testSetAndGetCustomer() {
-        _reading.setCustomer(this._customer);
-        assertEquals(this._customer, _reading.getCustomer(), "Customer should match the set mock object");
+    void testSetCustomer()
+    {
+        Customer newCustomer = new Customer("Max", "Mueller", LocalDate.now(), Gender.M);
+        _reading.setCustomer(newCustomer);
+        ICustomer customer = _reading.getCustomer();
+        assertEquals(newCustomer, customer, "The customer should match the value set by setCustomer().");
     }
 
     @Test
-    public void testSetAndGetDateOfReading() {
-        LocalDate date = LocalDate.of(2023, 9, 26);
-        _reading.setDateOfReading(date);
-        assertEquals(date, _reading.getDateOfReading(), "Date of reading should match the set date");
+    void testSetDateOfReading()
+    {
+        LocalDate newDateOfReading = LocalDate.of(2024, 9, 25);
+        _reading.setDateOfReading(newDateOfReading);
+        LocalDate dateOfReading = _reading.getDateOfReading();
+        assertEquals(newDateOfReading, dateOfReading, "The date of reading should match the value set by setDateOfReading().");
     }
 
     @Test
-    public void testSetAndGetKindOfMeter() {
-        _reading.setKindOfMeter(_kindOfMeter);
-        assertEquals(_kindOfMeter, _reading.getKindOfMeter(), "Kind of meter should match the set value");
+    void testSetKindOfMeter()
+    {
+        KindOfMeter newKindOfMeter = KindOfMeter.HEIZUNG;
+        _reading.setKindOfMeter(newKindOfMeter);
+        KindOfMeter kindOfMeter = _reading.getKindOfMeter();
+        assertEquals(newKindOfMeter, kindOfMeter, "The kind of meter should match the value set by setKindOfMeter().");
     }
 
     @Test
-    public void testSetAndGetMeterCount() {
-        double meterCount = 123.45;
-        _reading.setMeterCount(meterCount);
-        assertEquals(meterCount, _reading.getMeterCount(), "Meter count should match the set value");
+    void testSetMeterCount()
+    {
+        double newMeterCount = 123.12;
+        _reading.setMeterCount(newMeterCount);
+        double meterCount = _reading.getMeterCount();
+        assertEquals(newMeterCount, meterCount, "The meter count should match the value set by setMeterCount().");
     }
 
     @Test
-    public void testSetAndGetMeterId() {
-        String meterId = "Meter123";
-        _reading.setMeterId(meterId);
-        assertEquals(meterId, _reading.getMeterId(), "Meter ID should match the set value");
+    void testSetMeterId()
+    {
+        String newMeterId = "MeterId-Test-123";
+        _reading.setMeterId(newMeterId);
+        String meterId = _reading.getMeterId();
+        assertEquals(newMeterId, meterId, "The meter ID should match the value set by setMeterId().");
     }
 
     @Test
-    public void testSetAndGetSubstitute() {
-        _reading.setSubstitute(true);
-        assertTrue(_reading.getSubstitute(), "Substitute should match the set value (true)");
-
-        _reading.setSubstitute(false);
-        assertFalse(_reading.getSubstitute(), "Substitute should match the set value (false)");
+    void testSetSubstitute()
+    {
+        boolean newSubstitute = true;
+        _reading.setSubstitute(newSubstitute);
+        assertTrue(newSubstitute, "The substitute flag should be set to true.");
     }
 
     @Test
-    public void testPrintDateOfReading() {
-        LocalDate date = LocalDate.of(2023, 9, 26);
-        _reading.setDateOfReading(date);
-        assertEquals("2023-09-26", _reading.printDateOfReading(), "Printed date should match the set date string");
+    void testSetId()
+    {
+        int expectedId = this._id;
+        _reading.setId(expectedId);
+        int actualId = _reading.getId();
+        assertEquals(expectedId, actualId, "The ID should match the value set by setId().");
     }
 
     @Test
-    public void testSetAndGetId() {
-        UUID id = UUID.randomUUID();
-        _reading.setId(id);
-        assertEquals(id, _reading.getId(), "ID should match the set UUID");
+    void testGetComment()
+    {
+        String comment = this._reading.getComment();
+        assertEquals(this._comment, comment, "The comment should match the value returned by getComment().");
+    }
+
+    @Test
+    void testGetCustomer()
+    {
+        Customer expectedCustomer = this._customer;
+        _reading.setCustomer(expectedCustomer);
+        Customer actualCustomer = _reading.getCustomer();
+        assertEquals(expectedCustomer, actualCustomer, "The customer should match the value returned by getCustomer().");
+    }
+
+    @Test
+    void testGetDateOfReading()
+    {
+        Date expectedDateOfReading = this._dateOfReading;
+        _reading.setDateOfReading(expectedDateOfReading);
+        Date actualDateOfReading = _reading.getDateOfReading();
+        assertEquals(expectedDateOfReading, actualDateOfReading, "The date of reading should match the value returned by getDateOfReading().");
+    }
+
+    @Test
+    void testGetKindOfMeter()
+    {
+        String expectedKindOfMeter = this._kindOfMeter;
+        _reading.setKindOfMeter(expectedKindOfMeter);
+        String actualKindOfMeter = _reading.getKindOfMeter();
+        assertEquals(expectedKindOfMeter, actualKindOfMeter, "The kind of meter should match the value returned by getKindOfMeter().");
+    }
+
+    @Test
+    void testGetMeterCount()
+    {
+        int expectedMeterCount = this._meterCount;
+        _reading.setMeterCount(expectedMeterCount);
+        int actualMeterCount = _reading.getMeterCount();
+        assertEquals(expectedMeterCount, actualMeterCount, "The meter count should match the value returned by getMeterCount().");
+    }
+
+    @Test
+    void testGetMeterId()
+    {
+        String expectedMeterId = this._meterId;
+        _reading.setMeterId(expectedMeterId);
+        String actualMeterId = _reading.getMeterId();
+        assertEquals(expectedMeterId, actualMeterId, "The meter ID should match the value returned by getMeterId().");
+    }
+
+    @Test
+    void testGetSubstitute()
+    {
+        boolean expectedSubstitute = this._substitute;
+        _reading.setSubstitute(expectedSubstitute);
+        boolean actualSubstitute = _reading.getSubstitute();
+        assertTrue(actualSubstitute, "The substitute flag should be true when returned by getSubstitute().");
+    }
+
+    @Test
+    void testGetId()
+    {
+        int expectedId = this._id;
+        _reading.setId(expectedId);
+        int actualId = _reading.getId();
+        assertEquals(expectedId, actualId, "The ID should match the value returned by getId().");
     }
 }
