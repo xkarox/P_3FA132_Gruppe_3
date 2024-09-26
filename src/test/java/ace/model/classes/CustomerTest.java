@@ -54,10 +54,10 @@ public class CustomerTest
     @Test
     void testGetGender()
     {
-        ICustomer.Gender gender = _customer.getGender();
+        Gender gender = _customer.getGender();
         assertEquals(this._gender, gender, "Gender does not match the expected gender");
 
-        assertNull(_nullCustomer.getGender(), "Gender does not match the expected null value");
+        assertEquals(Gender.U, _nullCustomer.getGender(), "Gender does not match the expected Undefined Gender value");
     }
 
     @Test
@@ -121,6 +121,6 @@ public class CustomerTest
         _customer.setId(newId);
         assertNotNull(_customer.getId(), "ID should not be null after setting a new ID");
 
-        assertThrows(IllegalArgumentException.class, () -> _customer.setId(null), "ID should not be null after setting to null");
+        assertThrows(IllegalArgumentException.class, () -> _customer.setId(null), "setID should throw an IllegalArgumentException when setting a null ID");
     }
 }

@@ -4,6 +4,7 @@ import ace.model.interfaces.ICustomer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Customer implements ICustomer
@@ -20,17 +21,23 @@ public class Customer implements ICustomer
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
-        this.gender = gender;
+        this.gender = Objects.requireNonNullElse(gender, Gender.U);
     }
 
+    // Constructor for initializing a customer from the database
     public Customer(UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender)
     {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
+        if (gender == null)
+        {
+            throw new IllegalArgumentException("Gender cannot be null");
+        }
         this.gender = gender;
     }
+
     @Nullable
     @Override
     public LocalDate getBirthDate()
@@ -45,7 +52,6 @@ public class Customer implements ICustomer
         return this.firstName;
     }
 
-    @Nullable
     @Override
     public Gender getGender()
     {
