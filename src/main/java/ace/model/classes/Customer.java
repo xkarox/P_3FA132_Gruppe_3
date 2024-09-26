@@ -13,9 +13,9 @@ public class Customer implements ICustomer
     private LocalDate birthDate;
     private Gender gender;
 
-    public Customer(UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender)
+    public Customer(String firstName, String lastName, LocalDate birthDate, Gender gender)
     {
-        this.id = id;
+        this.id = UUID.randomUUID();
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
