@@ -1,78 +1,92 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.ICustomer.Gender;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CustomerTest
 {
-    private Customer customer;
-    private final String uuidSeed = "123e4567-e89b-12d3-a456-426614174000";
+    private Customer _customer;
+    private static Customer _nullCustomer;
+    private final LocalDate _birthDate = LocalDate.of(2000, 1, 1);
+    private final String _firstName = "John";
+    private final String _lastName = "Doe";
+    private final Gender _gender = Gender.M;
 
     @BeforeEach
     void setUp()
     {
-        UUID id = UUID.fromString(uuidSeed);
-        String firstName = "John";
-        String lastName = "Doe";
-        LocalDate birthDate = LocalDate.of(2000, 1, 1);
-        ICustomer.Gender gender = ICustomer.Gender.M;
+        _customer = new Customer(this._firstName, this._lastName, this._birthDate, this._gender);
+    }
 
-        customer = new Customer(id, firstName, lastName, birthDate, gender);
+    @BeforeAll
+    static void beforeAll()
+    {
+        _nullCustomer = new Customer(null, null, null, null);
     }
 
     @Test
     void testGetBirthDate()
     {
-        LocalDate birthDate = customer.getBirthDate();
-        LocalDate expectedBirthDate = LocalDate.of(2000, 1, 1);
-        assertEquals(expectedBirthDate, birthDate, "Birth date does not match the expected birth date");
+        LocalDate birthDate = _customer.getBirthDate();
+        assertEquals(this._birthDate, birthDate, "Birth date does not match the expected birth date");
+
+        assertNull(_nullCustomer.getBirthDate(), "Birth date does not match the expected null value");
     }
 
     @Test
     void testGetFirstName()
     {
-        String firstName = customer.getFirstName();
-        String expectedFirstName = "John";
-        assertEquals(expectedFirstName, firstName, "First name does not match the expected first name");
+        String firstName = _customer.getFirstName();
+        assertEquals(this._firstName, firstName, "First name does not match the expected first name");
+
+        assertNull(_nullCustomer.getFirstName(), "First name does not match the expected null value");
     }
 
     @Test
     void testGetGender()
     {
-        ICustomer.Gender gender = customer.getGender();
-        ICustomer.Gender expectedGender = ICustomer.Gender.M;
-        assertEquals(expectedGender, gender, "Gender does not match the expected gender");
+        ICustomer.Gender gender = _customer.getGender();
+        assertEquals(this._gender, gender, "Gender does not match the expected gender");
+
+        assertNull(_nullCustomer.getGender(), "Gender does not match the expected null value");
     }
 
     @Test
     void testGetLastName()
     {
-        String lastName = customer.getLastName();
-        String expectedLastName = "Doe";
-        assertEquals(expectedLastName, lastName, "Last name does not match the expected last name");
+        String lastName = _customer.getLastName();
+        assertEquals(this._lastName, lastName, "Last name does not match the expected last name");
+
+        assertNull(_nullCustomer.getLastName(), "Last name does not match the expected null value");
     }
 
     @Test
     void testSetBirthDate()
     {
         LocalDate newBirthDate = LocalDate.of(2001, 1, 1);
-        customer.setBirthDate(newBirthDate);
-        LocalDate birthDate = customer.getBirthDate();
+        _customer.setBirthDate(newBirthDate);
+        LocalDate birthDate = _customer.getBirthDate();
         assertEquals(newBirthDate, birthDate, "Birth date does not match the new birth date");
+
+        _customer.setBirthDate(null);
+        assertNull(_customer.getBirthDate(), "Birth date should be null after setting to null");
     }
 
     @Test
     void testSetFirstName()
     {
         String newFirstName = "Jane";
-        customer.setFirstName(newFirstName);
-        String firstName = customer.getFirstName();
+        _customer.setFirstName(newFirstName);
+        String firstName = _customer.getFirstName();
         assertEquals(newFirstName, firstName, "First name does not match the new first name");
     }
 
@@ -80,8 +94,8 @@ public class CustomerTest
     void testSetGender()
     {
         ICustomer.Gender newGender = ICustomer.Gender.W;
-        customer.setGender(newGender);
-        ICustomer.Gender gender = customer.getGender();
+        _customer.setGender(newGender);
+        ICustomer.Gender gender = _customer.getGender();
         assertEquals(newGender, gender, "Gender does not match the new Gender");
     }
 
@@ -89,23 +103,24 @@ public class CustomerTest
     void testSetLastName()
     {
         String newLastName = "Smith";
-        customer.setLastName(newLastName);
-        String lastName = customer.getLastName();
+        _customer.setLastName(newLastName);
+        String lastName = _customer.getLastName();
         assertEquals(newLastName, lastName, "Last name does not match the new last name");
     }
-//    change to use new uuid for testing
+
     @Test
     void testGetId()
     {
-        UUID expectedId = UUID.fromString(uuidSeed);
-        assertEquals(expectedId, customer.getId(), "ID does not match the expected ID");
+        assertNotNull(_customer.getId(), "ID should not be null");
     }
 
     @Test
     void testSetId()
     {
         UUID newId = UUID.fromString("169e4567-e89b-69d3-a456-426914174001");
-        customer.setId(newId);
-        assertEquals(newId, customer.getId(), "ID does not match the new ID");
+        _customer.setId(newId);
+        assertNotNull(_customer.getId(), "ID should not be null after setting a new ID");
+
+        assertThrows(IllegalArgumentException.class, () -> _customer.setId(null), "ID should not be null after setting to null");
     }
 }

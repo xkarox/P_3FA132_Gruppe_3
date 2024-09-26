@@ -1,6 +1,7 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -22,24 +23,28 @@ public class Customer implements ICustomer
         this.gender = gender;
     }
 
+    @Nullable
     @Override
     public LocalDate getBirthDate()
     {
         return this.birthDate;
     }
 
+    @Nullable
     @Override
     public String getFirstName()
     {
         return this.firstName;
     }
 
+    @Nullable
     @Override
     public Gender getGender()
     {
         return this.gender;
     }
 
+    @Nullable
     @Override
     public String getLastName()
     {
@@ -79,6 +84,10 @@ public class Customer implements ICustomer
     @Override
     public void setId(UUID id)
     {
+        if (id == null)
+        {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
         this.id = id;
     }
 }
