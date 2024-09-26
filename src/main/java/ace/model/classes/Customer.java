@@ -23,6 +23,14 @@ public class Customer implements ICustomer
         this.gender = gender;
     }
 
+    public Customer(UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender)
+    {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
+        this.gender = gender;
+    }
     @Nullable
     @Override
     public LocalDate getBirthDate()
