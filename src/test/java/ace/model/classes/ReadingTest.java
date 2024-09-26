@@ -1,7 +1,5 @@
-package ace.test.model.classes;
+package ace.model.classes;
 
-import ace.model.classes.Customer;
-import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IReading.KindOfMeter;
 import org.junit.jupiter.api.BeforeEach;
