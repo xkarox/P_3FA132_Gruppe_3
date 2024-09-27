@@ -2,10 +2,15 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
+
+import javax.xml.crypto.Data;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>
 {
+    private static final String dbURL = "";
+    private static final String dbUser = "";
+    private static final String dbPassword = "";
 
     protected CustomerService(DatabaseConnection dbConnection)
     {
@@ -15,7 +20,19 @@ public class CustomerService extends AbstractBaseService<Customer>
     @Override
     public Customer add(Customer item)
     {
-        return null;
+        if (this._dbConnection != null)
+        {
+            try
+            {
+                String sqlStatement = "INSERT INTO Customers (id, firstName, lastName, birthDate, gender) " +
+                        "VALUES (?, ?, ?, ?, ?);";
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("An Error occurred when trying to insert a  new item into the Customers table.");
+            }
+        }
+        return item;
     }
 
     @Override
