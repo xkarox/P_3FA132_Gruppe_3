@@ -14,24 +14,24 @@ public class DbHelperService
         this._tables = tables;
     }
 
-    public List<String> createSqlTableSchema()
+    public List<String> createSqlTableSchemaCommands()
     {
-        List<String> command = new ArrayList<String>();
+        List<String> commands = new ArrayList<String>();
 
         for (IDbItem table : _tables)
         {
-            String entries = table.getSerializedStructure();
+            String columnDefinition = table.getSerializedStructure();
             String tableName = table.getSerializedTableName();
 
             String createStatement = "CREATE TABLE "
                     + tableName
                     + " ("
-                    + entries
+                    + columnDefinition
                     + ");";
 
-            command.add(createStatement);
+            commands.add(createStatement);
         }
 
-        return command;
+        return commands;
     }
 }

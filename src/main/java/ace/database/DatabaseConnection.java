@@ -49,8 +49,8 @@ public class DatabaseConnection implements IDatabaseConnection
     @Override
     public void createAllTables()
     {
-        List<String> tables = this._helperService.createSqlTableSchema();
-        for (String createTableCommand : tables)
+        List<String> tablesCommands = this._helperService.createSqlTableSchemaCommands();
+        for (String createTableCommand : tablesCommands)
         {
             executeSqlCommand(createTableCommand);
         }

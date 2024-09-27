@@ -29,7 +29,7 @@ public class DbHelperServiceTest
         IDbItem mockTable = new DbItemMock(this._sqlSchema, this._tableName);
         DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{add(mockTable);}});
 
-        List<String> tableSchemas = dbHelperService.createSqlTableSchema();
+        List<String> tableSchemas = dbHelperService.createSqlTableSchemaCommands();
         assertEquals(1, tableSchemas.size(), "The list should contain one schema");
         assertEquals(this._expectedSchema, tableSchemas.getFirst(), "Should be the expected schema");
     }
@@ -49,7 +49,7 @@ public class DbHelperServiceTest
             add(secondMockTable);
         }});
 
-        List<String> tableSchemas = dbHelperService.createSqlTableSchema();
+        List<String> tableSchemas = dbHelperService.createSqlTableSchemaCommands();
 
         assertEquals(2, tableSchemas.size(), "The list should contain two schemas");
         assertEquals(this._expectedSchema, tableSchemas.getFirst(), "Should be the expected schema");
