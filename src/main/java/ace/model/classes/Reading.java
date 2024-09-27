@@ -14,9 +14,9 @@ public class Reading implements IReading
     private Customer _customer;
     private LocalDate _dateOfReading;
     private KindOfMeter _kindOfMeter;
-    private double _meterCount;
+    private Double _meterCount;
     private String _meterId;
-    private boolean _substitute;
+    private Boolean _substitute;
 
     public Reading()
     {
@@ -52,7 +52,7 @@ public class Reading implements IReading
     }
 
     @Override
-    public double getMeterCount()
+    public Double getMeterCount()
     {
         return this._meterCount;
     }
@@ -65,7 +65,7 @@ public class Reading implements IReading
     }
 
     @Override
-    public boolean getSubstitute()
+    public Boolean getSubstitute()
     {
         return this._substitute;
     }
