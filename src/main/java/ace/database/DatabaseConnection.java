@@ -1,12 +1,6 @@
 package ace.database;
 
 import ace.database.intefaces.IDatabaseConnection;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -24,8 +18,9 @@ public class DatabaseConnection implements IDatabaseConnection
 
     public Connection getConnection()
     {
-        if (this._connection == null)
+        if (this._connection == null){
             throw new RuntimeException("Connection not initialised");
+        }
         return _connection;
     }
 
@@ -100,7 +95,7 @@ public class DatabaseConnection implements IDatabaseConnection
         executeSqlCommand("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-    private List<String> getAllTableNames()
+    public List<String> getAllTableNames()
     {
         List<String> tableNames = new ArrayList<>();
 
@@ -135,7 +130,7 @@ public class DatabaseConnection implements IDatabaseConnection
         }
     }
 
-    private void executeSqlCommand(String sql)
+    public void executeSqlCommand(String sql)
     {
         try (Statement stmt = this.getConnection().createStatement())
         {
@@ -144,40 +139,5 @@ public class DatabaseConnection implements IDatabaseConnection
         {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Properties loadProperties()
-    {
-        Properties properties;
-
-        Path currentPath = Paths.get(System.getProperty("user.dir"));
-        Path filePath = currentPath.resolve("src\\main\\java\\resources\\properties.config");
-
-        try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath()))) {
-            properties = loadProperties(input);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
-        return properties;
-    }
-
-    public static Properties loadProperties(InputStream fileStream)
-    {
-        Properties properties = new Properties();
-
-        try
-        {
-            properties.load(fileStream);
-            fileStream.close();
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
-        return properties;
     }
 }
