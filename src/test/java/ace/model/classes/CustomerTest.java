@@ -94,9 +94,9 @@ public class CustomerTest
     @Test
     void testSetGender()
     {
-        ICustomer.Gender newGender = ICustomer.Gender.W;
+        Gender newGender = Gender.W;
         _customer.setGender(newGender);
-        ICustomer.Gender gender = _customer.getGender();
+        Gender gender = _customer.getGender();
         assertEquals(newGender, gender, "Gender does not match the new Gender");
     }
 
