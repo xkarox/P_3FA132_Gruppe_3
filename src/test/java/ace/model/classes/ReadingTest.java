@@ -99,11 +99,11 @@ public class ReadingTest
     {
         boolean newSubstituteTrue = true;
         _reading.setSubstitute(newSubstituteTrue);
-        assertTrue(newSubstituteTrue, "The substitute flag should be set to true.");
+        assertTrue(this._reading.getSubstitute(), "The substitute flag should be set to true.");
 
         boolean newSubstituteFalse = false;
         _reading.setSubstitute(newSubstituteFalse);
-        assertFalse(newSubstituteFalse, "The substitute flag should be set to false.");
+        assertFalse(this._reading.getSubstitute(), "The substitute flag should be set to false.");
     }
 
     @Test
