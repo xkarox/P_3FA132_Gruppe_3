@@ -16,6 +16,7 @@ public class CustomerTest
 {
     private Customer _customer;
     private static Customer _nullCustomer;
+    private final UUID _id = UUID.fromString("169e4567-e89b-69d3-a456-426614174000");
     private final LocalDate _birthDate = LocalDate.of(2000, 1, 1);
     private final String _firstName = "John";
     private final String _lastName = "Doe";
@@ -24,13 +25,13 @@ public class CustomerTest
     @BeforeEach
     void setUp()
     {
-        _customer = new Customer(this._firstName, this._lastName, this._birthDate, this._gender);
+        _customer = new Customer(this._id, this._firstName, this._lastName, this._birthDate, this._gender);
     }
 
     @BeforeAll
     static void beforeAll()
     {
-        _nullCustomer = new Customer(null, null, null, null);
+        _nullCustomer = new Customer();
     }
 
     @Test
