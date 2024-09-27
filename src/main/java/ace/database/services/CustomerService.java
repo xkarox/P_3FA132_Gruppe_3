@@ -20,6 +20,9 @@ public class CustomerService extends AbstractBaseService<Customer>
     @Override
     public Customer add(Customer item)
     {
+        if (item == null) {
+            throw new RuntimeException("Customer is null and cannot be inserted.");
+        }
         if (this._dbConnection != null)
         {
             try
