@@ -67,7 +67,7 @@ public class CustomerTest
         String lastName = this._customer.getLastName();
         assertEquals(this._lastName, lastName, "Last name does not match the expected last name");
 
-        assertNull(this._nullCustomer.getLastName(), "Last name does not match the expected null value");
+        assertNull(_nullCustomer.getLastName(), "Last name does not match the expected null value");
     }
 
     @Test
