@@ -121,6 +121,10 @@ public class Reading implements IReading
     @Override
     public void setId(UUID id)
     {
+        if (id == null)
+        {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
         this._id = id;
     }
 }

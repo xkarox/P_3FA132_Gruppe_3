@@ -111,6 +111,8 @@ public class ReadingTest
     {
         UUID newId = UUID.randomUUID();
         _reading.setId(newId);
+        assertNotNull(_customer.getId(), "ID should not be null after setting a new ID");
+
         UUID id = this._reading.getId();
         assertEquals(newId, id, "The ID should match the value set by setId().");
     }
