@@ -21,12 +21,23 @@ public class ReadingTest
     private final double _meterCount = 1234.56;;
     private final String _meterId = "METER-123";
     private final boolean _substitute = true;
+    private final UUID _id = UUID.randomUUID();
 
     @BeforeEach
     public void setUp()
     {
-        this._reading = new Reading();
         this._customer = new Customer("John", "Doe", LocalDate.now(), Gender.M);
+        this._reading = new Reading();
+        this._reading.setComment(this._comment);
+        this._reading.setCustomer(this._customer);
+        this._reading.setDateOfReading(this._dateOfReading);
+        this._reading.setKindOfMeter(this._kindOfMeter);
+        this._reading.setMeterCount(this._meterCount);
+        this._reading.setMeterId(this._meterId);
+        this._reading.setSubstitute(this._substitute);
+        this._reading.setId(this._id);
+
+
     }
 
     @Test
@@ -41,7 +52,7 @@ public class ReadingTest
     @Test
     void testSetCustomer()
     {
-        Customer newCustomer = new Customer("Max", "Mueller", LocalDate.now(), Gender.M);
+        Customer newCustomer = new Customer("Max", "Mueller", LocalDate.of(2000, 1, 1), Gender.M);
         _reading.setCustomer(newCustomer);
         ICustomer customer = _reading.getCustomer();
         assertEquals(newCustomer, customer, "The customer should match the value set by setCustomer().");
@@ -86,18 +97,22 @@ public class ReadingTest
     @Test
     void testSetSubstitute()
     {
-        boolean newSubstitute = true;
-        _reading.setSubstitute(newSubstitute);
-        assertTrue(newSubstitute, "The substitute flag should be set to true.");
+        boolean newSubstituteTrue = true;
+        _reading.setSubstitute(newSubstituteTrue);
+        assertTrue(newSubstituteTrue, "The substitute flag should be set to true.");
+
+        boolean newSubstituteFalse = false;
+        _reading.setSubstitute(newSubstituteFalse);
+        assertFalse(newSubstituteFalse, "The substitute flag should be set to false.");
     }
 
     @Test
     void testSetId()
     {
-        int expectedId = this._id;
-        _reading.setId(expectedId);
-        int actualId = _reading.getId();
-        assertEquals(expectedId, actualId, "The ID should match the value set by setId().");
+        UUID newId = UUID.randomUUID();
+        _reading.setId(newId);
+        UUID id = this._reading.getId();
+        assertEquals(newId, id, "The ID should match the value set by setId().");
     }
 
     @Test
@@ -110,63 +125,54 @@ public class ReadingTest
     @Test
     void testGetCustomer()
     {
-        Customer expectedCustomer = this._customer;
-        _reading.setCustomer(expectedCustomer);
-        Customer actualCustomer = _reading.getCustomer();
-        assertEquals(expectedCustomer, actualCustomer, "The customer should match the value returned by getCustomer().");
+        ICustomer customer = this._reading.getCustomer();
+        assertEquals(this._customer, customer, "The customer should match the value returned by getCustomer().");
     }
 
     @Test
     void testGetDateOfReading()
     {
-        Date expectedDateOfReading = this._dateOfReading;
-        _reading.setDateOfReading(expectedDateOfReading);
-        Date actualDateOfReading = _reading.getDateOfReading();
-        assertEquals(expectedDateOfReading, actualDateOfReading, "The date of reading should match the value returned by getDateOfReading().");
+        LocalDate dateOfReading  = this._reading.getDateOfReading();
+        assertEquals(this._dateOfReading, dateOfReading, "The date of reading should match the value returned by getDateOfReading().");
     }
 
     @Test
     void testGetKindOfMeter()
     {
-        String expectedKindOfMeter = this._kindOfMeter;
-        _reading.setKindOfMeter(expectedKindOfMeter);
-        String actualKindOfMeter = _reading.getKindOfMeter();
-        assertEquals(expectedKindOfMeter, actualKindOfMeter, "The kind of meter should match the value returned by getKindOfMeter().");
+        KindOfMeter kindOfMeter = this._reading.getKindOfMeter();
+        assertEquals(this._kindOfMeter, kindOfMeter, "The kind of meter should match the value returned by getKindOfMeter().");
     }
 
     @Test
     void testGetMeterCount()
     {
-        int expectedMeterCount = this._meterCount;
-        _reading.setMeterCount(expectedMeterCount);
-        int actualMeterCount = _reading.getMeterCount();
-        assertEquals(expectedMeterCount, actualMeterCount, "The meter count should match the value returned by getMeterCount().");
+        double meterCount = this._reading.getMeterCount();
+        assertEquals(this._meterCount, meterCount, "The meter count should match the value returned by getMeterCount().");
     }
 
     @Test
     void testGetMeterId()
     {
-        String expectedMeterId = this._meterId;
-        _reading.setMeterId(expectedMeterId);
-        String actualMeterId = _reading.getMeterId();
-        assertEquals(expectedMeterId, actualMeterId, "The meter ID should match the value returned by getMeterId().");
+        String meterId = this._reading.getMeterId();
+        assertEquals(this._meterId, meterId, "The meter ID should match the value returned by getMeterId().");
     }
 
     @Test
     void testGetSubstitute()
     {
-        boolean expectedSubstitute = this._substitute;
-        _reading.setSubstitute(expectedSubstitute);
-        boolean actualSubstitute = _reading.getSubstitute();
-        assertTrue(actualSubstitute, "The substitute flag should be true when returned by getSubstitute().");
+        boolean newSubstituteTrue = true;
+        this._reading.setSubstitute(newSubstituteTrue);
+        assertTrue(this._reading.getSubstitute(), "The substitute flag should return true.");
+
+        boolean newSubstituteFalse = false;
+        this._reading.setSubstitute(newSubstituteFalse);
+        assertFalse(this._reading.getSubstitute(), "The substitute flag should return false.");
     }
 
     @Test
     void testGetId()
     {
-        int expectedId = this._id;
-        _reading.setId(expectedId);
-        int actualId = _reading.getId();
-        assertEquals(expectedId, actualId, "The ID should match the value returned by getId().");
+        UUID id = this._reading.getId();
+        assertEquals(this._id, id, "The ID should match the value returned by getId().");
     }
 }
