@@ -2,6 +2,7 @@ package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IReading;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -22,24 +23,28 @@ public class Reading implements IReading
         this._id = UUID.randomUUID();
     }
 
+    @Nullable
     @Override
     public String getComment()
     {
         return this._comment;
     }
 
+    @Nullable
     @Override
     public ICustomer getCustomer()
     {
         return this._customer;
     }
 
+    @Nullable
     @Override
     public LocalDate getDateOfReading()
     {
         return this._dateOfReading;
     }
 
+    @Nullable
     @Override
     public KindOfMeter getKindOfMeter()
     {
@@ -52,6 +57,7 @@ public class Reading implements IReading
         return this._meterCount;
     }
 
+    @Nullable
     @Override
     public String getMeterId()
     {
