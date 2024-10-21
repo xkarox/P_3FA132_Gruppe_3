@@ -20,9 +20,6 @@ public class DatabaseConnectionTest
     private final String _mockSqlSchema = "id INT PRIMARY KEY," +
             "name VARCHAR (50)," +
             "age INT";
-    private final String expectedSchema = "CREATE TABLE "
-            + _mockTableName + " ("
-            + _mockSqlSchema + ");";
 
     private DatabaseConnection _dbConnection;
 
