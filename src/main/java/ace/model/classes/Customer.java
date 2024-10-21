@@ -4,7 +4,6 @@ import ace.model.interfaces.ICustomer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.UUID;
 
 public class Customer implements ICustomer
@@ -17,8 +16,8 @@ public class Customer implements ICustomer
 
     public Customer()
     {
-        this.id = UUID.randomUUID();
-        this.gender = Gender.U;
+        this._id = UUID.randomUUID();
+        this._gender = Gender.U;
     }
 
     // Constructor for initializing a customer from the database
