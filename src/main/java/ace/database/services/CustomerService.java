@@ -32,7 +32,7 @@ public class CustomerService extends AbstractBaseService<Customer>
             }
             catch (Exception e)
             {
-                throw new RuntimeException("An Error occurred when trying to insert a  new item into the Customers table.");
+                throw new RuntimeException("An Error occurred when trying to insert a new item into the Customers table.");
             }
         }
         return item;
@@ -41,7 +41,18 @@ public class CustomerService extends AbstractBaseService<Customer>
     @Override
     public Customer getById(UUID id)
     {
-        return null;
+        if (id == null) {
+            throw new RuntimeException("Id is null and cannot be a searching criteria.");
+        }
+
+        if (this._dbConnection != null) {
+            try {
+                // String sqlStatement = waiting for getAllData method from adri
+            }
+            catch (Exception e) {
+                throw new RuntimeException("An Error occurred when trying to get a Customer by Id");
+            }
+        }
     }
 
     @Override
