@@ -15,13 +15,10 @@ public class Customer implements ICustomer
     private LocalDate _birthDate;
     private Gender _gender;
 
-    public Customer(String firstName, String lastName, LocalDate birthDate, Gender gender)
+    public Customer()
     {
-        this._id = UUID.randomUUID();
-        this._firstName = firstName;
-        this._lastName = lastName;
-        this._birthDate = birthDate;
-        this._gender = Objects.requireNonNullElse(gender, Gender.U);
+        this.id = UUID.randomUUID();
+        this.gender = Gender.U;
     }
 
     // Constructor for initializing a customer from the database

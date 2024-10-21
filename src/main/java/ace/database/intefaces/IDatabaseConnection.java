@@ -1,4 +1,4 @@
-package ace.model.interfaces;
+package ace.database.intefaces;
 
 import java.util.Properties;
 
