@@ -1,4 +1,4 @@
-package ace.model.classes.mocks;
+package ace.database.mocks;
 
 import ace.model.interfaces.IDbItem;
 
