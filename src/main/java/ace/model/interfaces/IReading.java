@@ -2,11 +2,11 @@ package ace.model.interfaces;
 
 import java.time.LocalDate;
 
-public interface IReading extends IId
+public interface IReading extends IId, IDbItem
 {
 
    enum KindOfMeter {
-      HEIZUNG, STROM, UNBEKANNT, WASSER;
+      HEIZUNG, STROM, UNBEKANNT, WASSER
    }
 
    String getComment();

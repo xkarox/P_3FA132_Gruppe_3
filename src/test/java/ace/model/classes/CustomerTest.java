@@ -1,6 +1,5 @@
 package ace.model.classes;
 
-import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.ICustomer.Gender;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -123,5 +122,23 @@ public class CustomerTest
         assertNotNull(this._customer.getId(), "ID should not be null after setting a new ID");
 
         assertThrows(IllegalArgumentException.class, () -> this._customer.setId(null), "setID should throw an IllegalArgumentException when setting a null ID");
+    }
+
+    @Test
+    void testGetSerializedStructure()
+    {
+        String expectedStructure = "";
+        expectedStructure += "id UUID PRIMARY KEY NOT NULL,";
+        expectedStructure += "firstName VARCHAR(120) NOT NULL,";
+        expectedStructure += "lastName VARCHAR(120) NOT NULL,";
+        expectedStructure += "birthDate DATE NOT NULL,";
+        expectedStructure += "gender VARCHAR(1) NOT NULL";
+        assertEquals(expectedStructure, this._customer.getSerializedStructure());
+    }
+
+    @Test
+    void testGetSerializedTableName()
+    {
+        assertEquals("customer", this._customer.getSerializedTableName());
     }
 }

@@ -176,4 +176,26 @@ public class ReadingTest
         UUID id = this._reading.getId();
         assertEquals(this._id, id, "The ID should match the value returned by getId().");
     }
+
+    @Test
+    void testGetSerializedStructure()
+    {
+        String expectedStructure = "";
+        expectedStructure += "id UUID PRIMARY KEY NOT NULL,";
+        expectedStructure += "comment VARCHAR(120),";
+        expectedStructure += "customerId UUID NOT NULL,";
+        expectedStructure += "dateOfReading DATE NOT NULL,";
+        expectedStructure += "kindOfMeter VARCHAR(10) NOT NULL,"; // Longest element in enum is 9 chars long
+        expectedStructure += "meterCount REAL NOT NULL,";
+        expectedStructure += "meterId VARCHAR(60) NOT NULL,"; // Check length
+        expectedStructure += "substitute BOOLEAN NOT NULL";
+
+        assertEquals(expectedStructure, this._reading.getSerializedStructure());
+    }
+
+    @Test
+    void testGetSerializedTableName()
+    {
+        assertEquals("reading", this._reading.getSerializedTableName());
+    }
 }

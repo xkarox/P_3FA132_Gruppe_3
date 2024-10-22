@@ -133,4 +133,26 @@ public class Reading implements IReading
         }
         this._id = id;
     }
+
+    @Override
+    public String getSerializedStructure()
+    {
+        String structure = "";
+        structure += "id UUID PRIMARY KEY NOT NULL,";
+        structure += "comment VARCHAR(120),";
+        structure += "customerId UUID NOT NULL,";
+        structure += "dateOfReading DATE NOT NULL,";
+        structure += "kindOfMeter VARCHAR(10) NOT NULL,"; // Longest element in enum is 9 chars long
+        structure += "meterCount REAL NOT NULL,";
+        structure += "meterId VARCHAR(60) NOT NULL,"; // Check length
+        structure += "substitute BOOLEAN NOT NULL";
+//        structure += "FOREIGN KEY(customerId) REFERENCES customer(id)";
+        return structure;
+    }
+
+    @Override
+    public String getSerializedTableName()
+    {
+        return "reading";
+    }
 }
