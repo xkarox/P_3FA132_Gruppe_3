@@ -104,13 +104,13 @@ public class Customer implements ICustomer
     @Override
     public String getSerializedStructure()
     {
-        String structure = "";
-        structure += "id UUID PRIMARY KEY NOT NULL,";
-        structure += "firstName VARCHAR(120) NOT NULL,";
-        structure += "lastName VARCHAR(120) NOT NULL,";
-        structure += "birthDate DATE NOT NULL,";
-        structure += "gender VARCHAR(1) NOT NULL";
-        return structure;
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append("id UUID PRIMARY KEY NOT NULL,");
+        strBuilder.append("firstName VARCHAR(120) NOT NULL,");
+        strBuilder.append("lastName VARCHAR(120) NOT NULL,");
+        strBuilder.append("birthDate DATE NOT NULL,");
+        strBuilder.append("gender VARCHAR(1) NOT NULL");
+        return strBuilder.toString();
     }
 
     @Override
