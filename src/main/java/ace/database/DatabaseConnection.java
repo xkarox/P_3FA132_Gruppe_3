@@ -76,7 +76,6 @@ public class DatabaseConnection implements IDatabaseConnection
         for (String tableName : tableNames)
         {
             String sql = "TRUNCATE TABLE " + tableName;
-            executeSqlUpdateCommand(sql, 0);
         }
     }
 
@@ -150,6 +149,17 @@ public class DatabaseConnection implements IDatabaseConnection
             int result = stmt.executeUpdate(sql);
             utils.checkValueEquals(result, expectedLinesAffected, ErrorMessages.SqlUpdate);
             return result;
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResultSet executeSqlQueryCommand(String sql)
+    {
+        try (Statement stmt = this.getConnection().createStatement())
+        {
+            return stmt.executeQuery(sql);
         } catch (SQLException e)
         {
             throw new RuntimeException(e);
