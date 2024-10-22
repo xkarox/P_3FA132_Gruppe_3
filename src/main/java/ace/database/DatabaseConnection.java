@@ -102,7 +102,7 @@ public class DatabaseConnection implements IDatabaseConnection
         try
         {
             DatabaseMetaData metaData = getConnection().getMetaData();
-            ResultSet tables = metaData.getTables(null, null, "%", new String[]{"TABLE"});
+            ResultSet tables = metaData.getTables("homeautomation_test", null, "%", new String[]{"TABLE"});
 
             while (tables.next())
             {

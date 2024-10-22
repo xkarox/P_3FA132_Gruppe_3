@@ -75,14 +75,14 @@ public class DatabaseConnectionTest
             throw new RuntimeException(e);
         }
 
-        try (ResultSet tables = metaData.getTables(null, null, "%", new String[] { "TABLE" }))
+        try (ResultSet tables = metaData.getTables("homeautomation_test", null, "%", new String[] { "TABLE" }))
         {
             while (tables.next())
             {
                 String tableName = tables.getString("TABLE_NAME");
                 assertEquals(this._mockTableName, tableName);
 
-                try (ResultSet columns = metaData.getColumns(null, null, tableName, "%"))
+                try (ResultSet columns = metaData.getColumns("homeautomation_test", null, tableName, "%"))
                 {
                     int column = 0;
                     List<String> mockColumns = List.of(this._mockSqlSchema.split(","));
