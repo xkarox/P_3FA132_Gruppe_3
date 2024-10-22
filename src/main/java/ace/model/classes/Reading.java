@@ -1,6 +1,7 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.IDbItem;
 import ace.model.interfaces.IReading;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -132,6 +133,12 @@ public class Reading implements IReading
             throw new IllegalArgumentException("ID cannot be null");
         }
         this._id = id;
+    }
+
+    @Override
+    public IDbItem dbObjectFactory(Object... args)
+    {
+        return null;
     }
 
     @Override
