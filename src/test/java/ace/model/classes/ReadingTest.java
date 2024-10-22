@@ -18,15 +18,14 @@ public class ReadingTest
     private Customer _customer;
     private final LocalDate _dateOfReading = LocalDate.now();
     private final KindOfMeter _kindOfMeter = KindOfMeter.STROM;
-    private final double _meterCount = 1234.56;;
+    private final double _meterCount = 1234.56;
     private final String _meterId = "METER-123";
-    private final boolean _substitute = true;
     private final UUID _id = UUID.randomUUID();
 
     @BeforeEach
     public void setUp()
     {
-        this._customer = new Customer("John", "Doe", LocalDate.now(), Gender.M);
+        this._customer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M);
         this._reading = new Reading();
         this._reading.setComment(this._comment);
         this._reading.setCustomer(this._customer);
@@ -34,7 +33,7 @@ public class ReadingTest
         this._reading.setKindOfMeter(this._kindOfMeter);
         this._reading.setMeterCount(this._meterCount);
         this._reading.setMeterId(this._meterId);
-        this._reading.setSubstitute(this._substitute);
+        this._reading.setSubstitute(true);
         this._reading.setId(this._id);
 
 
@@ -52,7 +51,7 @@ public class ReadingTest
     @Test
     void testSetCustomer()
     {
-        Customer newCustomer = new Customer("Max", "Mueller", LocalDate.of(2000, 1, 1), Gender.M);
+        Customer newCustomer = new Customer(UUID.randomUUID(),"Max", "Mueller", LocalDate.of(2000, 1, 1), Gender.M);
         _reading.setCustomer(newCustomer);
         ICustomer customer = _reading.getCustomer();
         assertEquals(newCustomer, customer, "The customer should match the value set by setCustomer().");
