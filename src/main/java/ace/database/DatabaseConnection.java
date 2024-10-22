@@ -14,23 +14,33 @@ import java.util.Properties;
 public class DatabaseConnection implements IDatabaseConnection
 {
     private Connection _connection;
-    private final DbHelperService _helperService = new DbHelperService();
+    private DbHelperService _helperService;
 
     public Connection getConnection()
     {
-        if (this._connection == null)
+        if (this._connection == null){
             throw new RuntimeException("Connection not initialised");
+        }
         return _connection;
+    }
+
+    public void setHelperService(DbHelperService helperService)
+    {
+        this._helperService = helperService;
+    }
+
+    public DatabaseConnection(){
+        setHelperService(new DbHelperService());
     }
 
     @Override
     public IDatabaseConnection openConnection(Properties properties)
     {
-        String localUserName = System.getProperty("user.name");
+        String localUserName = System.getProperty("user.name").toLowerCase();
 
-        String url = properties.getProperty(localUserName + "db.url");
-        String user = properties.getProperty(localUserName + "db.user");
-        String password = properties.getProperty(localUserName + "db.password");
+        String url = "jdbc:mariadb://" + properties.getProperty(localUserName + ".db.url");
+        String user = properties.getProperty(localUserName + ".db.user");
+        String password = properties.getProperty(localUserName + ".db.pw");
 
         try {
             _connection = DriverManager.getConnection(url, user, password);
@@ -38,7 +48,8 @@ public class DatabaseConnection implements IDatabaseConnection
             {
                 throw new RuntimeException("Could not initialise connection");
             }
-        } catch (SQLException e) // Could not connect to db
+        }
+        catch (SQLException e) // Could not connect to db
         {
             throw new RuntimeException(e);
         }
@@ -71,14 +82,20 @@ public class DatabaseConnection implements IDatabaseConnection
     public void removeAllTables()
     {
         List<String> tableNames = getAllTableNames();
+
+        // Deactivate foreign key checks for dropping
+        executeSqlCommand("SET FOREIGN_KEY_CHECKS = 0");
         for (String tableName : tableNames)
         {
             String sql = "DROP TABLE IF EXISTS " + tableName;
             executeSqlUpdateCommand(sql);
         }
+
+        // Activate foreign key checks
+        executeSqlCommand("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-    private List<String> getAllTableNames()
+    public List<String> getAllTableNames()
     {
         List<String> tableNames = new ArrayList<>();
 
@@ -92,7 +109,8 @@ public class DatabaseConnection implements IDatabaseConnection
                 String tableName = tables.getString("TABLE_NAME");
                 tableNames.add(tableName);
             }
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
