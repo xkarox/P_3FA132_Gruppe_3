@@ -2,7 +2,7 @@ package ace.model.interfaces;
 
 import java.time.LocalDate;
 
-public interface ICustomer extends IId
+public interface ICustomer extends IId, IDbItem
 {
 
    enum Gender
@@ -10,7 +10,7 @@ public interface ICustomer extends IId
       D, // divers
       M, // männlich
       U, // unbekannt
-      W; // weiblich
+      W // weiblich
    }
 
    LocalDate getBirthDate();
