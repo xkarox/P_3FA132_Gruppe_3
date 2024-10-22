@@ -1,6 +1,8 @@
 package ace.database;
 
+import ace.ErrorMessages;
 import ace.database.intefaces.IDatabaseConnection;
+import ace.utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -63,7 +65,7 @@ public class DatabaseConnection implements IDatabaseConnection
         List<String> tablesCommands = this._helperService.createSqlTableSchemaCommands();
         for (String createTableCommand : tablesCommands)
         {
-            executeSqlUpdateCommand(createTableCommand);
+            executeSqlUpdateCommand(createTableCommand, 0);
         }
     }
 
@@ -74,7 +76,6 @@ public class DatabaseConnection implements IDatabaseConnection
         for (String tableName : tableNames)
         {
             String sql = "TRUNCATE TABLE " + tableName;
-            executeSqlUpdateCommand(sql);
         }
     }
 
@@ -84,15 +85,15 @@ public class DatabaseConnection implements IDatabaseConnection
         List<String> tableNames = getAllTableNames();
 
         // Deactivate foreign key checks for dropping
-        executeSqlCommand("SET FOREIGN_KEY_CHECKS = 0");
+        executeSqlUpdateCommand("SET FOREIGN_KEY_CHECKS = 0", 0);
         for (String tableName : tableNames)
         {
             String sql = "DROP TABLE IF EXISTS " + tableName;
-            executeSqlUpdateCommand(sql);
+            executeSqlUpdateCommand(sql, 0);
         }
 
         // Activate foreign key checks
-        executeSqlCommand("SET FOREIGN_KEY_CHECKS = 1");
+        executeSqlUpdateCommand("SET FOREIGN_KEY_CHECKS = 1", 0);
     }
 
     public List<String> getAllTableNames()
@@ -130,11 +131,35 @@ public class DatabaseConnection implements IDatabaseConnection
         }
     }
 
-    public void executeSqlUpdateCommand(String sql)
+    public int executeSqlUpdateCommand(String sql)
     {
         try (Statement stmt = this.getConnection().createStatement())
         {
-            stmt.executeUpdate(sql);
+            return stmt.executeUpdate(sql);
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int executeSqlUpdateCommand(String sql, int expectedLinesAffected)
+    {
+        try (Statement stmt = this.getConnection().createStatement())
+        {
+            int result = stmt.executeUpdate(sql);
+            utils.checkValueEquals(result, expectedLinesAffected, ErrorMessages.SqlUpdate);
+            return result;
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResultSet executeSqlQueryCommand(String sql)
+    {
+        try (Statement stmt = this.getConnection().createStatement())
+        {
+            return stmt.executeQuery(sql);
         } catch (SQLException e)
         {
             throw new RuntimeException(e);

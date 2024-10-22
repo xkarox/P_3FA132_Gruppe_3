@@ -175,12 +175,30 @@ public class DatabaseConnectionTest
         }
     }
 
+    @Test
+    @Order(7)
+    @Tag("createMockHelperService")
+    void executeSqlUpdateCommandTest()
+    {
+        this._dbConnection.createAllTables();
+
+        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this._mockTableName, 1, "t1", 111);
+        int result = this._dbConnection.executeSqlUpdateCommand(createMockCommand, 1);
+        assertEquals(1, result, "Because one line should be affected");
+
+        createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d), ('%d', '%s', '%d')", this._mockTableName,
+                2, "t2", 222,
+                3, "t3", 333);
+        result = this._dbConnection.executeSqlUpdateCommand(createMockCommand);
+        assertEquals(2, result, "Because two line should be affected");
+    }
+
     private void createTestData(DatabaseConnection dbConnection){
         int mockId = 666;
         String mockName = "John Doe";
         int mockAge = 99;
         String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this._mockTableName, mockId, mockName, mockAge);
-        dbConnection.executeSqlCommand(createMockCommand);
+        dbConnection.executeSqlUpdateCommand(createMockCommand, 1);
 
         String[][] tableData = getTableData(dbConnection, this._mockTableName);
         assertEquals(1, tableData.length, "Because there should be one object in the mock table");
