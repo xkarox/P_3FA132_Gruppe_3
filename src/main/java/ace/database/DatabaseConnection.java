@@ -63,7 +63,7 @@ public class DatabaseConnection implements IDatabaseConnection
         List<String> tablesCommands = this._helperService.createSqlTableSchemaCommands();
         for (String createTableCommand : tablesCommands)
         {
-            executeSqlCommand(createTableCommand);
+            executeSqlUpdateCommand(createTableCommand);
         }
     }
 
@@ -74,7 +74,7 @@ public class DatabaseConnection implements IDatabaseConnection
         for (String tableName : tableNames)
         {
             String sql = "TRUNCATE TABLE " + tableName;
-            executeSqlCommand(sql);
+            executeSqlUpdateCommand(sql);
         }
     }
 
@@ -88,7 +88,7 @@ public class DatabaseConnection implements IDatabaseConnection
         for (String tableName : tableNames)
         {
             String sql = "DROP TABLE IF EXISTS " + tableName;
-            executeSqlCommand(sql);
+            executeSqlUpdateCommand(sql);
         }
 
         // Activate foreign key checks
@@ -130,11 +130,22 @@ public class DatabaseConnection implements IDatabaseConnection
         }
     }
 
-    public void executeSqlCommand(String sql)
+    public void executeSqlUpdateCommand(String sql)
     {
         try (Statement stmt = this.getConnection().createStatement())
         {
             stmt.executeUpdate(sql);
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResultSet executeSqlQueryCommand(String sql)
+    {
+        try (Statement stmt = this.getConnection().createStatement())
+        {
+            return stmt.executeQuery(sql);
         } catch (SQLException e)
         {
             throw new RuntimeException(e);
