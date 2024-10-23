@@ -26,6 +26,7 @@ public class CustomerService extends AbstractBaseService<Customer>
         {
             try
             {
+                String tableName = item.getSerializedTableName();
                 String sqlStatement = "INSERT INTO Customers (id, firstName, lastName, birthDate, gender) " +
                         "VALUES (?, ?, ?, ?, ?);";
             }
