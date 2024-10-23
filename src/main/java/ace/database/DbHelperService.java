@@ -29,13 +29,7 @@ public class DbHelperService
         {
             String columnDefinition = table.getSerializedStructure();
             String tableName = table.getSerializedTableName();
-
-            String createStatement = "CREATE TABLE "
-                    + tableName
-                    + " ("
-                    + columnDefinition
-                    + ");";
-
+            String createStatement = String.format("CREATE TABLE %s (%s);", tableName, columnDefinition);
             commands.add(createStatement);
         }
 

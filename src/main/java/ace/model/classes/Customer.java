@@ -1,6 +1,7 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.IDbItem;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
@@ -99,6 +100,12 @@ public class Customer implements ICustomer
             throw new IllegalArgumentException("ID cannot be null");
         }
         this._id = id;
+    }
+
+    @Override
+    public IDbItem dbObjectFactory(Object... args)
+    {
+        return this;
     }
 
     @Override
