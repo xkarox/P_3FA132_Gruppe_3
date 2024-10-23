@@ -116,7 +116,7 @@ public class Customer implements ICustomer
         strBuilder.append("firstName VARCHAR(120) NOT NULL,");
         strBuilder.append("lastName VARCHAR(120) NOT NULL,");
         strBuilder.append("birthDate DATE NOT NULL,");
-        strBuilder.append("gender VARCHAR(1) NOT NULL");
+        strBuilder.append("gender int NOT NULL");
         return strBuilder.toString();
     }
 

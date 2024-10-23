@@ -149,7 +149,7 @@ public class Reading implements IReading
         strBuilder.append("comment VARCHAR(120),");
         strBuilder.append("customerId UUID NOT NULL,");
         strBuilder.append("dateOfReading DATE NOT NULL,");
-        strBuilder.append("kindOfMeter VARCHAR(10) NOT NULL,"); // Longest element in enum is 9 chars long
+        strBuilder.append("kindOfMeter int NOT NULL,"); // Longest element in enum is 9 chars long
         strBuilder.append("meterCount REAL NOT NULL,");
         strBuilder.append("meterId VARCHAR(60) NOT NULL,"); // Check length
         strBuilder.append("substitute BOOLEAN NOT NULL");
