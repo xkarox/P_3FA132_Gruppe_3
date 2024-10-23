@@ -26,6 +26,8 @@ public class CustomerServiceTest
 
         Customer customerFromDb = this._customerService.getById(this._testCustomer.getId());
 
+        assertNotNull(customerFromDb, "Customer should not be null after being added to the database.");
+
         assertEquals(_testCustomer.getId(), customerFromDb.getId(),
                 new StringBuilder()
                         .append("Customer ID mismatch. ")
