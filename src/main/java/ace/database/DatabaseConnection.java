@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.*;
 
 public class DatabaseConnection implements IDatabaseConnection
@@ -203,6 +204,15 @@ public class DatabaseConnection implements IDatabaseConnection
                         args.add(result.getInt(fieldInfo.FieldName));
                     }
                     if (fieldInfo.FieldType == UUID.class){
+                        args.add(result.getString(fieldInfo.FieldName));
+                    }
+                    if (fieldInfo.FieldType == LocalDate.class){
+                        args.add(result.getString(fieldInfo.FieldName));
+                    }
+                    if (fieldInfo.FieldType == Boolean.class){
+                        args.add(result.getBoolean(fieldInfo.FieldName));
+                    }
+                    if (fieldInfo.FieldType == Double.class){
                         args.add(result.getString(fieldInfo.FieldName));
                     }
                 }

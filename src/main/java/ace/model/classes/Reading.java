@@ -7,6 +7,7 @@ import ace.model.interfaces.IReading;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class Reading implements IReading
@@ -19,7 +20,7 @@ public class Reading implements IReading
     private Customer _customer;
     @IFieldInfo(fieldName = "dateOfReading", fieldType = LocalDate.class)
     private LocalDate _dateOfReading;
-    @IFieldInfo(fieldName = "kindOfMeter", fieldType = String.class)
+    @IFieldInfo(fieldName = "kindOfMeter", fieldType = int.class)
     private KindOfMeter _kindOfMeter;
     @IFieldInfo(fieldName = "meterCount", fieldType = Double.class)
     private Double _meterCount;
@@ -147,7 +148,18 @@ public class Reading implements IReading
     @Override
     public IDbItem dbObjectFactory(Object... args)
     {
-        return null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse((String) args[3], formatter);
+
+        this._id = UUID.fromString((String) args[0]);
+        this._comment = (String) args[1];
+        this._customer = null; // ToDo: implement CustomerService
+        this._dateOfReading = date;
+        this._kindOfMeter = IReading.KindOfMeter.values() [(int) args[4]];
+        this._meterCount = Double.parseDouble((String) args[5]);
+        this._meterId = (String) args[6];
+        this._substitute = (Boolean) args[7];
+        return this;
     }
 
     @Override

@@ -6,6 +6,7 @@ import ace.model.interfaces.IDbItem;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class Customer implements ICustomer
@@ -111,6 +112,14 @@ public class Customer implements ICustomer
     @Override
     public IDbItem dbObjectFactory(Object... args)
     {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse((String) args[3], formatter);
+
+        this._id = UUID.fromString((String) args[0]);
+        this._firstName = (String) args[1];
+        this._lastName = (String) args[2];
+        this._birthDate = date;
+        this._gender = Gender.values() [(int) args[4]];
         return this;
     }
 
