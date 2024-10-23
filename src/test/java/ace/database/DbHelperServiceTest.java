@@ -15,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class DbHelperServiceTest
 {
     private final MockTableObject mockData = new MockTableObject();
-    private final String _expectedSchema = "CREATE TABLE " + this.mockData.getSerializedTableName() + " (" + this.mockData.getSerializedStructure() + ");";
+    private final String _expectedSchema = String.format("CREATE TABLE %s (%s);",
+            this.mockData.getSerializedTableName(), this.mockData.getSerializedStructure());
 
     @Test
     void testCreateSqlSchema()

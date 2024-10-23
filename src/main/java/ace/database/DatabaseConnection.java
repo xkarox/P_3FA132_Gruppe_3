@@ -175,11 +175,11 @@ public class DatabaseConnection implements IDatabaseConnection
         }
     }
 
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object)
+    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause)
     {
         var tClass = object.getClass();
         List<FieldInfo> fieldInfos = FieldInfo.getFieldInformationFromClass(tClass);
-        String queryCommand = String.format("SELECT * FROM %s;", object.getSerializedTableName());
+        String queryCommand = String.format("SELECT * FROM %s %s;", object.getSerializedTableName(), sqlWhereClause);
 
         List<IDbItem> results = new ArrayList<>();
 
@@ -209,4 +209,19 @@ public class DatabaseConnection implements IDatabaseConnection
 
         return results;
     }
+
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object){
+        return getObjectsFromDbTable(object, "");
+    }
+
+    /**
+     * Prints the information of a person.
+     *
+     * @param sqlWhereClause    Sql where statement, starts with: Where ...
+     */
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause){
+        return getObjectsFromDbTable(object, sqlWhereClause);
+
+    }
+
 }
