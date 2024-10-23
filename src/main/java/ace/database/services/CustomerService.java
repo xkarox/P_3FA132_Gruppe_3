@@ -2,57 +2,57 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
+import ace.model.decorator.FieldInfo;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class CustomerService extends AbstractBaseService<Customer>
-{
-    private static final String dbURL = "";
-    private static final String dbUser = "";
-    private static final String dbPassword = "";
-
-    protected CustomerService(DatabaseConnection dbConnection)
-    {
+public class CustomerService extends AbstractBaseService<Customer> {
+    protected CustomerService(DatabaseConnection dbConnection) {
         super(dbConnection);
     }
 
+
     @Override
-    public Customer add(Customer item)
-    {
+    public Customer add(Customer item) {
         if (item == null) {
             throw new RuntimeException("Customer is null and cannot be inserted.");
         }
-        if (this._dbConnection != null)
-        {
-            try
-            {
-                String tableName = item.getSerializedTableName();
-                String sqlStatement = "INSERT INTO Customers (id, firstName, lastName, birthDate, gender) " +
-                        "VALUES (?, ?, ?, ?, ?);";
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException("An Error occurred when trying to insert a new item into the Customers table.");
-            }
+
+        String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
+                " (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?);";
+
+        try (Connection connection = this._dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
+
+            statement.setObject(1, item.getId());
+            statement.setString(2, item.getFirstName());
+            statement.setString(3, item.getLastName());
+            statement.setDate(4, Date.valueOf(item.getBirthDate()));
+            statement.setString(5, item.getGender().toString());
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage(), e);
         }
+
         return item;
     }
 
     @Override
-    public Customer getById(UUID id)
-    {
+    public Customer getById(UUID id) {
         return null;
     }
 
     @Override
-    public Customer update(Customer item)
-    {
+    public Customer update(Customer item) {
         return null;
     }
 
     @Override
-    public void remove(Customer item)
-    {
+    public void remove(Customer item) {
 
     }
 }
