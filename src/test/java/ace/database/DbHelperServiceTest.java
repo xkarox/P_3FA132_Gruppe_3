@@ -1,6 +1,6 @@
 package ace.database;
 
-import ace.database.mocks.DbItemMock;
+import ace.database.mocks.MockTableObject;
 import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.Test;
 
@@ -14,15 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DbHelperServiceTest
 {
-    private final String _tableName = "Testing";
-    private final String _sqlSchema = "id INT PRIMARY KEY," + "name VARCHAR(50)," + "age INT";
-    private final String _expectedSchema = "CREATE TABLE " + this._tableName + " (" + this._sqlSchema + ");";
+    private final MockTableObject mockData = new MockTableObject();
+    private final String _expectedSchema = String.format("CREATE TABLE %s (%s);",
+            this.mockData.getSerializedTableName(), this.mockData.getSerializedStructure());
 
     @Test
     void testCreateSqlSchema()
     {
-        IDbItem mockTable = new DbItemMock(this._sqlSchema, this._tableName);
-        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{add(mockTable);}});
+        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{add(mockData);}});
 
         List<String> tableSchemas = dbHelperService.createSqlTableSchemaCommands();
         assertEquals(1, tableSchemas.size(), "The list should contain one schema");
@@ -33,11 +32,13 @@ public class DbHelperServiceTest
     void testCreateMultipleSchemas()
     {
         String secondTableName = "Testing1";
-        String secondSqlSchema = "id INT PRIMARY KEY," + "name VARCHAR(100)," + "age DOUBLE";
+        String secondSqlSchema = "id INT PRIMARY KEY, name VARCHAR(100), age DOUBLE";
         String secondExpectedSchema = "CREATE TABLE " + secondTableName + " (" + secondSqlSchema + ");";
 
-        IDbItem mockTable = new DbItemMock(this._sqlSchema, this._tableName);
-        IDbItem secondMockTable = new DbItemMock(secondSqlSchema, secondTableName);
+        MockTableObject mockTable = new MockTableObject();
+        MockTableObject secondMockTable = new MockTableObject();
+        secondMockTable.testSetSchema(secondSqlSchema);
+        secondMockTable.testSetTableName(secondTableName);
 
         DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{
             add(mockTable);
@@ -59,9 +60,8 @@ public class DbHelperServiceTest
         String user = "test";
         String pw = "1243#+09?";
 
-        String content = localUserName + ".db.url = " + url + "\n"
-                + localUserName + ".db.user = " + user + "\n"
-                + localUserName + ".db.pw = " + pw;
+        String content = String.format("%s.db.url = %s\n%s.db.user = %s\n%s.db.pw = %s",
+                localUserName, url, localUserName, user, localUserName, pw);
 
         InputStream inputStream = new ByteArrayInputStream(content.getBytes());
         Properties properties = DbHelperService.loadProperties(inputStream);

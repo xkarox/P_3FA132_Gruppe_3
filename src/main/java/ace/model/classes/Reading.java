@@ -1,6 +1,7 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.IDbItem;
 import ace.model.interfaces.IReading;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -132,5 +133,33 @@ public class Reading implements IReading
             throw new IllegalArgumentException("ID cannot be null");
         }
         this._id = id;
+    }
+
+    @Override
+    public IDbItem dbObjectFactory(Object... args)
+    {
+        return null;
+    }
+
+    @Override
+    public String getSerializedStructure()
+    {
+        String structure = "";
+        structure += "id UUID PRIMARY KEY NOT NULL,";
+        structure += "comment VARCHAR(120),";
+        structure += "customerId UUID NOT NULL,";
+        structure += "dateOfReading DATE NOT NULL,";
+        structure += "kindOfMeter VARCHAR(10) NOT NULL,"; // Longest element in enum is 9 chars long
+        structure += "meterCount REAL NOT NULL,";
+        structure += "meterId VARCHAR(60) NOT NULL,"; // Check length
+        structure += "substitute BOOLEAN NOT NULL";
+//        structure += "FOREIGN KEY(customerId) REFERENCES customer(id)";
+        return structure;
+    }
+
+    @Override
+    public String getSerializedTableName()
+    {
+        return "reading";
     }
 }

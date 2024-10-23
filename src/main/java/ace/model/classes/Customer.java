@@ -1,6 +1,7 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.IDbItem;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
@@ -99,5 +100,29 @@ public class Customer implements ICustomer
             throw new IllegalArgumentException("ID cannot be null");
         }
         this._id = id;
+    }
+
+    @Override
+    public IDbItem dbObjectFactory(Object... args)
+    {
+        return this;
+    }
+
+    @Override
+    public String getSerializedStructure()
+    {
+        String structure = "";
+        structure += "id UUID PRIMARY KEY NOT NULL,";
+        structure += "firstName VARCHAR(120) NOT NULL,";
+        structure += "lastName VARCHAR(120) NOT NULL,";
+        structure += "birthDate DATE NOT NULL,";
+        structure += "gender VARCHAR(1) NOT NULL";
+        return structure;
+    }
+
+    @Override
+    public String getSerializedTableName()
+    {
+        return "customer";
     }
 }
