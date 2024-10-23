@@ -13,10 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class DatabaseConnection implements IDatabaseConnection
 {
@@ -39,6 +36,10 @@ public class DatabaseConnection implements IDatabaseConnection
 
     public DatabaseConnection(){
         setHelperService(new DbHelperService());
+    }
+
+    public DatabaseConnection(List<IDbItem> tables){
+        setHelperService(new DbHelperService(tables));
     }
 
     @Override
@@ -66,6 +67,12 @@ public class DatabaseConnection implements IDatabaseConnection
 
         return this;
     }
+
+    public IDatabaseConnection openConnection(){
+        return this.openConnection(DbHelperService.loadProperties());
+    }
+
+
 
     @Override
     public void createAllTables()
@@ -194,6 +201,9 @@ public class DatabaseConnection implements IDatabaseConnection
                     }
                     if (fieldInfo.FieldType == int.class){
                         args.add(result.getInt(fieldInfo.FieldName));
+                    }
+                    if (fieldInfo.FieldType == UUID.class){
+                        args.add(result.getString(fieldInfo.FieldName));
                     }
                 }
 

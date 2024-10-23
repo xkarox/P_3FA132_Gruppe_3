@@ -41,7 +41,7 @@ public class DbHelperService
         Properties properties;
 
         Path currentPath = Paths.get(System.getProperty("user.dir"));
-        Path filePath = currentPath.resolve("src\\main\\java\\resources\\properties.config");
+        Path filePath = currentPath.resolve("config\\properties.config");
 
         try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath()))) {
             properties = loadProperties(input);

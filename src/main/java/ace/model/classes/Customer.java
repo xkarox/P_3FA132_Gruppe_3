@@ -1,5 +1,6 @@
 package ace.model.classes;
 
+import ace.model.decorator.IFieldInfo;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IDbItem;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -9,10 +10,15 @@ import java.util.UUID;
 
 public class Customer implements ICustomer
 {
+    @IFieldInfo(fieldName = "id", fieldType = String.class)
     private UUID _id;
+    @IFieldInfo(fieldName = "firstName", fieldType = String.class)
     private String _firstName;
+    @IFieldInfo(fieldName = "lastName", fieldType = String.class)
     private String _lastName;
+    @IFieldInfo(fieldName = "birthDate", fieldType = LocalDate.class)
     private LocalDate _birthDate;
+    @IFieldInfo(fieldName = "gender", fieldType = int.class)
     private Gender _gender;
 
     public Customer()

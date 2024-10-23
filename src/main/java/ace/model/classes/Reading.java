@@ -1,5 +1,6 @@
 package ace.model.classes;
 
+import ace.model.decorator.IFieldInfo;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IDbItem;
 import ace.model.interfaces.IReading;
@@ -10,13 +11,21 @@ import java.util.UUID;
 
 public class Reading implements IReading
 {
+    @IFieldInfo(fieldName = "id", fieldType = String.class)
     private UUID _id;
+    @IFieldInfo(fieldName = "comment", fieldType = String.class)
     private String _comment;
+    @IFieldInfo(fieldName = "customerId", fieldType = String.class)
     private Customer _customer;
+    @IFieldInfo(fieldName = "dateOfReading", fieldType = LocalDate.class)
     private LocalDate _dateOfReading;
+    @IFieldInfo(fieldName = "kindOfMeter", fieldType = String.class)
     private KindOfMeter _kindOfMeter;
+    @IFieldInfo(fieldName = "meterCount", fieldType = Double.class)
     private Double _meterCount;
+    @IFieldInfo(fieldName = "meterId", fieldType = String.class)
     private String _meterId;
+    @IFieldInfo(fieldName = "substitute", fieldType = Boolean.class)
     private Boolean _substitute;
 
     public Reading()
