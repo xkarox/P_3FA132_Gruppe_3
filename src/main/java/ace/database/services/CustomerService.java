@@ -27,7 +27,25 @@ public class CustomerService extends AbstractBaseService<Customer>
     @Override
     public Customer update(Customer item)
     {
-        return null;
+        if (item.getId() == null)
+        {
+            throw new RuntimeException("Cannot update customer without id");
+        }
+        StringBuilder sb = new StringBuilder("UPDATE ");
+        sb.append(item.getSerializedTableName()).append("SET ");
+        sb.append("firstName=").append(item.getFirstName());
+        sb.append(",lastName=").append(item.getLastName());
+        sb.append(",birthDate=").append(item.getBirthDate());
+        sb.append(",gender=").append(item.getGender());
+        sb.append(" WHERE id=").append(item.getId()).append(";");
+        try
+        {
+            _dbConnection.executeSqlUpdateCommand(sb.toString(), 1);
+            return item;
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
