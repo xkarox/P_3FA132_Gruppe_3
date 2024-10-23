@@ -1,45 +1,45 @@
 package ace.database.services;
 
 import ace.database.DatabaseConnection;
-import ace.model.classes.Customer;
+import ace.model.classes.Reading;
 
 import java.util.List;
 import java.util.UUID;
 
-public class CustomerService extends AbstractBaseService<Customer>
+public class ReadingService extends AbstractBaseService<Reading>
 {
-
-    protected CustomerService(DatabaseConnection dbConnection)
+    protected ReadingService(DatabaseConnection dbConnection)
     {
         super(dbConnection);
     }
 
+
     @Override
-    public Customer add(Customer item)
+    public Reading add(Reading item)
     {
         return null;
     }
 
     @Override
-    public Customer getById(UUID id)
+    public Reading getById(UUID id)
     {
         return null;
     }
 
     @Override
-    public List<Customer> getAll()
+    public List<Reading> getAll()
     {
         return List.of();
     }
 
     @Override
-    public Customer update(Customer item)
+    public Reading update(Reading item)
     {
         return null;
     }
 
     @Override
-    public void remove(Customer item)
+    public void remove(Reading item)
     {
 
     }
