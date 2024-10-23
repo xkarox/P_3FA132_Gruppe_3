@@ -2,6 +2,8 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
+
+import java.util.List;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>
@@ -22,6 +24,12 @@ public class CustomerService extends AbstractBaseService<Customer>
     public Customer getById(UUID id)
     {
         return null;
+    }
+
+    @Override
+    public List<Customer> getAll()
+    {
+        return List.of();
     }
 
     @Override
