@@ -2,7 +2,11 @@ package ace.database;
 
 import ace.ErrorMessages;
 import ace.database.intefaces.IDatabaseConnection;
+import ace.model.decorator.FieldInfo;
+import ace.model.interfaces.IDbItem;
 import ace.utils;
+
+import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -10,6 +14,7 @@ import java.sql.Statement;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,6 +22,7 @@ public class DatabaseConnection implements IDatabaseConnection
 {
     private Connection _connection;
     private DbHelperService _helperService;
+    private String _databaseName;
 
     public Connection getConnection()
     {
@@ -43,6 +49,8 @@ public class DatabaseConnection implements IDatabaseConnection
         String url = "jdbc:mariadb://" + properties.getProperty(localUserName + ".db.url");
         String user = properties.getProperty(localUserName + ".db.user");
         String password = properties.getProperty(localUserName + ".db.pw");
+
+        this._databaseName = Arrays.asList(properties.getProperty(localUserName + ".db.url").split("/")).getLast();
 
         try {
             _connection = DriverManager.getConnection(url, user, password);
@@ -76,6 +84,7 @@ public class DatabaseConnection implements IDatabaseConnection
         for (String tableName : tableNames)
         {
             String sql = "TRUNCATE TABLE " + tableName;
+            executeSqlUpdateCommand(sql);
         }
     }
 
@@ -103,7 +112,7 @@ public class DatabaseConnection implements IDatabaseConnection
         try
         {
             DatabaseMetaData metaData = getConnection().getMetaData();
-            ResultSet tables = metaData.getTables(null, null, "%", new String[]{"TABLE"});
+            ResultSet tables = metaData.getTables(this._databaseName, null, "%", new String[]{"TABLE"});
 
             while (tables.next())
             {
@@ -166,14 +175,53 @@ public class DatabaseConnection implements IDatabaseConnection
         }
     }
 
-    public ResultSet executeSqlQueryCommand(String sql)
+    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause)
     {
-        try (Statement stmt = this.getConnection().createStatement())
+        var tClass = object.getClass();
+        List<FieldInfo> fieldInfos = FieldInfo.getFieldInformationFromClass(tClass);
+        String queryCommand = String.format("SELECT * FROM %s %s;", object.getSerializedTableName(), sqlWhereClause);
+
+        List<IDbItem> results = new ArrayList<>();
+
+        try (ResultSet result = this.executeSqlQueryCommand(queryCommand))
         {
-            return stmt.executeQuery(sql);
-        } catch (SQLException e)
+            while (result.next()) {
+                List<Object> args = new ArrayList<>();
+                for (FieldInfo fieldInfo : fieldInfos)
+                {
+                    if (fieldInfo.FieldType == String.class){
+                        args.add(result.getString(fieldInfo.FieldName));
+                    }
+                    if (fieldInfo.FieldType == int.class){
+                        args.add(result.getInt(fieldInfo.FieldName));
+                    }
+                }
+
+                Constructor<? extends IDbItem> constructor = tClass.getConstructor();
+                IDbItem newObject = constructor.newInstance();
+                newObject.dbObjectFactory(args.toArray());
+                results.add(newObject);
+            }
+        } catch (SQLException | ReflectiveOperationException e)
         {
             throw new RuntimeException(e);
         }
+
+        return results;
     }
+
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object){
+        return getObjectsFromDbTable(object, "");
+    }
+
+    /**
+     * Prints the information of a person.
+     *
+     * @param sqlWhereClause    Sql where statement, starts with: Where ...
+     */
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause){
+        return getObjectsFromDbTable(object, sqlWhereClause);
+
+    }
+
 }

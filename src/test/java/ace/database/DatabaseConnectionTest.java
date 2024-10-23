@@ -1,6 +1,6 @@
 package ace.database;
 
-import ace.database.mocks.DbItemMock;
+import ace.database.mocks.MockTableObject;
 import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.*;
 
@@ -16,11 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatabaseConnectionTest
 {
-    private final String _mockTableName = "testing";
-    private final String _mockSqlSchema = "id INT PRIMARY KEY," +
-            "name VARCHAR (50)," +
-            "age INT";
-
+    private final MockTableObject mockData = new MockTableObject();
     private DatabaseConnection _dbConnection;
 
     @BeforeEach
@@ -35,8 +31,7 @@ public class DatabaseConnectionTest
         dbConnection.removeAllTables();
 
         if (testInfo.getTags().contains("createMockHelperService")) {
-            IDbItem mockTable = new DbItemMock(this._mockSqlSchema, this._mockTableName);
-            DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{add(mockTable);}});
+            DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{add(mockData);}});
             dbConnection.setHelperService(dbHelperService);
         }
 
@@ -75,17 +70,17 @@ public class DatabaseConnectionTest
             throw new RuntimeException(e);
         }
 
-        try (ResultSet tables = metaData.getTables(null, null, "%", new String[] { "TABLE" }))
+        try (ResultSet tables = metaData.getTables(mockData.getSerializedTableName(), null, "%", new String[] { "TABLE" }))
         {
             while (tables.next())
             {
                 String tableName = tables.getString("TABLE_NAME");
-                assertEquals(this._mockTableName, tableName);
+                assertEquals(this.mockData.getSerializedTableName(), tableName);
 
                 try (ResultSet columns = metaData.getColumns(null, null, tableName, "%"))
                 {
                     int column = 0;
-                    List<String> mockColumns = List.of(this._mockSqlSchema.split(","));
+                    List<String> mockColumns = List.of(this.mockData.getSerializedStructure().split(","));
                     while (columns.next())
                     {
                         String columnName = columns.getString("COLUMN_NAME");
@@ -126,10 +121,10 @@ public class DatabaseConnectionTest
     void truncateAllTablesTest()
     {
         this._dbConnection.createAllTables();
-        assertEquals(0, getTableData(this._dbConnection, this._mockTableName).length, "Because there should be no data in the mock table");
+        assertEquals(0, getTableData(this._dbConnection, this.mockData.getSerializedTableName()).length, "Because there should be no data in the mock table");
         createTestData(this._dbConnection);
         this._dbConnection.truncateAllTables();
-        assertEquals(0, getTableData(this._dbConnection, this._mockTableName).length, "Because there should be no data in the mock table");
+        assertEquals(0, getTableData(this._dbConnection, this.mockData.getSerializedTableName()).length, "Because there should be no data in the mock table");
     }
 
     @Test
@@ -142,7 +137,7 @@ public class DatabaseConnectionTest
         this._dbConnection.createAllTables();
         tableNames = this._dbConnection.getAllTableNames();
         assertEquals(1, tableNames.size(), "Because there should be one tables");
-        assertEquals(this._mockTableName, tableNames.getFirst(), "Because the name shoul dbe the same");
+        assertEquals(this.mockData.getSerializedTableName(), tableNames.getFirst(), "Because the name should be the same");
     }
 
     @Test
@@ -182,25 +177,51 @@ public class DatabaseConnectionTest
     {
         this._dbConnection.createAllTables();
 
-        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this._mockTableName, 1, "t1", 111);
+        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 1, "t1", 111);
         int result = this._dbConnection.executeSqlUpdateCommand(createMockCommand, 1);
         assertEquals(1, result, "Because one line should be affected");
 
-        createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d), ('%d', '%s', '%d')", this._mockTableName,
+        createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d), ('%d', '%s', '%d')", this.mockData.getSerializedTableName(),
                 2, "t2", 222,
                 3, "t3", 333);
         result = this._dbConnection.executeSqlUpdateCommand(createMockCommand);
         assertEquals(2, result, "Because two line should be affected");
     }
 
+    @Test
+    @Order(7)
+    @Tag("createMockHelperService")
+    public void getAllObjectsFromDbTableTest()
+    {
+        MockTableObject mockInstance = new MockTableObject("Peter", 99);
+        MockTableObject mockInstance2 = new MockTableObject("hans", 66);
+
+
+        this._dbConnection.createAllTables();
+        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 1, mockInstance.name, mockInstance.age);
+        this._dbConnection.executeSqlUpdateCommand(createMockCommand);
+
+        var result = this._dbConnection.getAllObjectsFromDbTable(this.mockData);
+        assertEquals(1, result.size(), "Because there should be just one item in the table");
+        assertEquals(mockInstance, result.getFirst(), "Because the objects should be equal");
+
+        String createMockCommand2 = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 2, mockInstance2.name, mockInstance2.age);
+        this._dbConnection.executeSqlUpdateCommand(createMockCommand2);
+
+        var result2 = this._dbConnection.getAllObjectsFromDbTable(this.mockData);
+        assertEquals(2, result2.size(), "Because there should be just one item in the table");
+        assertEquals(mockInstance, result2.getFirst(), "Because the objects should be equal");
+        assertEquals(mockInstance2, result2.getLast(), "Because the objects should be equal");
+    }
+
     private void createTestData(DatabaseConnection dbConnection){
         int mockId = 666;
         String mockName = "John Doe";
         int mockAge = 99;
-        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this._mockTableName, mockId, mockName, mockAge);
+        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), mockId, mockName, mockAge);
         dbConnection.executeSqlUpdateCommand(createMockCommand, 1);
 
-        String[][] tableData = getTableData(dbConnection, this._mockTableName);
+        String[][] tableData = getTableData(dbConnection, this.mockData.getSerializedTableName());
         assertEquals(1, tableData.length, "Because there should be one object in the mock table");
         assertEquals(String.valueOf(mockId), tableData[0][0], "Because id should be the same");
         assertEquals(mockName, tableData[0][1], "Because name should be the same");
