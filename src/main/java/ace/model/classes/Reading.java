@@ -144,17 +144,17 @@ public class Reading implements IReading
     @Override
     public String getSerializedStructure()
     {
-        String structure = "";
-        structure += "id UUID PRIMARY KEY NOT NULL,";
-        structure += "comment VARCHAR(120),";
-        structure += "customerId UUID NOT NULL,";
-        structure += "dateOfReading DATE NOT NULL,";
-        structure += "kindOfMeter VARCHAR(10) NOT NULL,"; // Longest element in enum is 9 chars long
-        structure += "meterCount REAL NOT NULL,";
-        structure += "meterId VARCHAR(60) NOT NULL,"; // Check length
-        structure += "substitute BOOLEAN NOT NULL";
-//        structure += "FOREIGN KEY(customerId) REFERENCES customer(id)";
-        return structure;
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append("id UUID PRIMARY KEY NOT NULL,");
+        strBuilder.append("comment VARCHAR(120),");
+        strBuilder.append("customerId UUID NOT NULL,");
+        strBuilder.append("dateOfReading DATE NOT NULL,");
+        strBuilder.append("kindOfMeter VARCHAR(10) NOT NULL,"); // Longest element in enum is 9 chars long
+        strBuilder.append("meterCount REAL NOT NULL,");
+        strBuilder.append("meterId VARCHAR(60) NOT NULL,"); // Check length
+        strBuilder.append("substitute BOOLEAN NOT NULL");
+//    strBuilder.append("FOREIGN KEY(customerId) REFERENCES customer(id)");
+        return strBuilder.toString();
     }
 
     @Override
