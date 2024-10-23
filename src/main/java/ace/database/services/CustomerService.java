@@ -3,7 +3,6 @@ package ace.database.services;
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
 
-import javax.xml.crypto.Data;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>

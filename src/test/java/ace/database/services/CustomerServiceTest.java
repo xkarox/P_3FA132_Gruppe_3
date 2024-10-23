@@ -15,6 +15,7 @@ public class CustomerServiceTest
 {
     private Customer _testCustomer;
     private CustomerService _customerService;
+
     @BeforeEach
     void SetUp() {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), ICustomer.Gender.M);
