@@ -1,22 +1,32 @@
 package ace.model.classes;
 
+import ace.model.decorator.IFieldInfo;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IDbItem;
 import ace.model.interfaces.IReading;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class Reading implements IReading
 {
+    @IFieldInfo(fieldName = "id", fieldType = String.class)
     private UUID _id;
+    @IFieldInfo(fieldName = "comment", fieldType = String.class)
     private String _comment;
+    @IFieldInfo(fieldName = "customerId", fieldType = String.class)
     private Customer _customer;
+    @IFieldInfo(fieldName = "dateOfReading", fieldType = LocalDate.class)
     private LocalDate _dateOfReading;
+    @IFieldInfo(fieldName = "kindOfMeter", fieldType = int.class)
     private KindOfMeter _kindOfMeter;
+    @IFieldInfo(fieldName = "meterCount", fieldType = Double.class)
     private Double _meterCount;
+    @IFieldInfo(fieldName = "meterId", fieldType = String.class)
     private String _meterId;
+    @IFieldInfo(fieldName = "substitute", fieldType = Boolean.class)
     private Boolean _substitute;
 
     public Reading()
@@ -138,7 +148,18 @@ public class Reading implements IReading
     @Override
     public IDbItem dbObjectFactory(Object... args)
     {
-        return null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse((String) args[3], formatter);
+
+        this._id = UUID.fromString((String) args[0]);
+        this._comment = (String) args[1];
+        this._customer = null; // ToDo: implement CustomerService
+        this._dateOfReading = date;
+        this._kindOfMeter = IReading.KindOfMeter.values() [(int) args[4]];
+        this._meterCount = Double.parseDouble((String) args[5]);
+        this._meterId = (String) args[6];
+        this._substitute = (Boolean) args[7];
+        return this;
     }
 
     @Override
