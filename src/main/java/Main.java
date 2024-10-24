@@ -1,4 +1,5 @@
 import ace.database.DatabaseConnection;
+import ace.database.services.CustomerService;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.IDbItem;
@@ -21,7 +22,11 @@ public class Main {
 
 		DatabaseConnection dbConnection = new DatabaseConnection(tables);
 		dbConnection.openConnection();
-		// dbConnection.createAllTables();
+		dbConnection.removeAllTables();
+		dbConnection.createAllTables();
+		CustomerService customerService = new CustomerService(dbConnection);
+		customerService.add(new Customer());
+
 
 		// var customerData = dbConnection.getAllObjectsFromDbTable(new Customer());
 		// var readingData = dbConnection.getAllObjectsFromDbTable(new Reading());
