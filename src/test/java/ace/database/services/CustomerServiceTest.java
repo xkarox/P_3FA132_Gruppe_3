@@ -2,6 +2,7 @@ package ace.database.services;
 
 import ace.model.classes.Customer;
 import ace.model.interfaces.ICustomer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ public class CustomerServiceTest
     @BeforeEach
     void SetUp() {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), ICustomer.Gender.M);
+        // this._customerService = new CustomerService();
     }
 
     @Test
@@ -68,6 +70,12 @@ public class CustomerServiceTest
                         .append(", but got: ").append(customerFromDb.getGender())
                         .toString()
         );
+    }
+    @AfterEach
+    void tearDown() {
+        this._testCustomer = null;
+        this._customerService = null;
+        // this._customerService.remove(this._testCustomer);
     }
 
 }

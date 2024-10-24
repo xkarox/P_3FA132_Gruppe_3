@@ -2,11 +2,8 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
-import ace.model.decorator.FieldInfo;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer> {
