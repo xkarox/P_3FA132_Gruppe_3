@@ -13,6 +13,7 @@ public class Reading implements IReading
     private UUID _id;
     private String _comment;
     private Customer _customer;
+    private UUID _customerId;
     private LocalDate _dateOfReading;
     private KindOfMeter _kindOfMeter;
     private Double _meterCount;
@@ -22,6 +23,20 @@ public class Reading implements IReading
     public Reading()
     {
         this._id = UUID.randomUUID();
+    }
+
+    public Reading(UUID id, String comment, UUID customerId
+            , LocalDate dateOfReading, KindOfMeter kindOfMeter, Double meterCount
+            , String meterId, Boolean substitute)
+    {
+        this._id = id;
+        this._comment = comment;
+        this._customerId = customerId;
+        this._dateOfReading = dateOfReading;
+        this._kindOfMeter = kindOfMeter;
+        this._meterCount = meterCount;
+        this._meterId = meterId;
+        this._substitute = substitute;
     }
 
     @Nullable
@@ -147,7 +162,7 @@ public class Reading implements IReading
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("id UUID PRIMARY KEY NOT NULL,");
         strBuilder.append("comment VARCHAR(120),");
-        strBuilder.append("customerId UUID NOT NULL,");
+        strBuilder.append("customerId UUID,");
         strBuilder.append("dateOfReading DATE NOT NULL,");
         strBuilder.append("kindOfMeter int NOT NULL,"); // Longest element in enum is 9 chars long
         strBuilder.append("meterCount REAL NOT NULL,");

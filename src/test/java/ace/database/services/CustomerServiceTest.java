@@ -43,17 +43,9 @@ public class CustomerServiceTest
 //        update customer
         this._customerService.update(this._testCustomer);
 //        get customer
-        Customer returnedTestCustomer = this._customerService.getById(this._testCustomer.getId());
+        Customer updatedCustomer = this._customerService.getById(this._testCustomer.getId());
 //        check if customer is updated correctly
-        assertEquals(this._testCustomer.getFirstName() , returnedTestCustomer.getFirstName()
-                , "First Name should be equal");
-        assertEquals(this._testCustomer.getLastName(), returnedTestCustomer.getLastName()
-                , "Last Name should be equal");
-        assertEquals(this._testCustomer.getBirthDate(), returnedTestCustomer.getBirthDate()
-                , "Birth dates should be equal");
-        assertEquals(this._testCustomer.getGender(), returnedTestCustomer.getGender()
-                , "Gender should be equal");
-
+        assertEquals(this._testCustomer, updatedCustomer, "Customer should be changed");
     }
 
     @AfterEach
