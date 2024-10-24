@@ -45,8 +45,7 @@ public class CustomerService extends AbstractBaseService<Customer> {
     }
 
     @Override
-    public List<Customer> getAll()
-    {
+    public List<Customer> getAll() {
         return List.of();
     }
 
