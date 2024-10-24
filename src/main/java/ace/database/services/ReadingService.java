@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class ReadingService extends AbstractBaseService<Reading> {
-    protected ReadingService(DatabaseConnection dbConnection) {
+    public ReadingService(DatabaseConnection dbConnection) {
         super(dbConnection);
     }
 

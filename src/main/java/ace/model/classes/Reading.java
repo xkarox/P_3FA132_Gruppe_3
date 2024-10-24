@@ -34,6 +34,17 @@ public class Reading implements IReading
         this._id = UUID.randomUUID();
     }
 
+    public Reading(UUID id, String comment, Customer customer, LocalDate dateOfReading, KindOfMeter kindOfMeter, Double meterCount, String meterId, boolean substitute) {
+        this._id = id;
+        this._comment = comment;
+        this._customer = customer;
+        this._dateOfReading = dateOfReading;
+        this._kindOfMeter = kindOfMeter;
+        this._meterCount = meterCount;
+        this._meterId = meterId;
+        this._substitute = substitute;
+    }
+
     @Nullable
     @Override
     public String getComment()
