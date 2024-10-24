@@ -32,7 +32,7 @@ public class CustomerService extends AbstractBaseService<Customer> {
             statement.setString(3, item.getLastName());
             statement.setDate(4, Date.valueOf(item.getBirthDate()));
             statement.setString(5, item.getGender().toString());
-
+            statement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage(), e);
