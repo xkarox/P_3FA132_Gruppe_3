@@ -36,6 +36,14 @@ public class ReadingService extends AbstractBaseService<Reading> {
                 return null;
             }
             else {
+                CustomerService customerService = new CustomerService(this._dbConnection);
+                Customer existingCustomer = customerService.getById(item.getCustomer().getId());
+
+                // customer does not exists
+                if (existingCustomer == null) {
+                    customerService.add((Customer)item.getCustomer());
+                }
+
                 statement.setObject(3, item.getCustomer().getId());
             }
             statement.setDate(4, Date.valueOf(item.getDateOfReading()));
