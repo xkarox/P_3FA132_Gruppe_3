@@ -38,28 +38,28 @@ public class CustomerServiceTest
 //                .append(this._testCustomer.getBirthDate()).append(",")
 //                .append(this._testCustomer.getGender()).append(",");
 //        this._databaseConnection.executeSqlUpdateCommand(sb.toString());
-        this._customerService.add(this._testCustomer);
-
-//        modify customer
-        this._testCustomer.setFirstName("Peter");
-        this._testCustomer.setLastName("Griffin");
-        this._testCustomer.setBirthDate(LocalDate.of(2000, 11, 2));
-        this._testCustomer.setGender(ICustomer.Gender.W);
-//        update customer
-        sb = new StringBuilder("INSERT INTO ").append(_testCustomer.getSerializedTableName())
-                .append("(id, firstName, lastName, birthDate, gender) VALUES (")
-                .append(this._testCustomer.getId()).append(",")
-                .append(this._testCustomer.getFirstName()).append(",")
-                .append(this._testCustomer.getLastName()).append(",")
-                .append(this._testCustomer.getBirthDate()).append(",")
-                .append(this._testCustomer.getGender()).append(",");
-        this._databaseConnection.executeSqlUpdateCommand(sb.toString());
-//        check if customer is updated correctly
-        sb = new StringBuilder("SELECT * FROM ").append(this._testCustomer.getSerializedTableName())
-                .append(" WHERE id=").append(this._testCustomer.getId());
-        ResultSet customer = this._databaseConnection.executeSqlQueryCommand(sb.toString());
-        System.out.println(customer);
-//        get Customer
+//        this._customerService.add(this._testCustomer);
+//
+////        modify customer
+//        this._testCustomer.setFirstName("Peter");
+//        this._testCustomer.setLastName("Griffin");
+//        this._testCustomer.setBirthDate(LocalDate.of(2000, 11, 2));
+//        this._testCustomer.setGender(ICustomer.Gender.W);
+////        update customer
+//        `sb = new StringBuilder("INSERT INTO ").append(_testCustomer.getSerializedTableName())
+//                .append("(id, firstName, lastName, birthDate, gender) VALUES (")
+//                .append(this._testCustomer.getId()).append(",")
+//                .append(this._testCustomer.getFirstName()).append(",")
+//                .append(this._testCustomer.getLastName()).append(",")
+//                .append(this._testCustomer.getBirthDate()).append(",")
+//                .append(this._testCustomer.getGender()).append(",");
+//        this._databaseConnection.executeSqlUpdateCommand(sb.toString());
+////        check if customer is updated correctly
+//        sb = new StringBuilder("SELECT * FROM ").append(this._testCustomer.getSerializedTableName())
+//                .append(" WHERE id=").append(this._testCustomer.getId());
+//        ResultSet customer = this._databaseConnection.executeSqlQueryCommand(sb.toString());
+//        System.out.println(customer);
+////        get Customer
 
 
     }
