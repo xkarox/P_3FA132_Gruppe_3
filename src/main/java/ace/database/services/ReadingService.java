@@ -42,7 +42,7 @@ public class ReadingService extends AbstractBaseService<Reading>
         }
         StringBuilder sb = new StringBuilder("UPDATE ");
         sb.append(item.getSerializedTableName()).append("SET ");
-        sb.append("customer=").append(Objects.requireNonNull(item.getCustomer()).getId());
+        sb.append("customerId=").append(Objects.requireNonNull(item.getCustomer()).getId());
         sb.append(",dateOfReading=").append(item.getDateOfReading());
         sb.append(",kindOfMeter=").append(item.getKindOfMeter());
         sb.append(",meterCount=").append(item.getMeterCount());
