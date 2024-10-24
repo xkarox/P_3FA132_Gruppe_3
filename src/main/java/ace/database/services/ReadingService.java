@@ -1,6 +1,7 @@
 package ace.database.services;
 
 import ace.database.DatabaseConnection;
+import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 
 import java.sql.Connection;
@@ -8,6 +9,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ReadingService extends AbstractBaseService<Reading> {
@@ -30,14 +32,20 @@ public class ReadingService extends AbstractBaseService<Reading> {
 
             statement.setObject(1, item.getId());
             statement.setString(2, item.getComment());
-            statement.setObject(3, item.getCustomer());
+            if (item.getCustomer() == null) {
+                return null;
+            }
+            else {
+                statement.setObject(3, item.getCustomer().getId());
+            }
             statement.setDate(4, Date.valueOf(item.getDateOfReading()));
-            statement.setObject(5, item.getKindOfMeter());
+            statement.setString(5, item.getKindOfMeter().toString());
             statement.setDouble(6, item.getMeterCount());
             statement.setString(7, item.getMeterId());
             statement.setBoolean(8, item.getSubstitute());
             statement.executeUpdate();
         }
+
         catch (SQLException e) {
             throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage(), e);
         }

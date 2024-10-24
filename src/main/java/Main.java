@@ -35,7 +35,7 @@ public class Main {
 
 		Customer testCustomer = new Customer(UUID.randomUUID(), "firstName", "lastName", LocalDate.now(), Gender.M);
 		Reading testReading = new Reading(UUID.randomUUID(), "Kommentar", testCustomer, LocalDate.now(), KindOfMeter.WASSER, 133.03, "11", true);
-		customerService.add(testCustomer);
+		// customerService.add(testCustomer);
 		readingService.add(testReading);
 
 		// var customerData = dbConnection.getAllObjectsFromDbTable(new Customer());
