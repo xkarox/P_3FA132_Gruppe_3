@@ -20,14 +20,13 @@ public class CustomerServiceTest
 {
     private Customer _testCustomer;
     private CustomerService _customerService;
-    private DatabaseConnection _databaseConnection;
 
     @BeforeEach
     void SetUp() {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), ICustomer.Gender.M);
-        this._databaseConnection = new DatabaseConnection();
-        this._databaseConnection.openConnection(DbHelperService.loadProperties());
-        this._customerService = new CustomerService(this._databaseConnection);
+        DatabaseConnection _databaseConnection = new DatabaseConnection();
+        _databaseConnection.openConnection(DbHelperService.loadProperties());
+        this._customerService = new CustomerService(_databaseConnection);
     }
 
     @Test

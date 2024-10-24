@@ -20,7 +20,6 @@ public class ReadingServiceTest
     private Customer _testCustomer;
     private ReadingService _readingService;
     private CustomerService _customerService;
-    private DatabaseConnection _databaseConnection;
 
     @BeforeEach
     void SetUp() {
@@ -30,10 +29,10 @@ public class ReadingServiceTest
                 , "Omae wa mou shindeiru!", this._testCustomer.getId()
                 , LocalDate.now(), IReading.KindOfMeter.STROM
                 , 1234.5, "10006660001", false);
-        this._databaseConnection = new DatabaseConnection();
-        this._databaseConnection.openConnection(DbHelperService.loadProperties());
-        this._customerService = new CustomerService(this._databaseConnection);
-        this._readingService = new ReadingService(this._databaseConnection);
+        DatabaseConnection _databaseConnection = new DatabaseConnection();
+        _databaseConnection.openConnection(DbHelperService.loadProperties());
+        this._customerService = new CustomerService(_databaseConnection);
+        this._readingService = new ReadingService(_databaseConnection);
     }
 
     @Test
