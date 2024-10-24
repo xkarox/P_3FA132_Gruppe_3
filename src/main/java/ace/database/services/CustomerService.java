@@ -23,7 +23,7 @@ public class CustomerService extends AbstractBaseService<Customer>
     @Override
     public Customer getById(UUID id)
     {
-        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Customer(), String.format("WHERE ID = %s", id));
+        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Customer(), String.format("WHERE id = %s", id));
         if (result.size() > 1)
         {
             throw new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", result.size()));
