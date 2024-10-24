@@ -6,6 +6,6 @@ chris.db.url = localhost:3306/homeautomation_test
 chris.db.user = Testing
 chris.db.pw = 1234
 
-[Systembenutzer].db.url =
-[Systembenutzer].db.user =
-[Systembenutzer].db.pw =
+xkroax.db.url = localhost:3306/homeautomation_test
+xkroax.db.user = xkarox
+xkroax.db.pw = 1234
