@@ -2,15 +2,13 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.database.DbHelperService;
+import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.interfaces.ICustomer;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -25,7 +23,7 @@ public class CustomerServiceTest
     void SetUp() {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), ICustomer.Gender.M);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
-        _databaseConnection.openConnection(DbHelperService.loadProperties());
+        _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         this._customerService = new CustomerService(_databaseConnection);
     }
 
