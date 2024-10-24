@@ -24,13 +24,21 @@ public class ReadingService extends AbstractBaseService<Reading>
     @Override
     public Reading getById(UUID id)
     {
-        return null;
+        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Reading(), String.format("WHERE ID = %s", id));
+        if (result.size() > 1)
+        {
+            throw new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", result.size()));
+        }
+        if (result.isEmpty())
+            return null;
+        return (Reading) result.getFirst();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<Reading> getAll()
     {
-        return List.of();
+       return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(new Reading());
     }
 
     @Override
