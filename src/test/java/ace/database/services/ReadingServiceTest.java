@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReadingServiceTest
@@ -113,5 +115,19 @@ public class ReadingServiceTest
         assertEquals(2, firstResult.size(), "Because there are 2 items");
         assertEquals(this._testReading, firstResult.getFirst());
         assertEquals(reading2, firstResult.getLast());
+    }
+
+
+    @Test
+    void removeTest()
+    {
+//        add Customer and Reading
+        this._customerService.add(this._testCustomer);
+        this._readingService.add(this._testReading);
+//        remove reading
+        this._readingService.remove(this._testReading);
+//        try to get reading
+        assertNull(this._readingService.getById(this._testReading.getId()), "Should return null because the " +
+                "reading was deleted before");
     }
 }
