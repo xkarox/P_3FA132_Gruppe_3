@@ -17,6 +17,7 @@ public class Reading implements IReading
     @IFieldInfo(fieldName = "comment", fieldType = String.class)
     private String _comment;
     @IFieldInfo(fieldName = "customerId", fieldType = String.class)
+    private UUID _customerId;
     private Customer _customer;
     @IFieldInfo(fieldName = "dateOfReading", fieldType = LocalDate.class)
     private LocalDate _dateOfReading;
@@ -34,10 +35,13 @@ public class Reading implements IReading
         this._id = UUID.randomUUID();
     }
 
-    public Reading(UUID id, String comment, Customer customer, LocalDate dateOfReading, KindOfMeter kindOfMeter, Double meterCount, String meterId, boolean substitute) {
+    public Reading(UUID id, String comment, UUID customerId
+            , LocalDate dateOfReading, KindOfMeter kindOfMeter, Double meterCount
+            , String meterId, Boolean substitute)
+    {
         this._id = id;
         this._comment = comment;
-        this._customer = customer;
+        this._customerId = customerId;
         this._dateOfReading = dateOfReading;
         this._kindOfMeter = kindOfMeter;
         this._meterCount = meterCount;
@@ -179,9 +183,9 @@ public class Reading implements IReading
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("id UUID PRIMARY KEY NOT NULL,");
         strBuilder.append("comment VARCHAR(120),");
-        strBuilder.append("customerId UUID NOT NULL,");
+        strBuilder.append("customerId UUID,");
         strBuilder.append("dateOfReading DATE NOT NULL,");
-        strBuilder.append("kindOfMeter VARCHAR(10) NOT NULL,"); // Longest element in enum is 9 chars long
+        strBuilder.append("kindOfMeter int NOT NULL,"); // Longest element in enum is 9 chars long
         strBuilder.append("meterCount REAL NOT NULL,");
         strBuilder.append("meterId VARCHAR(60) NOT NULL,"); // Check length
         strBuilder.append("substitute BOOLEAN NOT NULL");
