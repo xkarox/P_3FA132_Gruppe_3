@@ -15,16 +15,20 @@ import java.util.Properties;
 
 public class DbHelperService
 {
-    private List<IDbItem> _tables = new ArrayList<IDbItem>(){
+    private List<IDbItem> _tables = new ArrayList<IDbItem>()
+    {
         {
             add(new Customer());
             add(new Reading());
         }
     };
 
-    public DbHelperService(){ }
+    public DbHelperService()
+    {
+    }
 
-    public DbHelperService(List<IDbItem> tables){
+    public DbHelperService(List<IDbItem> tables)
+    {
         this._tables = tables;
     }
 
@@ -50,7 +54,8 @@ public class DbHelperService
         Path currentPath = Paths.get(System.getProperty("user.dir"));
         Path filePath = currentPath.resolve("config/properties.config");
 
-        try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath()))) {
+        try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath())))
+        {
             properties = loadProperties(input);
         }
 

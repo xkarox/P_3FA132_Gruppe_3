@@ -5,28 +5,28 @@ import java.time.LocalDate;
 public interface ICustomer extends IId, IDbItem
 {
 
-   enum Gender
-   {
-      D, // divers
-      M, // männlich
-      U, // unbekannt
-      W // weiblich
-   }
+    enum Gender
+    {
+        D, // divers
+        M, // männlich
+        U, // unbekannt
+        W // weiblich
+    }
 
-   LocalDate getBirthDate();
+    LocalDate getBirthDate();
 
-   String getFirstName();
+    String getFirstName();
 
-   Gender getGender();
+    Gender getGender();
 
-   String getLastName();
+    String getLastName();
 
-   void setBirthDate(LocalDate birtDate);
+    void setBirthDate(LocalDate birtDate);
 
-   void setFirstName(String firstName);
+    void setFirstName(String firstName);
 
-   void setGender(Gender gender);
+    void setGender(Gender gender);
 
-   void setLastName(String lastName);
+    void setLastName(String lastName);
 
 }

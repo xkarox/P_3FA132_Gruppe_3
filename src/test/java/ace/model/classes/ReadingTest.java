@@ -49,7 +49,7 @@ public class ReadingTest
     @Test
     void testSetCustomer()
     {
-        Customer newCustomer = new Customer(UUID.randomUUID(),"Max", "Mueller", LocalDate.of(2000, 1, 1), Gender.M);
+        Customer newCustomer = new Customer(UUID.randomUUID(), "Max", "Mueller", LocalDate.of(2000, 1, 1), Gender.M);
         _reading.setCustomer(newCustomer);
         ICustomer customer = _reading.getCustomer();
         assertEquals(newCustomer, customer, "The customer should match the value set by setCustomer().");
@@ -117,8 +117,7 @@ public class ReadingTest
         try
         {
             this._reading.setId(null);
-        }
-        catch (IllegalArgumentException e)
+        } catch (IllegalArgumentException e)
         {
             exceptionThrown = true;
             assertEquals(e.getMessage(), "ID cannot be null");
@@ -143,7 +142,7 @@ public class ReadingTest
     @Test
     void testGetDateOfReading()
     {
-        LocalDate dateOfReading  = this._reading.getDateOfReading();
+        LocalDate dateOfReading = this._reading.getDateOfReading();
         assertEquals(this._dateOfReading, dateOfReading, "The date of reading should match the value returned by getDateOfReading().");
     }
 
@@ -221,7 +220,7 @@ public class ReadingTest
         UUID id = UUID.randomUUID();
         UUID customerId = UUID.randomUUID();
         this._customer.setId(customerId);
-        
+
         Reading reading1 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
         Reading reading2 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
 

@@ -1,12 +1,12 @@
 package ace.database.services;
 
 import ace.database.DatabaseConnection;
-import ace.model.interfaces.ICustomer.Gender;
 import ace.database.DbHelperService;
 import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.ICustomer.Gender;
 import ace.model.interfaces.IReading;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CustomerServiceTest
 {

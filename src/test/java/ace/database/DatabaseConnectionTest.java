@@ -20,7 +20,8 @@ public class DatabaseConnectionTest
     @BeforeEach
     void setUp(TestInfo testInfo) throws IOException
     {
-        if (testInfo.getTags().contains("excludeSetup")) {
+        if (testInfo.getTags().contains("excludeSetup"))
+        {
             return;
         }
 
@@ -28,8 +29,12 @@ public class DatabaseConnectionTest
         dbConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         dbConnection.removeAllTables();
 
-        if (testInfo.getTags().contains("createMockHelperService")) {
-            DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{add(mockData);}});
+        if (testInfo.getTags().contains("createMockHelperService"))
+        {
+            DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>()
+            {{
+                add(mockData);
+            }});
             dbConnection.setHelperService(dbHelperService);
         }
 
@@ -68,7 +73,7 @@ public class DatabaseConnectionTest
             throw new RuntimeException(e);
         }
 
-        try (ResultSet tables = metaData.getTables(mockData.getSerializedTableName(), null, "%", new String[] { "TABLE" }))
+        try (ResultSet tables = metaData.getTables(mockData.getSerializedTableName(), null, "%", new String[]{"TABLE"}))
         {
             while (tables.next())
             {
@@ -105,8 +110,7 @@ public class DatabaseConnectionTest
                     }
                 }
             }
-        }
-        catch (SQLException e)
+        } catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
@@ -247,14 +251,16 @@ public class DatabaseConnectionTest
         try
         {
             dbConnection.getConnection();
-        }catch (RuntimeException e){
+        } catch (RuntimeException e)
+        {
             exceptionTriggert = true;
             assertEquals(e.getMessage(), "Connection not initialised");
         }
         assertTrue(exceptionTriggert, "Because the exception should have been triggert");
     }
 
-    private void createTestData(DatabaseConnection dbConnection){
+    private void createTestData(DatabaseConnection dbConnection)
+    {
         int mockId = 666;
         String mockName = "John Doe";
         int mockAge = 99;
@@ -272,13 +278,15 @@ public class DatabaseConnectionTest
     {
         String[][] result;
         try (PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement("SELECT * FROM " + tableName);
-             ResultSet dataResultSet = preparedStatement.executeQuery()) {
+             ResultSet dataResultSet = preparedStatement.executeQuery())
+        {
 
             ResultSetMetaData metaData = dataResultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
 
             int rowCount = 0;
-            while (dataResultSet.next()) {
+            while (dataResultSet.next())
+            {
                 rowCount++;
             }
 
@@ -287,13 +295,16 @@ public class DatabaseConnectionTest
             result = new String[rowCount][columnCount];
 
             int rowCounter = 0;
-            while (dataResultSet.next()) {
-                for (int j = 1; j <= columnCount; j++) {
+            while (dataResultSet.next())
+            {
+                for (int j = 1; j <= columnCount; j++)
+                {
                     result[rowCounter][j - 1] = dataResultSet.getString(j);
                 }
                 rowCounter++;
             }
-        } catch (SQLException e) {
+        } catch (SQLException e)
+        {
             throw new RuntimeException(e);
         }
 

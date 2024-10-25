@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 public class DbTestHelper
 {
-    public static InputStream loadTestDbProperties ()
+    public static InputStream loadTestDbProperties()
     {
         Path currentPath = Paths.get(System.getProperty("user.dir"));
         Path filePath = currentPath.resolve("config/properties.config.test");
@@ -16,8 +16,7 @@ public class DbTestHelper
         try
         {
             return new FileInputStream(String.valueOf(filePath.toAbsolutePath()));
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             throw new RuntimeException(e);
         }

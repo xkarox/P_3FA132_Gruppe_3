@@ -2,8 +2,10 @@ package ace;
 
 public class Utils
 {
-    public static <T> void checkValueEquals(T expectedValue, T result, ErrorMessages errorMessage) {
-        if (!result.equals(expectedValue)) {
+    public static <T> void checkValueEquals(T expectedValue, T result, ErrorMessages errorMessage)
+    {
+        if (!result.equals(expectedValue))
+        {
             StringBuilder strBuilder = new StringBuilder();
             strBuilder.append("Expected: ");
             strBuilder.append(expectedValue);

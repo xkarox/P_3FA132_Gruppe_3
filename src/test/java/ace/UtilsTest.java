@@ -23,7 +23,8 @@ public class UtilsTest
         try
         {
             Utils.checkValueEquals(item1, item2, ErrorMessages.SqlUpdate);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e)
+        {
             exceptionTriggert = true;
             assertEquals(e.getMessage(), resultString);
         }

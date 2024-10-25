@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 public @interface IFieldInfo
 {
     String fieldName();
+
     Class<?> fieldType();
 }
 

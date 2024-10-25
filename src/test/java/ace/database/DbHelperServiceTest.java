@@ -23,7 +23,10 @@ public class DbHelperServiceTest
     @Test
     void testCreateSqlSchema()
     {
-        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{add(mockData);}});
+        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>()
+        {{
+            add(mockData);
+        }});
 
         List<String> tableSchemas = dbHelperService.createSqlTableSchemaCommands();
         assertEquals(1, tableSchemas.size(), "The list should contain one schema");
@@ -42,7 +45,8 @@ public class DbHelperServiceTest
         secondMockTable.testSetSchema(secondSqlSchema);
         secondMockTable.testSetTableName(secondTableName);
 
-        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>(){{
+        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>()
+        {{
             add(mockTable);
             add(secondMockTable);
         }});

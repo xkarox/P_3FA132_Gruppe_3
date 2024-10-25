@@ -1,7 +1,6 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer.Gender;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -175,8 +174,7 @@ public class CustomerTest
         try
         {
             new Customer(this._id, this._firstName, this._lastName, this._birthDate, null);
-        }
-        catch (IllegalArgumentException e)
+        } catch (IllegalArgumentException e)
         {
             exceptionThrown = true;
             assertEquals(e.getMessage(), "Gender cannot be null");
