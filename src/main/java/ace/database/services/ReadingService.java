@@ -55,7 +55,7 @@ public class ReadingService extends AbstractBaseService<Reading> {
         }
 
         catch (SQLException e) {
-            throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage(), e);
+            throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage());
         }
 
         return item;

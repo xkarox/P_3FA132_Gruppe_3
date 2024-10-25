@@ -7,15 +7,19 @@ import java.sql.*;
 import java.util.List;
 import java.util.UUID;
 
-public class CustomerService extends AbstractBaseService<Customer> {
-    public CustomerService(DatabaseConnection dbConnection) {
+public class CustomerService extends AbstractBaseService<Customer>
+{
+    public CustomerService(DatabaseConnection dbConnection)
+    {
         super(dbConnection);
     }
 
 
     @Override
-    public Customer add(Customer item) {
-        if (item == null) {
+    public Customer add(Customer item)
+    {
+        if (item == null)
+        {
             throw new RuntimeException("Customer is null and cannot be inserted.");
         }
 
@@ -23,8 +27,8 @@ public class CustomerService extends AbstractBaseService<Customer> {
                 " (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?);";
 
         try (Connection connection = this._dbConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-
+             PreparedStatement statement = connection.prepareStatement(sqlStatement))
+        {
             statement.setObject(1, item.getId());
             statement.setString(2, item.getFirstName());
             statement.setString(3, item.getLastName());
@@ -32,8 +36,9 @@ public class CustomerService extends AbstractBaseService<Customer> {
             statement.setString(5, item.getGender().toString());
             statement.executeUpdate();
 
-        } catch (SQLException e) {
-            throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage(), e);
+        } catch (SQLException e)
+        {
+            throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage());
         }
 
         return item;
