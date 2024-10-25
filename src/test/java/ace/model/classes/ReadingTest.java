@@ -35,8 +35,6 @@ public class ReadingTest
         this._reading.setMeterId(this._meterId);
         this._reading.setSubstitute(true);
         this._reading.setId(this._id);
-
-
     }
 
     @Test
@@ -197,5 +195,20 @@ public class ReadingTest
     void testGetSerializedTableName()
     {
         assertEquals("reading", this._reading.getSerializedTableName());
+    }
+
+    @Test
+    void equalsTest()
+    {
+        UUID id = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        this._customer.setId(customerId);
+        
+        Reading reading1 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        reading1.setCustomer(this._customer);
+        Reading reading2 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        reading2.setCustomer(this._customer);
+
+        assertEquals(reading1, reading2, "Because they should be the same");
     }
 }
