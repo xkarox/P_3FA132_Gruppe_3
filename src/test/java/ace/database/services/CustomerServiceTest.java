@@ -1,6 +1,7 @@
 package ace.database.services;
 
 import ace.database.DatabaseConnection;
+import ace.model.interfaces.ICustomer.Gender;
 import ace.database.DbHelperService;
 import ace.model.classes.Customer;
 import ace.model.interfaces.ICustomer;
@@ -21,7 +22,7 @@ public class CustomerServiceTest
 
     @BeforeEach
     void SetUp() {
-        this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), ICustomer.Gender.M);
+        this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
         _databaseConnection.openConnection(DbHelperService.loadProperties());
         _databaseConnection.removeAllTables();
@@ -73,10 +74,10 @@ public class CustomerServiceTest
     private List<Customer> createTestData()
     {
         List<Customer> items = new ArrayList<>();
-        items.add( new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), ICustomer.Gender.M));
-        items.add( new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), ICustomer.Gender.W));
-        items.add( new Customer(UUID.randomUUID(), "James", "Doe", LocalDate.now().plusYears(2), ICustomer.Gender.M));
-        items.add( new Customer(UUID.randomUUID(), "Juno", "Doe", LocalDate.now().minusWeeks(20), ICustomer.Gender.D));
+        items.add( new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
+        items.add( new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), Gender.W));
+        items.add( new Customer(UUID.randomUUID(), "James", "Doe", LocalDate.now().plusYears(2), Gender.M));
+        items.add( new Customer(UUID.randomUUID(), "Juno", "Doe", LocalDate.now().minusWeeks(20), Gender.D));
 
         for(Customer item : items)
         {
