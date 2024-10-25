@@ -1,6 +1,6 @@
-erikm.db.url =
-erikm.db.user =
-erikm.db.pw =
+erikm.db.url = localhost:3306/homeautomation_test
+erikm.db.user = erik_testing
+erikm.db.pw = testing_password
 
 chris.db.url = localhost:3306/homeautomation_test
 chris.db.user = root
