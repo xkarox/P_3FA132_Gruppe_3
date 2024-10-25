@@ -25,11 +25,16 @@
 	</properties>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<version>${mariadb.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>6.1.14</version>
 		</dependency>
 
 		<!--  JUNIT    -->
@@ -47,7 +52,6 @@
             <version>2.17.1</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 	<build>
