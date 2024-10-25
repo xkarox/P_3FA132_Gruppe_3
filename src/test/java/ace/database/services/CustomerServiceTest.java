@@ -6,6 +6,7 @@ import ace.database.DbHelperService;
 import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.interfaces.ICustomer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CustomerServiceTest
 {
@@ -22,7 +25,8 @@ public class CustomerServiceTest
     private CustomerService _customerService;
 
     @BeforeEach
-    void SetUp() {
+    void SetUp()
+    {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
         _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
@@ -32,7 +36,19 @@ public class CustomerServiceTest
     }
 
     @Test
-    void updateTest() {
+    void testAdd()
+    {
+        this._customerService.add(this._testCustomer);
+
+        Customer customerFromDb = this._customerService.getById(this._testCustomer.getId());
+
+        assertNotNull(customerFromDb, "Customer should not be null after being added to the database.");
+        assertEquals(this._testCustomer, customerFromDb, "Customer are not equal");
+    }
+
+    @Test
+    void updateTest()
+    {
 //        add origin customer
         this._customerService.add(this._testCustomer);
 
@@ -75,12 +91,12 @@ public class CustomerServiceTest
     private List<Customer> createTestData()
     {
         List<Customer> items = new ArrayList<>();
-        items.add( new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
-        items.add( new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), Gender.W));
-        items.add( new Customer(UUID.randomUUID(), "James", "Doe", LocalDate.now().plusYears(2), Gender.M));
-        items.add( new Customer(UUID.randomUUID(), "Juno", "Doe", LocalDate.now().minusWeeks(20), Gender.D));
+        items.add(new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
+        items.add(new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), Gender.W));
+        items.add(new Customer(UUID.randomUUID(), "James", "Doe", LocalDate.now().plusYears(2), Gender.M));
+        items.add(new Customer(UUID.randomUUID(), "Juno", "Doe", LocalDate.now().minusWeeks(20), Gender.D));
 
-        for(Customer item : items)
+        for (Customer item : items)
         {
             this._customerService.add(item);
         }
