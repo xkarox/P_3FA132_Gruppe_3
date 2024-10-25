@@ -3,6 +3,8 @@ package ace.database.services;
 import ace.database.DatabaseConnection;
 import ace.model.classes.Reading;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -62,5 +64,22 @@ public class ReadingService extends AbstractBaseService<Reading>
     }
 
     @Override
-    public void remove(Reading item) {}
+    public void remove(Reading item)
+    {
+        String delStatement = new StringBuilder("DELETE FROM ").append(item.getSerializedTableName())
+                .append(" WHERE id=?").toString();
+        if (item.getId() == null)
+    {
+            throw new RuntimeException("Cannot delete a reading without id");
+        }
+        try
+        {
+            PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(delStatement);
+            preparedStatement.setString(1, item.getId().toString());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CustomerServiceTest
 {
@@ -45,6 +46,18 @@ public class CustomerServiceTest
         Customer updatedCustomer = this._customerService.getById(this._testCustomer.getId());
 //        check if customer is updated correctly
         assertEquals(this._testCustomer, updatedCustomer, "Customer should be changed");
+    }
+
+    @Test
+    void removeTest()
+    {
+//        add customer
+        this._customerService.add(this._testCustomer);
+//        remove customer
+        this._customerService.remove(this._testCustomer);
+//        try to get customer
+         assertNull(this._customerService.getById(this._testCustomer.getId()), "Should return null because the " +
+                 "customer was deleted before");
     }
 
     @AfterEach
