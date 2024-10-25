@@ -2,7 +2,7 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
-import org.mariadb.jdbc.export.Prepare;
+import ace.model.classes.Reading;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -73,9 +73,32 @@ public class CustomerService extends AbstractBaseService<Customer>
             PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(delStatement);
             preparedStatement.setString(1, item.getId().toString());
             preparedStatement.executeUpdate();
+
+            cleanUpAfterCustomerRemove(item.getId());
         } catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
+    }
+
+    private void cleanUpAfterCustomerRemove(UUID customerId)
+    {
+        if (customerId == null)
+        {
+            throw new IllegalArgumentException("Customer Id cannot be null");
+        }
+        String updateStatement =  new StringBuilder("UPDATE ").append(new Reading().getSerializedTableName())
+                .append(" SET").append(" customerId=NULL ").append("WHERE customerId=?").toString();
+
+        try
+        {
+            PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(updateStatement);
+            preparedStatement.setString(1, customerId.toString());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+
     }
 }
