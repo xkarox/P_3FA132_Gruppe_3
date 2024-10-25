@@ -4,7 +4,6 @@ import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,9 +26,8 @@ public class ReadingService extends AbstractBaseService<Reading> {
         String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
                 " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount, meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
-        try (Connection connection = this._dbConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-
+        try (PreparedStatement statement = this._dbConnection.newPrepareStatement(sqlStatement))
+        {
             statement.setObject(1, item.getId());
             statement.setString(2, item.getComment());
             if (item.getCustomer() == null) {
@@ -47,11 +45,12 @@ public class ReadingService extends AbstractBaseService<Reading> {
                 statement.setObject(3, item.getCustomer().getId());
             }
             statement.setDate(4, Date.valueOf(item.getDateOfReading()));
-            statement.setString(5, item.getKindOfMeter().toString());
+            assert item.getKindOfMeter() != null;
+            statement.setString(5, String.valueOf(item.getKindOfMeter().ordinal()));
             statement.setDouble(6, item.getMeterCount());
             statement.setString(7, item.getMeterId());
             statement.setBoolean(8, item.getSubstitute());
-            statement.executeUpdate();
+            this._dbConnection.executePreparedStatementCommand(statement);
         }
 
         catch (SQLException e) {
@@ -64,7 +63,7 @@ public class ReadingService extends AbstractBaseService<Reading> {
     @Override
     public Reading getById(UUID id)
     {
-        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Reading(), String.format("WHERE id = %s", id));
+        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Reading(), String.format("WHERE id = '%s'", id));
         if (result.size() > 1)
         {
             throw new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", result.size()));
@@ -89,14 +88,16 @@ public class ReadingService extends AbstractBaseService<Reading> {
             throw new RuntimeException("Cannot update reading without id");
         }
         StringBuilder sb = new StringBuilder("UPDATE ");
-        sb.append(item.getSerializedTableName()).append("SET ");
-        sb.append("customerId=").append(Objects.requireNonNull(item.getCustomer()).getId());
-        sb.append(",dateOfReading=").append(item.getDateOfReading());
-        sb.append(",kindOfMeter=").append(item.getKindOfMeter());
-        sb.append(",meterCount=").append(item.getMeterCount());
-        sb.append(",meterId=").append(item.getMeterId());
-        sb.append(",substitute=").append(item.getSubstitute());
-        sb.append(" WHERE Id=").append(item.getId());
+        sb.append(item.getSerializedTableName()).append(" SET");
+        sb.append(" customerId='").append(Objects.requireNonNull(item.getCustomer()).getId());
+        sb.append("' ,comment='").append(item.getComment());
+        sb.append("' ,dateOfReading='").append(item.getDateOfReading());
+        assert item.getKindOfMeter() != null;
+        sb.append("' ,kindOfMeter='").append(item.getKindOfMeter().ordinal());
+        sb.append("' ,meterCount='").append(item.getMeterCount());
+        sb.append("' ,meterId='").append(item.getMeterId());
+        sb.append("' ,substitute=").append(item.getSubstitute().toString());
+        sb.append(" WHERE Id='").append(item.getId()).append("';");
         try
         {
             _dbConnection.executeSqlUpdateCommand(sb.toString(), 1);

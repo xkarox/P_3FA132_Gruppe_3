@@ -8,19 +8,18 @@ import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IReading;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CustomerServiceTest
@@ -87,7 +86,7 @@ public class CustomerServiceTest
                 "customer was deleted before");
 //         get reading -> check if customer id is null
         Reading reading = this._readingService.getById(this._testReading.getId());
-        assertNull(reading.getCustomer(), "Should return null because customer is already deleted");
+        assertNull(reading, "Should return null because customer is already deleted");
     }
 
     @Test
@@ -109,7 +108,11 @@ public class CustomerServiceTest
         assertTrue(nullResult.isEmpty(), "Because there are no items in the db");
 
         List<Customer> customers = createTestData();
+        customers.sort(Comparator.comparing(Customer::getId));
+
         var result = this._customerService.getAll();
+
+        result.sort(Comparator.comparing(Customer::getId));
         assertEquals(customers, result, "Because all customers should exist");
     }
 

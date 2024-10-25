@@ -149,8 +149,9 @@ public class Customer implements ICustomer
         if (obj == null || getClass() != obj.getClass()) return false;
 
         Customer item = (Customer) obj;
-        return  this.getId() == item.getId()
-                && this.getBirthDate() == item.getBirthDate()
+
+        return  Objects.equals(this.getId(), item.getId())
+                && Objects.equals(this.getBirthDate(), item.getBirthDate())
                 && Objects.equals(this.getFirstName(), item.getFirstName())
                 && Objects.equals(this.getLastName(), item.getLastName())
                 && this.getGender() == item.getGender();
