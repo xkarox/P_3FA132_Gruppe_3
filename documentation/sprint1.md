@@ -5,7 +5,7 @@
   - [X] Add teacher
 - [X] Create maven project
 - [X] Create milestone
-  - [ ] Add all Issues to milestone
+  - [X] Add all Issues to milestone
 - [X] Use MariaDB as DBMS
 - [X] Realize crud
   - [X] If a User is deleted set the reference to null
