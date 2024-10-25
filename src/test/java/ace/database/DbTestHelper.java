@@ -11,7 +11,7 @@ public class DbTestHelper
     public static InputStream loadTestDbProperties ()
     {
         Path currentPath = Paths.get(System.getProperty("user.dir"));
-        Path filePath = currentPath.resolve("config\\properties.config.test");
+        Path filePath = currentPath.resolve("config/properties.config.test");
 
         try
         {
