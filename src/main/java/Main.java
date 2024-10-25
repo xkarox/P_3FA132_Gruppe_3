@@ -30,15 +30,5 @@ public class Main {
 		dbConnection.removeAllTables();
 		dbConnection.createAllTables();
 
-		CustomerService customerService = new CustomerService(dbConnection);
-		ReadingService readingService = new ReadingService(dbConnection);
-
-		Customer testCustomer = new Customer(UUID.randomUUID(), "firstName", "lastName", LocalDate.now(), Gender.M);
-		Reading testReading = new Reading(UUID.randomUUID(), "Kommentar", testCustomer.getId(), LocalDate.now(), KindOfMeter.WASSER, 133.03, "11", true);
-		// customerService.add(testCustomer);
-		readingService.add(testReading);
-
-		// var customerData = dbConnection.getAllObjectsFromDbTable(new Customer());
-		// var readingData = dbConnection.getAllObjectsFromDbTable(new Reading());
 	}
 }
