@@ -7,12 +7,7 @@ import ace.model.interfaces.IDbItem;
 import ace.utils;
 
 import java.lang.reflect.Constructor;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -181,6 +176,16 @@ public class DatabaseConnection implements IDatabaseConnection
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public void executePreparedStatementCommand(PreparedStatement preparedStatement) throws SQLException
+    {
+        preparedStatement.executeUpdate();
+    }
+
+    public PreparedStatement newPrepareStatement(String statement) throws SQLException
+    {
+        return this.getConnection().prepareStatement(statement);
     }
 
     private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause)
