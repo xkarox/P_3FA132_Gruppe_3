@@ -34,7 +34,7 @@ public class Main {
 		ReadingService readingService = new ReadingService(dbConnection);
 
 		Customer testCustomer = new Customer(UUID.randomUUID(), "firstName", "lastName", LocalDate.now(), Gender.M);
-		Reading testReading = new Reading(UUID.randomUUID(), "Kommentar", testCustomer, LocalDate.now(), KindOfMeter.WASSER, 133.03, "11", true);
+		Reading testReading = new Reading(UUID.randomUUID(), "Kommentar", testCustomer.getId(), LocalDate.now(), KindOfMeter.WASSER, 133.03, "11", true);
 		// customerService.add(testCustomer);
 		readingService.add(testReading);
 
