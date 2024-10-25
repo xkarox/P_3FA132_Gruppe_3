@@ -83,10 +83,6 @@ public class CustomerService extends AbstractBaseService<Customer>
 
     private void cleanUpAfterCustomerRemove(UUID customerId)
     {
-        if (customerId == null)
-        {
-            throw new IllegalArgumentException("Customer Id cannot be null");
-        }
         String updateStatement =  new StringBuilder("UPDATE ").append(new Reading().getSerializedTableName())
                 .append(" SET").append(" customerId=NULL ").append("WHERE customerId=?").toString();
 
