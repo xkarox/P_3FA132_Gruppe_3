@@ -141,4 +141,12 @@ public class CustomerTest
     {
         assertEquals("customer", this._customer.getSerializedTableName());
     }
+
+    @Test
+    void equalsTest()
+    {
+        Customer customer1 = new Customer(this._id, this._firstName, this._lastName, this._birthDate, this._gender);
+        Customer customer2 = new Customer(this._id, this._firstName, this._lastName, this._birthDate, this._gender);
+        assertEquals(customer1, customer2, "Because they should be the same");
+    }
 }

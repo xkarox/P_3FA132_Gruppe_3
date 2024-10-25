@@ -7,6 +7,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Customer implements ICustomer
@@ -139,5 +140,19 @@ public class Customer implements ICustomer
     public String getSerializedTableName()
     {
         return "customer";
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Customer item = (Customer) obj;
+        return  this.getId() == item.getId()
+                && this.getBirthDate() == item.getBirthDate()
+                && Objects.equals(this.getFirstName(), item.getFirstName())
+                && Objects.equals(this.getLastName(), item.getLastName())
+                && this.getGender() == item.getGender();
     }
 }

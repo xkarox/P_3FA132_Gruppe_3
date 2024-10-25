@@ -8,6 +8,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Reading implements IReading
@@ -197,5 +198,22 @@ public class Reading implements IReading
     public String getSerializedTableName()
     {
         return "reading";
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Reading item = (Reading) obj;
+        return  this.getId() == item.getId()
+                && Objects.equals(this.getComment(), item.getComment())
+                && Objects.equals(this.getCustomer(), item.getCustomer())
+                && this.getDateOfReading() == item.getDateOfReading()
+                && this.getKindOfMeter() == item.getKindOfMeter()
+                && Objects.equals(this.getMeterCount(), item.getMeterCount())
+                && Objects.equals(this.getMeterId(), item.getMeterId())
+                && this.getSubstitute() == item.getSubstitute();
     }
 }
