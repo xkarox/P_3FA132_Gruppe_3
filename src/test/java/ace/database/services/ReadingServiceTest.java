@@ -10,6 +10,7 @@ import ace.model.interfaces.ICustomer.Gender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,7 +31,7 @@ public class ReadingServiceTest
     private CustomerService _customerService;
 
     @BeforeEach
-    void SetUp()
+    void SetUp() throws IOException
     {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe"
                 , LocalDate.now(), Gender.M);

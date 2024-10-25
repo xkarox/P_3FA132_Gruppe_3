@@ -11,6 +11,7 @@ import ace.model.interfaces.IReading;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,7 +31,8 @@ public class CustomerServiceTest
     private ReadingService _readingService;
 
     @BeforeEach
-    void SetUp() {
+    void SetUp() throws IOException
+    {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(),
                 ICustomer.Gender.M);
         this._testReading = new Reading(UUID.randomUUID(), "", this._testCustomer.getId(), LocalDate.now(),

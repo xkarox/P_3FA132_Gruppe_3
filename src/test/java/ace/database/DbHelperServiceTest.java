@@ -5,12 +5,14 @@ import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class DbHelperServiceTest
 {
@@ -53,7 +55,7 @@ public class DbHelperServiceTest
     }
 
     @Test
-    void getDefaultPropertiesTest()
+    void getDefaultPropertiesTest() throws IOException
     {
         String localUserName = System.getProperty("user.name").toLowerCase();
         String url = "localhost:3306/homeautomation_test";
@@ -73,6 +75,19 @@ public class DbHelperServiceTest
         assertEquals(loadedUrl, url, "Value doesn't match the expected value for url");
         assertEquals(loadedUser, user, "Value doesn't match the expected value for user");
         assertEquals(loadedPw, pw, "Value doesn't match the expected value for password");
+    }
+
+    @Test
+    void loadPropertiesTest() throws IOException
+    {
+        String localUserName = System.getProperty("user.name").toLowerCase();
+        Properties properties = DbHelperService.loadProperties();
+
+        // Depends on values in the properties.config file ... but test coverage ...
+        assertNotNull(properties, "Because they should have been loaded");
+        assertNotNull(properties.getProperty(localUserName + ".db.url"));
+        assertNotNull(properties.getProperty(localUserName + ".db.user"));
+        assertNotNull(properties.getProperty(localUserName + ".db.pw"));
     }
 }
 

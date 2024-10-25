@@ -43,7 +43,7 @@ public class DbHelperService
         return commands;
     }
 
-    public static Properties loadProperties()
+    public static Properties loadProperties() throws IOException
     {
         Properties properties;
 
@@ -53,27 +53,15 @@ public class DbHelperService
         try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath()))) {
             properties = loadProperties(input);
         }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
 
         return properties;
     }
 
-    public static Properties loadProperties(InputStream fileStream)
+    public static Properties loadProperties(InputStream fileStream) throws IOException
     {
         Properties properties = new Properties();
-
-        try
-        {
-            properties.load(fileStream);
-            fileStream.close();
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        properties.load(fileStream);
+        fileStream.close();
 
         return properties;
     }

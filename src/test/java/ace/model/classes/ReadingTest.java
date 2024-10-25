@@ -107,11 +107,23 @@ public class ReadingTest
     void testSetId()
     {
         UUID newId = UUID.randomUUID();
-        _reading.setId(newId);
+        this._reading.setId(newId);
         assertNotNull(_customer.getId(), "ID should not be null after setting a new ID");
 
         UUID id = this._reading.getId();
         assertEquals(newId, id, "The ID should match the value set by setId().");
+
+        boolean exceptionThrown = false;
+        try
+        {
+            this._reading.setId(null);
+        }
+        catch (IllegalArgumentException e)
+        {
+            exceptionThrown = true;
+            assertEquals(e.getMessage(), "ID cannot be null");
+        }
+        assertTrue(exceptionThrown, "Because the exception should have been triggert");
     }
 
     @Test
@@ -198,6 +210,12 @@ public class ReadingTest
     }
 
     @Test
+    void printDateOfReadingTest()
+    {
+        assertEquals(this._reading.getDateOfReading().toString(), this._reading.printDateOfReading());
+    }
+
+    @Test
     void equalsTest()
     {
         UUID id = UUID.randomUUID();
@@ -205,10 +223,27 @@ public class ReadingTest
         this._customer.setId(customerId);
         
         Reading reading1 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
-        reading1.setCustomer(this._customer);
         Reading reading2 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
-        reading2.setCustomer(this._customer);
+
+        Reading reading3 = new Reading(UUID.randomUUID(), "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading4 = new Reading(id, "one", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading5 = new Reading(id, "none", customerId, LocalDate.now().minusWeeks(2), this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading6 = new Reading(id, "none", customerId, this._dateOfReading, KindOfMeter.HEIZUNG, this._meterCount, this._meterId, true);
+        Reading reading7 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, 6969.69, this._meterId, true);
+        Reading reading8 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, "9999", true);
+        Reading reading9 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, false);
 
         assertEquals(reading1, reading2, "Because they should be the same");
+        assertEquals(reading1, reading1, "Because they are the same");
+        assertNotEquals(reading1, null, "Because it is null");
+        assertNotEquals(reading1, this._customer, "Because equals should fail");
+
+        assertNotEquals(reading1, reading3, "Diff id");
+        assertNotEquals(reading1, reading4, "Diff comment");
+        assertNotEquals(reading1, reading5, "Diff dateOfReading");
+        assertNotEquals(reading1, reading6, "Diff kindOfMeter");
+        assertNotEquals(reading1, reading7, "Diff meterCount");
+        assertNotEquals(reading1, reading8, "Diff meterId");
+        assertNotEquals(reading1, reading9, "Diff substitute");
     }
 }

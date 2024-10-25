@@ -4,8 +4,9 @@ import ace.ErrorMessages;
 import ace.database.intefaces.IDatabaseConnection;
 import ace.model.decorator.FieldInfo;
 import ace.model.interfaces.IDbItem;
-import ace.utils;
+import ace.Utils;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.sql.*;
 import java.time.LocalDate;
@@ -34,10 +35,6 @@ public class DatabaseConnection implements IDatabaseConnection
         setHelperService(new DbHelperService());
     }
 
-    public DatabaseConnection(List<IDbItem> tables){
-        setHelperService(new DbHelperService(tables));
-    }
-
     @Override
     public IDatabaseConnection openConnection(Properties properties)
     {
@@ -64,7 +61,8 @@ public class DatabaseConnection implements IDatabaseConnection
         return this;
     }
 
-    public IDatabaseConnection openConnection(){
+    public IDatabaseConnection openConnection() throws IOException
+    {
         return this.openConnection(DbHelperService.loadProperties());
     }
 
@@ -159,7 +157,7 @@ public class DatabaseConnection implements IDatabaseConnection
         try (Statement stmt = this.getConnection().createStatement())
         {
             int result = stmt.executeUpdate(sql);
-            utils.checkValueEquals(result, expectedLinesAffected, ErrorMessages.SqlUpdate);
+            Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
             return result;
         } catch (SQLException e)
         {

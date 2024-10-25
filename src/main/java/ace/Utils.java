@@ -1,8 +1,8 @@
 package ace;
 
-public class utils
+public class Utils
 {
-    public static <T> void checkValueEquals(T result, T expectedValue, ErrorMessages errorMessage) {
+    public static <T> void checkValueEquals(T expectedValue, T result, ErrorMessages errorMessage) {
         if (!result.equals(expectedValue)) {
             StringBuilder strBuilder = new StringBuilder();
             strBuilder.append("Expected: ");

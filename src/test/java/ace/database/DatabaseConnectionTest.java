@@ -4,6 +4,7 @@ import ace.database.mocks.MockTableObject;
 import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class DatabaseConnectionTest
     private DatabaseConnection _dbConnection;
 
     @BeforeEach
-    void setUp(TestInfo testInfo)
+    void setUp(TestInfo testInfo) throws IOException
     {
         if (testInfo.getTags().contains("excludeSetup")) {
             return;
@@ -38,7 +39,7 @@ public class DatabaseConnectionTest
     @Test
     @Order(1)
     @Tag("excludeSetup")
-    void openConnectionTest()
+    void openConnectionTest() throws IOException
     {
         DatabaseConnection dbConnection = new DatabaseConnection();
         dbConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
@@ -186,7 +187,32 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(7)
+    @Order(8)
+    @Tag("createMockHelperService")
+    void executePreparedStatementCommandTest()
+    {
+        this._dbConnection.createAllTables();
+
+        String sqlStatement = "INSERT INTO " + this.mockData.getSerializedTableName() +
+                " (id, name, age) VALUES (?, ?, ?);";
+
+        try (PreparedStatement statement = this._dbConnection.newPrepareStatement(sqlStatement))
+        {
+            statement.setObject(1, 2);
+            statement.setObject(2, "t2");
+            statement.setObject(3, 222);
+            this._dbConnection.executePreparedStatementCommand(statement);
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        var result = this._dbConnection.getAllObjectsFromDbTable(new MockTableObject());
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @Order(9)
     @Tag("createMockHelperService")
     public void getAllObjectsFromDbTableTest()
     {
@@ -209,6 +235,23 @@ public class DatabaseConnectionTest
         assertEquals(2, result2.size(), "Because there should be just one item in the table");
         assertEquals(mockInstance, result2.getFirst(), "Because the objects should be equal");
         assertEquals(mockInstance2, result2.getLast(), "Because the objects should be equal");
+    }
+
+    @Test
+    @Order(10)
+    @Tag("excludeSetup")
+    void openConnectionNull()
+    {
+        DatabaseConnection dbConnection = new DatabaseConnection();
+        boolean exceptionTriggert = false;
+        try
+        {
+            dbConnection.getConnection();
+        }catch (RuntimeException e){
+            exceptionTriggert = true;
+            assertEquals(e.getMessage(), "Connection not initialised");
+        }
+        assertTrue(exceptionTriggert, "Because the exception should have been triggert");
     }
 
     private void createTestData(DatabaseConnection dbConnection){
