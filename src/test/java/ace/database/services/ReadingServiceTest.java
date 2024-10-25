@@ -18,21 +18,27 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ReadingServiceTest {
+public class ReadingServiceTest
+{
 
     private Reading _testReading;
+    private Reading _testReadingWithoutCustomer;
     private Customer _testCustomer;
     private ReadingService _readingService;
     private CustomerService _customerService;
 
     @BeforeEach
-    void SetUp() {
+    void SetUp()
+    {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe"
                 , LocalDate.now(), ICustomer.Gender.M);
         this._testReading = new Reading(UUID.randomUUID()
                 , "Omae wa mou shindeiru!", this._testCustomer.getId()
-                , LocalDate.now(), IReading.KindOfMeter.STROM
+                , LocalDate.now(), KindOfMeter.STROM
                 , 1234.5, "10006660001", false);
+        this._testReadingWithoutCustomer = new Reading(UUID.randomUUID()
+                , "lalalala", null, LocalDate.now()
+                , KindOfMeter.WASSER, 1823.293, "8231891239", true);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
         _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         _databaseConnection.removeAllTables();
@@ -42,7 +48,8 @@ public class ReadingServiceTest {
     }
 
     @Test
-    void testAdd() {
+    void testAdd()
+    {
         this._readingService.add(this._testReading);
         Reading readingFromDb = this._readingService.getById(this._testReading.getId());
         assertNotNull(readingFromDb, "Reading should not be null after being added to the database.");
@@ -56,6 +63,7 @@ public class ReadingServiceTest {
         Reading readingWithoutCustomerFromDb = this._readingService.getById(this._testReadingWithoutCustomer.getId());
         assertNull(readingWithoutCustomerFromDb, "Reading should be null because of no customer");
     }
+
     @Test
     void updateTest()
     {
@@ -64,7 +72,7 @@ public class ReadingServiceTest {
         this._readingService.add(this._testReading);
 //        modify reading
         this._testReading.setComment("NANI?!");
-        this._testReading.setDateOfReading(LocalDate.of(2000, 11 ,2));
+        this._testReading.setDateOfReading(LocalDate.of(2000, 11, 2));
         this._testReading.setKindOfMeter(IReading.KindOfMeter.HEIZUNG);
         this._testReading.setMeterCount(98765.5);
         this._testReading.setMeterId("456738901");
@@ -76,6 +84,7 @@ public class ReadingServiceTest {
 //        check if reading updated correctly
         assertEquals(this._testReading, updatedReading, "Reading should be changed");
     }
+
     @Test
     void getByIdTest()
     {
@@ -109,13 +118,13 @@ public class ReadingServiceTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown()
+    {
         this._readingService.remove(this._testReading);
         this._readingService.remove(this._testReadingWithoutCustomer);
-        this._customerService.remove((Customer)this._testReading.getCustomer());
-        this._customerService.remove((Customer)this._testReadingWithoutCustomer.getCustomer());
+        this._customerService.remove((Customer) this._testReading.getCustomer());
+        this._customerService.remove((Customer) this._testReadingWithoutCustomer.getCustomer());
         this._testReading = null;
         this._testReadingWithoutCustomer = null;
-        this._databaseConnection.closeConnection();
     }
 }
