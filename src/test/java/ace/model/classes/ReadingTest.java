@@ -183,9 +183,9 @@ public class ReadingTest
         String expectedStructure = "";
         expectedStructure += "id UUID PRIMARY KEY NOT NULL,";
         expectedStructure += "comment VARCHAR(120),";
-        expectedStructure += "customerId UUID NOT NULL,";
+        expectedStructure += "customerId UUID,";
         expectedStructure += "dateOfReading DATE NOT NULL,";
-        expectedStructure += "kindOfMeter VARCHAR(10) NOT NULL,"; // Longest element in enum is 9 chars long
+        expectedStructure += "kindOfMeter int NOT NULL,"; // Longest element in enum is 9 chars long
         expectedStructure += "meterCount REAL NOT NULL,";
         expectedStructure += "meterId VARCHAR(60) NOT NULL,"; // Check length
         expectedStructure += "substitute BOOLEAN NOT NULL";

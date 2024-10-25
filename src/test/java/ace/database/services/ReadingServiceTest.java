@@ -2,6 +2,7 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.database.DbHelperService;
+import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
@@ -30,7 +31,7 @@ public class ReadingServiceTest
                 , LocalDate.now(), IReading.KindOfMeter.STROM
                 , 1234.5, "10006660001", false);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
-        _databaseConnection.openConnection(DbHelperService.loadProperties());
+        _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         _databaseConnection.removeAllTables();
         _databaseConnection.createAllTables();
         this._customerService = new CustomerService(_databaseConnection);

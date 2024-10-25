@@ -4,9 +4,6 @@ import ace.database.mocks.MockTableObject;
 import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.*;
 
-import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +24,7 @@ public class DatabaseConnectionTest
         }
 
         DatabaseConnection dbConnection = new DatabaseConnection();
-        dbConnection.openConnection(DbHelperService.loadProperties(loadTestDbProperties()));
+        dbConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         dbConnection.removeAllTables();
 
         if (testInfo.getTags().contains("createMockHelperService")) {
@@ -44,7 +41,7 @@ public class DatabaseConnectionTest
     void openConnectionTest()
     {
         DatabaseConnection dbConnection = new DatabaseConnection();
-        dbConnection.openConnection(DbHelperService.loadProperties(loadTestDbProperties()));
+        dbConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         try
         {
             assertFalse(dbConnection.getConnection().isClosed(), "A connection should be established");
@@ -258,21 +255,5 @@ public class DatabaseConnectionTest
         }
 
         return result;
-    }
-
-    private InputStream loadTestDbProperties ()
-    {
-        Path currentPath = Paths.get(System.getProperty("user.dir"));
-        Path filePath = currentPath.resolve("config\\properties.config.test");
-
-        try
-        {
-            return new FileInputStream(String.valueOf(filePath.toAbsolutePath()));
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
     }
 }
