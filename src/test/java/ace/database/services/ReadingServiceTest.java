@@ -2,6 +2,7 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.database.DbHelperService;
+import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ReadingServiceTest
 {
@@ -31,7 +33,9 @@ public class ReadingServiceTest
                 , LocalDate.now(), IReading.KindOfMeter.STROM
                 , 1234.5, "10006660001", false);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
-        _databaseConnection.openConnection(DbHelperService.loadProperties());
+        _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
+        _databaseConnection.removeAllTables();
+        _databaseConnection.createAllTables();
         this._customerService = new CustomerService(_databaseConnection);
         this._readingService = new ReadingService(_databaseConnection);
     }
@@ -55,6 +59,38 @@ public class ReadingServiceTest
         Reading updatedReading = this._readingService.getById(this._testReading.getId());
 //        check if reading updated correctly
         assertEquals(this._testReading, updatedReading, "Reading should be changed");
+    }
+
+    @Test
+    void getByIdTest()
+    {
+        this._customerService.add(this._testCustomer);
+        this._readingService.add(this._testReading);
+
+        var nullResult = this._readingService.getById(UUID.randomUUID());
+        assertNull(nullResult, "Because there are no items in the db");
+
+        var result = this._readingService.getById(this._testReading.getId());
+        assertEquals(this._testReading, result, "Because the customer should exist");
+    }
+
+    @Test
+    void getAllTest()
+    {
+        this._customerService.add(this._testCustomer);
+        this._readingService.add(this._testReading);
+
+        Reading reading2 = new Reading(UUID.randomUUID()
+                , "no comment", this._testCustomer.getId()
+                , LocalDate.now(), IReading.KindOfMeter.HEIZUNG
+                , 999.9, "10009960001", true);
+
+        this._readingService.add(reading2);
+
+        var firstResult = this._readingService.getAll();
+        assertEquals(2, firstResult.size(), "Because there are 2 items");
+        assertEquals(this._testReading, firstResult.getFirst());
+        assertEquals(reading2, firstResult.getLast());
     }
 
 
