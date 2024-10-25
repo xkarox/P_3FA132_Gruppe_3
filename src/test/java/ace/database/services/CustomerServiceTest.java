@@ -77,14 +77,6 @@ public class CustomerServiceTest
         assertEquals(customer, result, "Because the customer should exist");
     }
 
-    @AfterEach
-    void tearDown()
-    {
-        this._testCustomer = null;
-        this._customerService = null;
-        this._customerService.remove(this._testCustomer);
-    }
-
     @Test
     void getAllTest()
     {

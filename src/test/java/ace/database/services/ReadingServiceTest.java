@@ -5,11 +5,9 @@ import ace.database.DbHelperService;
 import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
-import ace.model.interfaces.ICustomer.Gender;
 import ace.model.interfaces.IReading.KindOfMeter;
 import org.junit.jupiter.api.AfterEach;
-import ace.model.interfaces.ICustomer;
-import ace.model.interfaces.IReading;
+import ace.model.interfaces.ICustomer.Gender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +29,7 @@ public class ReadingServiceTest
     void SetUp()
     {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe"
-                , LocalDate.now(), ICustomer.Gender.M);
+                , LocalDate.now(), Gender.M);
         this._testReading = new Reading(UUID.randomUUID()
                 , "Omae wa mou shindeiru!", this._testCustomer.getId()
                 , LocalDate.now(), KindOfMeter.STROM
@@ -73,7 +71,7 @@ public class ReadingServiceTest
 //        modify reading
         this._testReading.setComment("NANI?!");
         this._testReading.setDateOfReading(LocalDate.of(2000, 11, 2));
-        this._testReading.setKindOfMeter(IReading.KindOfMeter.HEIZUNG);
+        this._testReading.setKindOfMeter(KindOfMeter.HEIZUNG);
         this._testReading.setMeterCount(98765.5);
         this._testReading.setMeterId("456738901");
         this._testReading.setSubstitute(true);
@@ -106,7 +104,7 @@ public class ReadingServiceTest
 
         Reading reading2 = new Reading(UUID.randomUUID()
                 , "no comment", this._testCustomer.getId()
-                , LocalDate.now(), IReading.KindOfMeter.HEIZUNG
+                , LocalDate.now(), KindOfMeter.HEIZUNG
                 , 999.9, "10009960001", true);
 
         this._readingService.add(reading2);
@@ -115,16 +113,5 @@ public class ReadingServiceTest
         assertEquals(2, firstResult.size(), "Because there are 2 items");
         assertEquals(this._testReading, firstResult.getFirst());
         assertEquals(reading2, firstResult.getLast());
-    }
-
-    @AfterEach
-    void tearDown()
-    {
-        this._readingService.remove(this._testReading);
-        this._readingService.remove(this._testReadingWithoutCustomer);
-        this._customerService.remove((Customer) this._testReading.getCustomer());
-        this._customerService.remove((Customer) this._testReadingWithoutCustomer.getCustomer());
-        this._testReading = null;
-        this._testReadingWithoutCustomer = null;
     }
 }

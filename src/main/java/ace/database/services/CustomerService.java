@@ -38,7 +38,7 @@ public class CustomerService extends AbstractBaseService<Customer>
 
         } catch (SQLException e)
         {
-            throw new RuntimeException("SQL Error when trying to insert a new item: " + e.getMessage());
+            throw new RuntimeException(e);
         }
 
         return item;
