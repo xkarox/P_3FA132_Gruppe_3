@@ -90,8 +90,6 @@ public class CustomerServiceTest
         assertNull(reading.getCustomer(), "Should return null because customer is already deleted");
     }
 
-    @AfterEach
-    void tearDown() {
     @Test
     void getByIdTest()
     {
