@@ -1,5 +1,7 @@
 package ace.database;
 
+import ace.model.classes.Customer;
+import ace.model.classes.Reading;
 import ace.model.interfaces.IDbItem;
 
 import java.io.FileInputStream;
@@ -13,7 +15,12 @@ import java.util.Properties;
 
 public class DbHelperService
 {
-    private List<IDbItem> _tables = new ArrayList<IDbItem>();
+    private List<IDbItem> _tables = new ArrayList<IDbItem>(){
+        {
+            add(new Customer());
+            add(new Reading());
+        }
+    };
 
     public DbHelperService(){ }
 
@@ -41,7 +48,7 @@ public class DbHelperService
         Properties properties;
 
         Path currentPath = Paths.get(System.getProperty("user.dir"));
-        Path filePath = currentPath.resolve("config\\properties.config");
+        Path filePath = currentPath.resolve("config/properties.config");
 
         try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath()))) {
             properties = loadProperties(input);

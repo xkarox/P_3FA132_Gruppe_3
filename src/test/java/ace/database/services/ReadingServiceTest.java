@@ -6,12 +6,14 @@ import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.IReading.KindOfMeter;
-import org.junit.jupiter.api.AfterEach;
 import ace.model.interfaces.ICustomer.Gender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,6 +38,7 @@ public class ReadingServiceTest
                 , "Omae wa mou shindeiru!", this._testCustomer.getId()
                 , LocalDate.now(), KindOfMeter.STROM
                 , 1234.5, "10006660001", false);
+        this._testReading.setCustomer(this._testCustomer);
         this._testReadingWithoutCustomer = new Reading(UUID.randomUUID()
                 , "lalalala", null, LocalDate.now()
                 , KindOfMeter.WASSER, 1823.293, "8231891239", true);
@@ -108,13 +111,25 @@ public class ReadingServiceTest
                 , "no comment", this._testCustomer.getId()
                 , LocalDate.now(), KindOfMeter.HEIZUNG
                 , 999.9, "10009960001", true);
+        reading2.setCustomer(this._testCustomer);
 
         this._readingService.add(reading2);
 
-        var firstResult = this._readingService.getAll();
-        assertEquals(2, firstResult.size(), "Because there are 2 items");
-        assertEquals(this._testReading, firstResult.getFirst());
-        assertEquals(reading2, firstResult.getLast());
+        var result = this._readingService.getAll();
+        result.sort(Comparator.comparing(Reading::getId));
+        assertEquals(2, result.size(), "Because there are 2 items");
+
+        // Because Java is shit
+        Reading reading1 = this._testReading;
+        List<Reading> prepeared = new ArrayList<>(){
+            {
+                add(reading1);
+                add(reading2);
+            }
+        };
+        prepeared.sort(Comparator.comparing(Reading::getId));
+
+        assertEquals(prepeared, result);
     }
 
 

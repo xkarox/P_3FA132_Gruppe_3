@@ -169,7 +169,7 @@ public class Reading implements IReading
 
         this._id = UUID.fromString((String) args[0]);
         this._comment = (String) args[1];
-        this._customer = null; // ToDo: implement CustomerService
+        this._customerId = UUID.fromString((String) args[2]);
         this._dateOfReading = date;
         this._kindOfMeter = IReading.KindOfMeter.values() [(int) args[4]];
         this._meterCount = Double.parseDouble((String) args[5]);
@@ -207,13 +207,13 @@ public class Reading implements IReading
         if (obj == null || getClass() != obj.getClass()) return false;
 
         Reading item = (Reading) obj;
-        return  this.getId() == item.getId()
+
+        return  Objects.equals(this.getId(),item.getId())
                 && Objects.equals(this.getComment(), item.getComment())
-                && Objects.equals(this.getCustomer(), item.getCustomer())
-                && this.getDateOfReading() == item.getDateOfReading()
-                && this.getKindOfMeter() == item.getKindOfMeter()
+                && Objects.equals(this.getDateOfReading(), item.getDateOfReading())
+                && Objects.equals(this.getKindOfMeter(), item.getKindOfMeter())
                 && Objects.equals(this.getMeterCount(), item.getMeterCount())
                 && Objects.equals(this.getMeterId(), item.getMeterId())
-                && this.getSubstitute() == item.getSubstitute();
+                && Objects.equals(this.getSubstitute(), item.getSubstitute());
     }
 }
