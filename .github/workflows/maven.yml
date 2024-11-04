@@ -22,9 +22,9 @@ jobs:
       mariadb:
         image: mariadb:11.5.2
         env:
-          MYSQL_DATABASE: localhost:3306/homeautomation
-          MYSQL_USER: erik_testing
-          MYSQL_PASSWORD: testing_password
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
         ports:
           - 3306:3306
     steps:
@@ -35,6 +35,17 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+
+    - name: Wait for MariaDB to be ready
+      run: |
+        for i in {1..30}; do
+          if mysqladmin ping -h "localhost" --user=test_user --password=test_password --silent; then
+            echo "MariaDB is ready!"
+            break
+          fi
+          echo "Waiting for MariaDB..."
+          sleep 5
+        done
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
