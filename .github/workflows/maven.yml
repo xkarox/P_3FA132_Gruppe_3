@@ -16,9 +16,18 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
+    services:
+      mariadb:
+        image: mariadb:11.5.2
+        env:
+          env:
+            MYSQL_DATABASE: homeautomation_test
+            MYSQL_USER: erik_testing
+            MYSQL_PASSWORD: testing_password
+        ports:
+          - 3306:3306
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
