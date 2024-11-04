@@ -12,16 +12,22 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:11.5.2
+        image: mariadb:latest # or specify a version like mariadb:11.5.2
         env:
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: test_user
-          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: my_database # Name of the database to create
+          MYSQL_USER: my_user         # Database username
+          MYSQL_PASSWORD: my_password  # Database user password
         ports:
-          - 3306:3306
+          - 3306:3306 # Expose the database port
+        options: >
+          --health-cmd="mysqladmin ping -h localhost" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -31,8 +37,8 @@ jobs:
 
       - name: Wait for MariaDB to be ready
         run: |
-          for i in {1..3}; do
-            if mysqladmin ping -h 127.0.0.1 --user=test_user --password=test_password --silent; then
+          for i in {1..30}; do
+            if mysqladmin ping -h "127.0.0.1" --user=my_user --password=my_password --silent; then
               echo "MariaDB is ready!"
               break
             fi
@@ -42,13 +48,10 @@ jobs:
 
       - name: Check MariaDB connection
         run: |
-          mysql -h 127.0.0.1 -u test_user -p 'test_password' -e 'SELECT 1;' || { echo "Database connection failed!"; exit 1; }
+          mysql -h 127.0.0.1 -u my_user -p'my_password' -e 'SELECT 1;' || { echo "Database connection failed!"; exit 1; }
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
       - name: Run Tests
         run: mvn -B test --file pom.xml
-
-      - name: Update dependency graph
-        uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
