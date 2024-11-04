@@ -46,6 +46,10 @@ jobs:
             fi
           done
 
+      # testing
+      - name: Systemuser
+        run: |
+          whoami
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
