@@ -14,11 +14,13 @@ jobs:
       mariadb:
         image: mariadb:11.5.2 # or specify a version like mariadb:11.5.2
         env:
-          MYSQL_DATABASE: my_database # Name of the database to create
-          MYSQL_USER: my_user         # Database username
-          MYSQL_PASSWORD: my_password  # Database user password
-        ports:
-          - 3306:3306 # Expose the database port
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+          ports:
+            - 3306:3306
+          options: >-
+            --health-cmd="mysqladmin ping -h localhost" --health-interval=10s
+            --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
