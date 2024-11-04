@@ -14,10 +14,10 @@ jobs:
       mariadb:
         image: mariadb:11.5.2
         env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpassword
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: homeautomation_test
+          MYSQL_USER: pipeline_user
+          MYSQL_PASSWORD: pipeline_password
         ports:
           - 3306:3306
 
@@ -46,10 +46,13 @@ jobs:
             fi
           done
 
-      # testing
-      - name: Systemuser
+      - name: Configure database connection for CI
         run: |
-          whoami
+          echo "Setting up database configuration for CI environment..."
+          SYSTEM_USER=$(whoami)
+          echo "$SYSTEM_USER.db.url=localhost:3306/${{ secrets.MYSQL_DATABASE }}" >> config/properties.config.test
+          echo "$SYSTEM_USER.db.user=${{ secrets.MYSQL_USER }}" >> config/properties.config.test
+          echo "$SYSTEM_USER.db.pw=${{ secrets.MYSQL_PASSWORD }}" >> config/properties.config.test
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
