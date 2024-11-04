@@ -14,18 +14,21 @@ jobs:
       mariadb:
         image: mariadb:11.5.2
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: rootpassword
           MYSQL_DATABASE: testdb
-          MYSQL_USER: my_user          # Set your user
-          MYSQL_PASSWORD: my_password  # Set your password
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+        ports:
+          - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost --user=my_user --password=my_password" 
+          --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
-          --health-timeout=5s 
+          --health-timeout=5s
           --health-retries=3
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -36,18 +39,11 @@ jobs:
 
       - name: Wait for MariaDB to be ready
         run: |
-          for i in {1..10}; do
-            if mysqladmin ping -h "127.0.0.1" --user=my_user --password=my_password --silent; then
-              echo "MariaDB is ready!"
-              break
-            fi
-            echo "Waiting for MariaDB..."
-            sleep 5
-          done
-
-      - name: Check MariaDB connection
-        run: |
-          mysql -h 127.0.0.1 -u my_user -pmy_password testdb || { echo "Database connection failed!"; exit 1; }
+            echo "Waiting for MariaDB to be healthy..."
+            until docker inspect --format='{{.State.Health.Status}}' $(docker-compose ps -q mariadb) | grep -q "healthy"; do
+              sleep 2
+            done
+            echo "MariaDB is ready!"
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
