@@ -9,7 +9,6 @@ import ace.model.interfaces.IDbItem;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.*;
 
 public class DatabaseConnection implements IDatabaseConnection
@@ -20,10 +19,6 @@ public class DatabaseConnection implements IDatabaseConnection
 
     public Connection getConnection()
     {
-        if (this._connection == null)
-        {
-            throw new RuntimeException("Connection not initialised");
-        }
         return _connection;
     }
 
@@ -38,6 +33,7 @@ public class DatabaseConnection implements IDatabaseConnection
     }
 
     @Override
+    /* Always call through getConnection for null handling */
     public IDatabaseConnection openConnection(Properties properties) throws SQLException
     {
         String localUserName = System.getProperty("user.name").toLowerCase();
@@ -47,12 +43,7 @@ public class DatabaseConnection implements IDatabaseConnection
         String password = properties.getProperty(localUserName + ".db.pw");
 
         this._databaseName = Arrays.asList(properties.getProperty(localUserName + ".db.url").split("/")).getLast();
-
         _connection = DriverManager.getConnection(url, user, password);
-        if (_connection == null)
-        {
-            throw new RuntimeException("Could not initialise connection");
-        }
 
         return this;
     }
@@ -120,33 +111,30 @@ public class DatabaseConnection implements IDatabaseConnection
     @Override
     public void closeConnection() throws SQLException
     {
-        getConnection().close();
+        this._connection.close();
     }
 
     public int executeSqlUpdateCommand(String sql) throws SQLException
     {
-        try (Statement stmt = this.getConnection().createStatement())
-        {
-            return stmt.executeUpdate(sql);
-        }
+        var connection = this.getConnection();
+        Statement stmt = connection.createStatement();
+        return stmt.executeUpdate(sql);
     }
 
     public int executeSqlUpdateCommand(String sql, int expectedLinesAffected) throws SQLException
     {
-        try (Statement stmt = this.getConnection().createStatement())
-        {
-            int result = stmt.executeUpdate(sql);
-            Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
-            return result;
-        }
+        var connection = this.getConnection();
+        Statement stmt = connection.createStatement();
+        int result = stmt.executeUpdate(sql);
+        Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
+        return result;
     }
 
     public ResultSet executeSqlQueryCommand(String sql) throws SQLException
     {
-        try (Statement stmt = this.getConnection().createStatement())
-        {
-            return stmt.executeQuery(sql);
-        }
+        var connection = this.getConnection();
+        Statement stmt = connection.createStatement();
+        return stmt.executeQuery(sql);
     }
 
     public void executePreparedStatementCommand(PreparedStatement preparedStatement) throws SQLException
@@ -184,7 +172,9 @@ public class DatabaseConnection implements IDatabaseConnection
                         case "Double" -> result.getDouble(fieldName);
                         default -> null;
                     };
-                    args.add(value); // ToDO: Add null exception ?
+                    if (value == null)
+                        throw new IllegalArgumentException("Field type not supported");
+                    args.add(value);
                 }
 
                 Constructor<? extends IDbItem> constructor = tClass.getConstructor();

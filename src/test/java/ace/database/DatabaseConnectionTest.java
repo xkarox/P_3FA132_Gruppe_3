@@ -1,10 +1,14 @@
 package ace.database;
 
+import ace.ErrorMessages;
 import ace.database.mocks.MockTableObject;
+import ace.database.mocks.MockTableObject2;
 import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.*;
-
+import org.mockito.Mock;
+import static org.mockito.Mockito.*;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +46,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(1)
     @Tag("excludeSetup")
     void openConnectionTest() throws IOException, SQLException
     {
@@ -58,7 +61,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(2)
     @Tag("createMockHelperService")
     void createAllTablesTest() throws SQLException
     {
@@ -118,7 +120,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(3)
     @Tag("createMockHelperService")
     void truncateAllTablesTest() throws SQLException
     {
@@ -130,7 +131,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(4)
     @Tag("createMockHelperService")
     void getAllTableNamesTest() throws SQLException
     {
@@ -143,7 +143,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(5)
     @Tag("createMockHelperService")
     void removeAllTablesTest() throws SQLException
     {
@@ -158,7 +157,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(6)
     void closeConnectionTest() throws SQLException
     {
         assertNotNull(this._dbConnection.getConnection(), "Because a connection should be established");
@@ -173,7 +171,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(7)
     @Tag("createMockHelperService")
     void executeSqlUpdateCommandTest() throws SQLException
     {
@@ -191,7 +188,39 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(8)
+    @Tag("createMockHelperService")
+    void executeSqlUpdateCommandLineErrorTest() throws SQLException{
+        this._dbConnection.createAllTables();
+        boolean exceptionTriggert = false;
+
+        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 1, "t1", 111);
+        try{
+            this._dbConnection.executeSqlUpdateCommand(createMockCommand, 2);
+        } catch (IllegalArgumentException e){
+            exceptionTriggert = true;
+            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.SqlUpdate)));
+        }
+        assertTrue(exceptionTriggert, "Because the exception should have been triggert");
+    }
+
+    @Test
+    @Tag("createMockHelperService")
+    void executeSqlUpdateCommandErrorTest() throws SQLException{
+        this._dbConnection.createAllTables();
+        boolean exceptionTriggert = false;
+        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d, %d)", this.mockData.getSerializedTableName(), 1, "t1", 111, 999);
+        try{
+            this._dbConnection.executeSqlUpdateCommand(createMockCommand, 1);
+        } catch (SQLIntegrityConstraintViolationException e){
+            exceptionTriggert = true;
+            String expectedPattern = "\\(conn=\\d+\\) Column count doesn't match value count at row 1";
+            assertTrue(e.getMessage().matches(expectedPattern));
+
+        }
+        assertTrue(exceptionTriggert, "Because the exception should have been triggert");
+    }
+
+    @Test
     @Tag("createMockHelperService")
     void executePreparedStatementCommandTest() throws ReflectiveOperationException, SQLException
     {
@@ -213,7 +242,6 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(9)
     @Tag("createMockHelperService")
     public void getAllObjectsFromDbTableTest() throws ReflectiveOperationException, SQLException
     {
@@ -239,22 +267,48 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Order(10)
     @Tag("excludeSetup")
-    void openConnectionNull()
+    void openConnectionNullTest()
     {
         DatabaseConnection dbConnection = new DatabaseConnection();
+        assertNull(dbConnection.getConnection());
+    }
+
+    @Test
+    @Tag("createMockHelperService")
+    void getObjectsFromDbTableDefaultCaseTest() throws SQLException, ReflectiveOperationException
+    {
+        this._dbConnection.createAllTables();
+        this.createTestData(this._dbConnection);
+
         boolean exceptionTriggert = false;
         try
         {
-            dbConnection.getConnection();
-        } catch (RuntimeException e)
+            this._dbConnection.getAllObjectsFromDbTable(new MockTableObject2());
+        } catch (IllegalArgumentException | ReflectiveOperationException e)
         {
             exceptionTriggert = true;
-            assertEquals(e.getMessage(), "Connection not initialised");
+            assertEquals(e.getMessage(), "Field type not supported");
         }
         assertTrue(exceptionTriggert, "Because the exception should have been triggert");
+
+
+        Statement mockStatement = mock(Statement.class);
+        var connection = mock(Connection.class);
+        when(connection.createStatement()).thenReturn(mockStatement);
+        when(mockStatement.executeQuery(anyString())).thenThrow(new SQLException("Simulated failure"));
+
+        Field secretField = DatabaseConnection.class.getDeclaredField("_connection");
+        secretField.setAccessible(true);
+        secretField.set(this._dbConnection, connection);
+
+        try{
+            this._dbConnection.getAllObjectsFromDbTable(new MockTableObject());
+        } catch (SQLException e){
+            assertEquals("Simulated failure", e.getMessage());
+        }
     }
+
 
     private void createTestData(DatabaseConnection dbConnection) throws SQLException
     {
