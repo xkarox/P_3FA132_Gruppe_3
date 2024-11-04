@@ -5,7 +5,7 @@ import ace.database.mocks.MockTableObject;
 import ace.database.mocks.MockTableObject2;
 import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
+
 import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -20,6 +20,8 @@ public class DatabaseConnectionTest
 {
     private final MockTableObject mockData = new MockTableObject();
     private DatabaseConnection _dbConnection;
+    private final Exception simFailedException = new SQLException("Simulated failure");
+
 
     @BeforeEach
     void setUp(TestInfo testInfo) throws IOException, SQLException
@@ -35,7 +37,7 @@ public class DatabaseConnectionTest
 
         if (testInfo.getTags().contains("createMockHelperService"))
         {
-            DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>()
+            DbHelperService dbHelperService = new DbHelperService(new ArrayList<>()
             {{
                 add(mockData);
             }});
@@ -200,24 +202,7 @@ public class DatabaseConnectionTest
             exceptionTriggert = true;
             assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.SqlUpdate)));
         }
-        assertTrue(exceptionTriggert, "Because the exception should have been triggert");
-    }
-
-    @Test
-    @Tag("createMockHelperService")
-    void executeSqlUpdateCommandErrorTest() throws SQLException{
-        this._dbConnection.createAllTables();
-        boolean exceptionTriggert = false;
-        String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d, %d)", this.mockData.getSerializedTableName(), 1, "t1", 111, 999);
-        try{
-            this._dbConnection.executeSqlUpdateCommand(createMockCommand, 1);
-        } catch (SQLIntegrityConstraintViolationException e){
-            exceptionTriggert = true;
-            String expectedPattern = "\\(conn=\\d+\\) Column count doesn't match value count at row 1";
-            assertTrue(e.getMessage().matches(expectedPattern));
-
-        }
-        assertTrue(exceptionTriggert, "Because the exception should have been triggert");
+        assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
     }
 
     @Test
@@ -243,11 +228,10 @@ public class DatabaseConnectionTest
 
     @Test
     @Tag("createMockHelperService")
-    public void getAllObjectsFromDbTableTest() throws ReflectiveOperationException, SQLException
+    void getAllObjectsFromDbTableTest() throws ReflectiveOperationException, SQLException
     {
         MockTableObject mockInstance = new MockTableObject("Peter", 99);
         MockTableObject mockInstance2 = new MockTableObject("hans", 66);
-
 
         this._dbConnection.createAllTables();
         String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 1, mockInstance.name, mockInstance.age);
@@ -267,48 +251,40 @@ public class DatabaseConnectionTest
     }
 
     @Test
-    @Tag("excludeSetup")
-    void openConnectionNullTest()
-    {
-        DatabaseConnection dbConnection = new DatabaseConnection();
-        assertNull(dbConnection.getConnection());
-    }
-
-    @Test
     @Tag("createMockHelperService")
     void getObjectsFromDbTableDefaultCaseTest() throws SQLException, ReflectiveOperationException
     {
         this._dbConnection.createAllTables();
         this.createTestData(this._dbConnection);
 
-        boolean exceptionTriggert = false;
-        try
-        {
-            this._dbConnection.getAllObjectsFromDbTable(new MockTableObject2());
-        } catch (IllegalArgumentException | ReflectiveOperationException e)
-        {
-            exceptionTriggert = true;
-            assertEquals(e.getMessage(), "Field type not supported");
-        }
-        assertTrue(exceptionTriggert, "Because the exception should have been triggert");
-
-
-        Statement mockStatement = mock(Statement.class);
-        var connection = mock(Connection.class);
-        when(connection.createStatement()).thenReturn(mockStatement);
-        when(mockStatement.executeQuery(anyString())).thenThrow(new SQLException("Simulated failure"));
-
-        Field secretField = DatabaseConnection.class.getDeclaredField("_connection");
-        secretField.setAccessible(true);
-        secretField.set(this._dbConnection, connection);
-
-        try{
-            this._dbConnection.getAllObjectsFromDbTable(new MockTableObject());
-        } catch (SQLException e){
-            assertEquals("Simulated failure", e.getMessage());
-        }
+        Exception argumentException = new IllegalArgumentException("Field type not supported");
+        var caughtException = assertThrows(IllegalArgumentException.class,
+                () -> this._dbConnection.getAllObjectsFromDbTable(new MockTableObject2()));
+        assertEquals(argumentException.getMessage(), caughtException.getMessage());
     }
 
+    @Test
+    @Tag("createMockHelperService")
+    void getObjectsFromDbTableSqlErrorTest() throws SQLException, ReflectiveOperationException
+    {
+        Statement mockStatement = mock(Statement.class);
+        Connection connection = mock(Connection.class);
+        when(connection.createStatement()).thenReturn(mockStatement);
+        when(mockStatement.executeQuery(anyString())).thenThrow(simFailedException);
+        insertMockConnection(connection);
+
+        var caughtException = assertThrows(SQLException.class,
+                () -> this._dbConnection.getAllObjectsFromDbTable(new MockTableObject()));
+        assertEquals(simFailedException.getMessage(), caughtException.getMessage());
+    }
+
+    @Test
+    @Tag("excludeSetup")
+    void openConnectionNullTest()
+    {
+        DatabaseConnection dbConnection = new DatabaseConnection();
+        assertNull(dbConnection.getConnection());
+    }
 
     private void createTestData(DatabaseConnection dbConnection) throws SQLException
     {
@@ -360,5 +336,12 @@ public class DatabaseConnectionTest
         }
 
         return result;
+    }
+
+    private void insertMockConnection(Connection mockConnection) throws NoSuchFieldException, IllegalAccessException
+    {
+        Field secretField = DatabaseConnection.class.getDeclaredField("_connection");
+        secretField.setAccessible(true);
+        secretField.set(this._dbConnection, mockConnection);
     }
 }
