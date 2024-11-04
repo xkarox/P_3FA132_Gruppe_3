@@ -22,7 +22,7 @@ jobs:
       mariadb:
         image: mariadb:11.5.2
         env:
-          MYSQL_DATABASE: homeautomation_test
+          MYSQL_DATABASE: localhost:3306/homeautomation
           MYSQL_USER: erik_testing
           MYSQL_PASSWORD: testing_password
         ports:
@@ -35,6 +35,7 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
