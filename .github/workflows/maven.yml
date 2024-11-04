@@ -19,11 +19,6 @@ jobs:
           MYSQL_PASSWORD: my_password  # Database user password
         ports:
           - 3306:3306 # Expose the database port
-        options: >
-          --health-cmd="mysqladmin ping -h localhost" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
