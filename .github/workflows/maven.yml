@@ -32,14 +32,14 @@ jobs:
 
       - name: Wait for MariaDB to be ready
         run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h "127.0.0.1" --user=my_user --password=my_password --silent; then
-              echo "MariaDB is ready!"
-              break
-            fi
-            echo "Waiting for MariaDB..."
-            sleep 5
-          done
+            for i in {1..30}; do
+              if mysqladmin ping -h "127.0.0.1" --user=my_user --password=my_password --silent; then
+                echo "MariaDB is ready!"
+                break
+              fi
+              echo "Waiting for MariaDB..."
+              sleep 5
+            done
 
       - name: Check MariaDB connection
         run: |
