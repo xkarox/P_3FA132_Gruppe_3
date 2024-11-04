@@ -43,7 +43,7 @@ jobs:
 
       - name: Check MariaDB connection
         run: |
-          mysql -h 127.0.0.1 -u my_user -p'my_password' -e 'SELECT 1;' || { echo "Database connection failed!"; exit 1; }
+          mysql -h 127.0.0.1 -u my_user -p 'my_password' -e 'SELECT 1;' || { echo "Database connection failed!"; exit 1; }
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
