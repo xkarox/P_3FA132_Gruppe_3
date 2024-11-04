@@ -21,7 +21,7 @@
 		<maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
 
 
-		<mainClass>Main</mainClass>
+		<mainClass>server.Main</mainClass>
 	</properties>
 
 	<dependencies>
@@ -31,10 +31,25 @@
 			<version>${mariadb.version}</version>
 		</dependency>
 
+		<!-- Spring Boot Web -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>6.1.14</version>
+		</dependency>
+
+		<!-- Spring Boot Starter Web -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<version>3.3.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<version>3.3.5</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!--  JUNIT    -->
@@ -44,14 +59,6 @@
 			<scope>test</scope>
 			<version>${junit-jupiter.version}</version>
 		</dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.17.1</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 	<build>
@@ -116,7 +123,6 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven.surefire.plugin.version}</version>
 			</plugin>
-
 		</plugins>
 
 	</build>
