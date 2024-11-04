@@ -4,10 +4,9 @@ import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.*;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -115,7 +114,7 @@ public class CustomerService extends AbstractBaseService<Customer>
 
     private void cleanUpAfterCustomerRemove(UUID customerId)
     {
-        String updateStatement =  new StringBuilder("UPDATE ").append(new Reading().getSerializedTableName())
+        String updateStatement = new StringBuilder("UPDATE ").append(new Reading().getSerializedTableName())
                 .append(" SET").append(" customerId=NULL ").append("WHERE customerId=?").toString();
 
         try

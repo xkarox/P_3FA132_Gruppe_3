@@ -11,15 +11,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ReadingService extends AbstractBaseService<Reading> {
-    public ReadingService(DatabaseConnection dbConnection) {
+public class ReadingService extends AbstractBaseService<Reading>
+{
+    public ReadingService(DatabaseConnection dbConnection)
+    {
         super(dbConnection);
     }
 
 
     @Override
-    public Reading add(Reading item) {
-        if (item == null) {
+    public Reading add(Reading item)
+    {
+        if (item == null)
+        {
             throw new RuntimeException("Reading is null and cannot be inserted.");
         }
 
@@ -30,16 +34,18 @@ public class ReadingService extends AbstractBaseService<Reading> {
         {
             statement.setObject(1, item.getId());
             statement.setString(2, item.getComment());
-            if (item.getCustomer() == null) {
+            if (item.getCustomer() == null)
+            {
                 return null;
-            }
-            else {
+            } else
+            {
                 CustomerService customerService = new CustomerService(this._dbConnection);
                 Customer existingCustomer = customerService.getById(item.getCustomer().getId());
 
                 // customer does not exists
-                if (existingCustomer == null) {
-                    customerService.add((Customer)item.getCustomer());
+                if (existingCustomer == null)
+                {
+                    customerService.add((Customer) item.getCustomer());
                 }
 
                 statement.setObject(3, item.getCustomer().getId());
@@ -51,9 +57,8 @@ public class ReadingService extends AbstractBaseService<Reading> {
             statement.setString(7, item.getMeterId());
             statement.setBoolean(8, item.getSubstitute());
             this._dbConnection.executePreparedStatementCommand(statement);
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e)
+        {
             throw new RuntimeException(e);
         }
 
@@ -77,7 +82,7 @@ public class ReadingService extends AbstractBaseService<Reading> {
     @Override
     public List<Reading> getAll()
     {
-       return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(new Reading());
+        return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(new Reading());
     }
 
     @Override
@@ -102,8 +107,7 @@ public class ReadingService extends AbstractBaseService<Reading> {
         {
             _dbConnection.executeSqlUpdateCommand(sb.toString(), 1);
             return item;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             throw new RuntimeException(e);
         }
@@ -116,7 +120,7 @@ public class ReadingService extends AbstractBaseService<Reading> {
         String delStatement = new StringBuilder("DELETE FROM ").append(item.getSerializedTableName())
                 .append(" WHERE id=?").toString();
         if (item.getId() == null)
-    {
+        {
             throw new RuntimeException("Cannot delete a reading without id");
         }
         try

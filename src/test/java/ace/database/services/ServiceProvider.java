@@ -2,6 +2,8 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 
+import java.io.IOException;
+
 public class ServiceProvider
 {
     private static DatabaseConnection _dbConnection;
@@ -11,29 +13,34 @@ public class ServiceProvider
     static
     {
         DatabaseConnection dbConnection = new DatabaseConnection();
-        setDbConnection(dbConnection);
+        try
+        {
+            setDbConnection(dbConnection);
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static void setDbConnection(DatabaseConnection dbConnection)
+    public static void setDbConnection(DatabaseConnection dbConnection) throws IOException
     {
         _dbConnection = dbConnection;
-
         _dbConnection.openConnection();
         _customerService = new CustomerService(dbConnection);
         _readingService = new ReadingService(dbConnection);
     }
 
-    public static DatabaseConnection GetDatabaseConnection()
+    public static DatabaseConnection getDatabaseConnection()
     {
         return _dbConnection;
     }
 
-    public static CustomerService GetCustomerService()
+    public static CustomerService getCustomerService()
     {
         return _customerService;
     }
 
-    public static ReadingService GetReadingService()
+    public static ReadingService getReadingService()
     {
         return _readingService;
     }
