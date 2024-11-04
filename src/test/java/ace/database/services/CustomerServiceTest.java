@@ -110,8 +110,8 @@ public class CustomerServiceTest
     void getByIdSizeErrorTest() throws ReflectiveOperationException, SQLException
     {
         List<Customer> items = new ArrayList<>();
-        items.add(new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
-        items.add(new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), Gender.W));
+        items.add(new Customer());
+        items.add(new Customer());
 
         Exception thrownException = new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", items.size()));
 

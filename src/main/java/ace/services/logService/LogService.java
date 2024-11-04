@@ -36,9 +36,4 @@ public class LogService
         sb.append("(").append(classType).append(") ").append(level).append(": ").append(message);
         return sb.toString();
     }
-
-    private static String getLineNumberMessage(int lineNumber)
-    {
-        return "(Line " + lineNumber + ") ";
-    }
 }

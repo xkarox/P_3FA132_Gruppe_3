@@ -1,5 +1,6 @@
 package ace;
 
+import ace.services.logService.LogService;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,5 +30,11 @@ public class UtilsTest
             assertEquals(e.getMessage(), resultString);
         }
         assertTrue(exceptionTriggert, "Because the exception should have been triggert");
+    }
+
+    @Test
+    // Just for coverage in jacoco report
+    void staticTest(){
+        Utils utils = new Utils();
     }
 }
