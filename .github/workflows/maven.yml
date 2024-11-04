@@ -50,9 +50,9 @@ jobs:
         run: |
           echo "Setting up database configuration for CI environment..."
           SYSTEM_USER=$(whoami)
-          echo "$SYSTEM_USER.db.url=localhost:3306/${{ secrets.MYSQL_DATABASE }}" >> config/properties.config.test
-          echo "$SYSTEM_USER.db.user=${{ secrets.MYSQL_USER }}" >> config/properties.config.test
-          echo "$SYSTEM_USER.db.pw=${{ secrets.MYSQL_PASSWORD }}" >> config/properties.config.test
+          echo "$SYSTEM_USER.db.url=localhost:3306/homeautomation_test" >> config/properties.config.test
+          echo "$SYSTEM_USER.db.user=pipeline_user" >> config/properties.config.test
+          echo "$SYSTEM_USER.db.pw=pipeline_password" >> config/properties.config.test
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
