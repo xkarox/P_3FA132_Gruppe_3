@@ -32,6 +32,20 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # Prüfen, ob MariaDB erreichbar ist
+      - name: Check MariaDB Connection
+        run: |
+          echo "Checking MariaDB connection..."
+          for i in {1..2}; do
+            if mysql -h 127.0.0.1 -P 3306 -u testuser -p testpassword -e "SELECT 1" testdb; then
+              echo "MariaDB is reachable!"
+              break
+            else
+              echo "MariaDB is not reachable yet. Retrying in 5 seconds..."
+              sleep 5
+            fi
+          done
+
       - name: Wait for MariaDB to start
         run: |
             echo "Waiting for MariaDB to be ready..."
