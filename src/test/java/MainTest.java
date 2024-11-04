@@ -1,4 +1,3 @@
-import ace.Utils;
 import org.junit.jupiter.api.Test;
 
 class MainTest
@@ -11,8 +10,9 @@ class MainTest
     }
 
     @Test
-    // Just for coverage in jacoco report
-    void staticTest(){
+        // Just for coverage in jacoco report
+    void staticTest()
+    {
         Main main = new Main();
     }
 }

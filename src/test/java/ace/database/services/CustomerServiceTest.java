@@ -120,7 +120,7 @@ public class CustomerServiceTest
                 .thenAnswer(invocation -> items);
 
         var caughtException = assertThrows(RuntimeException.class,
-                () -> new CustomerService(mockConnection).getById( new Customer().getId()));
+                () -> new CustomerService(mockConnection).getById(new Customer().getId()));
         assertEquals(thrownException.getMessage(), caughtException.getMessage());
     }
 

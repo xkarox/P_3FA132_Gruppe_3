@@ -5,13 +5,13 @@ import ace.database.mocks.MockTableObject;
 import ace.database.mocks.MockTableObject2;
 import org.junit.jupiter.api.*;
 
-import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatabaseConnectionTest
@@ -189,14 +189,17 @@ public class DatabaseConnectionTest
 
     @Test
     @Tag("createMockHelperService")
-    void executeSqlUpdateCommandLineErrorTest() throws SQLException{
+    void executeSqlUpdateCommandLineErrorTest() throws SQLException
+    {
         this._dbConnection.createAllTables();
         boolean exceptionTriggert = false;
 
         String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 1, "t1", 111);
-        try{
+        try
+        {
             this._dbConnection.executeSqlUpdateCommand(createMockCommand, 2);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e)
+        {
             exceptionTriggert = true;
             assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.SqlUpdate)));
         }

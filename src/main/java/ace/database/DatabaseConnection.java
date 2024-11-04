@@ -9,7 +9,10 @@ import ace.model.interfaces.IDbItem;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 public class DatabaseConnection implements IDatabaseConnection
 {
@@ -161,11 +164,13 @@ public class DatabaseConnection implements IDatabaseConnection
             {
                 List<Object> args = new ArrayList<>();
 
-                for (FieldInfo fieldInfo : fieldInfos) {
+                for (FieldInfo fieldInfo : fieldInfos)
+                {
                     String fieldName = fieldInfo.FieldName;
                     Class<?> fieldType = fieldInfo.FieldType;
 
-                    Object value = switch (fieldType.getSimpleName()){
+                    Object value = switch (fieldType.getSimpleName())
+                    {
                         case "String", "UUID", "LocalDate" -> result.getString(fieldName);
                         case "int" -> result.getInt(fieldName);
                         case "Boolean" -> result.getBoolean(fieldName);

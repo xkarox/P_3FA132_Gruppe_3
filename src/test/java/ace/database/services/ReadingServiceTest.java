@@ -77,7 +77,7 @@ public class ReadingServiceTest
     {
         DatabaseConnection mockConnection = mock(DatabaseConnection.class);
         when(mockConnection.newPrepareStatement(anyString())).thenThrow(SQLException.class);
-        assertThrows(SQLException.class, () -> new ReadingService(mockConnection).add( new Reading()));
+        assertThrows(SQLException.class, () -> new ReadingService(mockConnection).add(new Reading()));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class ReadingServiceTest
                 .thenAnswer(invocation -> items);
 
         var caughtException = assertThrows(RuntimeException.class,
-                () -> new ReadingService(mockConnection).getById( new Reading().getId()));
+                () -> new ReadingService(mockConnection).getById(new Reading().getId()));
         assertEquals(thrownException.getMessage(), caughtException.getMessage());
     }
 

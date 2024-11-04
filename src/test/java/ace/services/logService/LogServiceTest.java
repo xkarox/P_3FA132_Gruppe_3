@@ -56,14 +56,16 @@ public class LogServiceTest
     }
 
     @Test
-    // Just for coverage in jacoco report
-    void staticTest(){
+        // Just for coverage in jacoco report
+    void staticTest()
+    {
         LogService logService = new LogService();
     }
 
     private String filterAnsi(String input)
     {
-        if (input == null) {
+        if (input == null)
+        {
             return null;
         }
         input = input.replaceAll("[\\r\\n]+", "");

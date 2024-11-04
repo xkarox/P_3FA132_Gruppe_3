@@ -1,6 +1,5 @@
 package ace;
 
-import ace.services.logService.LogService;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,8 +32,9 @@ public class UtilsTest
     }
 
     @Test
-    // Just for coverage in jacoco report
-    void staticTest(){
+        // Just for coverage in jacoco report
+    void staticTest()
+    {
         Utils utils = new Utils();
     }
 }
