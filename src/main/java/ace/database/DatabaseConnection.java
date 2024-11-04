@@ -1,11 +1,12 @@
 package ace.database;
 
 import ace.ErrorMessages;
+import ace.Utils;
 import ace.database.intefaces.IDatabaseConnection;
 import ace.model.decorator.FieldInfo;
 import ace.model.interfaces.IDbItem;
-import ace.utils;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.sql.*;
 import java.time.LocalDate;
@@ -19,7 +20,8 @@ public class DatabaseConnection implements IDatabaseConnection
 
     public Connection getConnection()
     {
-        if (this._connection == null){
+        if (this._connection == null)
+        {
             throw new RuntimeException("Connection not initialised");
         }
         return _connection;
@@ -30,12 +32,9 @@ public class DatabaseConnection implements IDatabaseConnection
         this._helperService = helperService;
     }
 
-    public DatabaseConnection(){
+    public DatabaseConnection()
+    {
         setHelperService(new DbHelperService());
-    }
-
-    public DatabaseConnection(List<IDbItem> tables){
-        setHelperService(new DbHelperService(tables));
     }
 
     @Override
@@ -49,14 +48,14 @@ public class DatabaseConnection implements IDatabaseConnection
 
         this._databaseName = Arrays.asList(properties.getProperty(localUserName + ".db.url").split("/")).getLast();
 
-        try {
+        try
+        {
             _connection = DriverManager.getConnection(url, user, password);
             if (_connection == null)
             {
                 throw new RuntimeException("Could not initialise connection");
             }
-        }
-        catch (SQLException e) // Could not connect to db
+        } catch (SQLException e) // Could not connect to db
         {
             throw new RuntimeException(e);
         }
@@ -64,10 +63,10 @@ public class DatabaseConnection implements IDatabaseConnection
         return this;
     }
 
-    public IDatabaseConnection openConnection(){
+    public IDatabaseConnection openConnection() throws IOException
+    {
         return this.openConnection(DbHelperService.loadProperties());
     }
-
 
 
     @Override
@@ -122,8 +121,7 @@ public class DatabaseConnection implements IDatabaseConnection
                 String tableName = tables.getString("TABLE_NAME");
                 tableNames.add(tableName);
             }
-        }
-        catch (SQLException e)
+        } catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
@@ -159,7 +157,7 @@ public class DatabaseConnection implements IDatabaseConnection
         try (Statement stmt = this.getConnection().createStatement())
         {
             int result = stmt.executeUpdate(sql);
-            utils.checkValueEquals(result, expectedLinesAffected, ErrorMessages.SqlUpdate);
+            Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
             return result;
         } catch (SQLException e)
         {
@@ -198,26 +196,33 @@ public class DatabaseConnection implements IDatabaseConnection
 
         try (ResultSet result = this.executeSqlQueryCommand(queryCommand))
         {
-            while (result.next()) {
+            while (result.next())
+            {
                 List<Object> args = new ArrayList<>();
                 for (FieldInfo fieldInfo : fieldInfos)
                 {
-                    if (fieldInfo.FieldType == String.class){
+                    if (fieldInfo.FieldType == String.class)
+                    {
                         args.add(result.getString(fieldInfo.FieldName));
                     }
-                    if (fieldInfo.FieldType == int.class){
+                    if (fieldInfo.FieldType == int.class)
+                    {
                         args.add(result.getInt(fieldInfo.FieldName));
                     }
-                    if (fieldInfo.FieldType == UUID.class){
+                    if (fieldInfo.FieldType == UUID.class)
+                    {
                         args.add(result.getString(fieldInfo.FieldName));
                     }
-                    if (fieldInfo.FieldType == LocalDate.class){
+                    if (fieldInfo.FieldType == LocalDate.class)
+                    {
                         args.add(result.getString(fieldInfo.FieldName));
                     }
-                    if (fieldInfo.FieldType == Boolean.class){
+                    if (fieldInfo.FieldType == Boolean.class)
+                    {
                         args.add(result.getBoolean(fieldInfo.FieldName));
                     }
-                    if (fieldInfo.FieldType == Double.class){
+                    if (fieldInfo.FieldType == Double.class)
+                    {
                         args.add(result.getString(fieldInfo.FieldName));
                     }
                 }
@@ -235,16 +240,18 @@ public class DatabaseConnection implements IDatabaseConnection
         return results;
     }
 
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object){
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object)
+    {
         return getObjectsFromDbTable(object, "");
     }
 
     /**
      * Prints the information of a person.
      *
-     * @param sqlWhereClause    Sql where statement, starts with: Where ...
+     * @param sqlWhereClause Sql where statement, starts with: Where ...
      */
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause){
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause)
+    {
         return getObjectsFromDbTable(object, sqlWhereClause);
 
     }
