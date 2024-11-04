@@ -6,7 +6,7 @@
 
 # Git
 Only commit finished and functional work to main. <br/>
-Main has to be functional at all times. <br/>
+server.Main has to be functional at all times. <br/>
 Releases are based one main.
 ## Branches
 - {type}\_{type_id}\_{user_name}\_{task_description}
