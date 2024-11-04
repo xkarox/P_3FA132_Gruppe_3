@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,7 +30,7 @@ public class ReadingServiceTest
     private CustomerService _customerService;
 
     @BeforeEach
-    void SetUp() throws IOException
+    void SetUp() throws IOException, SQLException
     {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe"
                 , LocalDate.now(), Gender.M);
@@ -50,7 +51,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void testAdd()
+    void testAdd() throws ReflectiveOperationException, SQLException
     {
         this._readingService.add(this._testReading);
         Reading readingFromDb = this._readingService.getById(this._testReading.getId());
@@ -67,7 +68,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void updateTest()
+    void updateTest() throws ReflectiveOperationException, SQLException
     {
         this._customerService.add(this._testCustomer);
 //        add origin reading
@@ -88,7 +89,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void getByIdTest()
+    void getByIdTest() throws ReflectiveOperationException, SQLException
     {
         this._customerService.add(this._testCustomer);
         this._readingService.add(this._testReading);
@@ -101,7 +102,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void getAllTest()
+    void getAllTest() throws ReflectiveOperationException, SQLException
     {
         this._customerService.add(this._testCustomer);
         this._readingService.add(this._testReading);
@@ -134,7 +135,7 @@ public class ReadingServiceTest
 
 
     @Test
-    void removeTest()
+    void removeTest() throws ReflectiveOperationException, SQLException
     {
 //        add Customer and Reading
         this._customerService.add(this._testCustomer);

@@ -20,7 +20,7 @@ public class ReadingService extends AbstractBaseService<Reading>
 
 
     @Override
-    public Reading add(Reading item)
+    public Reading add(Reading item) throws SQLException, ReflectiveOperationException
     {
         if (item == null)
         {
@@ -57,16 +57,13 @@ public class ReadingService extends AbstractBaseService<Reading>
             statement.setString(7, item.getMeterId());
             statement.setBoolean(8, item.getSubstitute());
             this._dbConnection.executePreparedStatementCommand(statement);
-        } catch (SQLException e)
-        {
-            throw new RuntimeException(e);
         }
 
         return item;
     }
 
     @Override
-    public Reading getById(UUID id)
+    public Reading getById(UUID id) throws ReflectiveOperationException, SQLException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Reading(), String.format("WHERE id = '%s'", id));
         if (result.size() > 1)
@@ -80,7 +77,7 @@ public class ReadingService extends AbstractBaseService<Reading>
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Reading> getAll()
+    public List<Reading> getAll() throws ReflectiveOperationException, SQLException
     {
         return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(new Reading());
     }

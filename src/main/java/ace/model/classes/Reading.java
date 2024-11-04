@@ -172,7 +172,7 @@ public class Reading implements IReading
         this._customerId = UUID.fromString((String) args[2]);
         this._dateOfReading = date;
         this._kindOfMeter = IReading.KindOfMeter.values()[(int) args[4]];
-        this._meterCount = Double.parseDouble((String) args[5]);
+        this._meterCount =  (Double) args[5];
         this._meterId = (String) args[6];
         this._substitute = (Boolean) args[7];
         return this;

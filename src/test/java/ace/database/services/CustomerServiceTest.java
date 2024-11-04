@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,7 +29,7 @@ public class CustomerServiceTest
     private ReadingService _readingService;
 
     @BeforeEach
-    void SetUp() throws IOException
+    void SetUp() throws IOException, SQLException
     {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(),
                 ICustomer.Gender.M);
@@ -43,7 +44,7 @@ public class CustomerServiceTest
     }
 
     @Test
-    void testAdd()
+    void testAdd() throws ReflectiveOperationException, SQLException
     {
         this._customerService.add(this._testCustomer);
 
@@ -54,7 +55,7 @@ public class CustomerServiceTest
     }
 
     @Test
-    void updateTest()
+    void updateTest() throws ReflectiveOperationException, SQLException
     {
 //        add origin customer
         this._customerService.add(this._testCustomer);
@@ -73,7 +74,7 @@ public class CustomerServiceTest
     }
 
     @Test
-    void removeTest()
+    void removeTest() throws ReflectiveOperationException, SQLException
     {
 //        add customer and reading
         this._customerService.add(this._testCustomer);
@@ -89,7 +90,7 @@ public class CustomerServiceTest
     }
 
     @Test
-    void getByIdTest()
+    void getByIdTest() throws ReflectiveOperationException, SQLException
     {
         var nullResult = this._customerService.getById(UUID.randomUUID());
         assertNull(nullResult, "Because there are no items in the db");
@@ -101,7 +102,7 @@ public class CustomerServiceTest
     }
 
     @Test
-    void getAllTest()
+    void getAllTest() throws ReflectiveOperationException, SQLException
     {
         var nullResult = this._customerService.getAll();
         assertTrue(nullResult.isEmpty(), "Because there are no items in the db");

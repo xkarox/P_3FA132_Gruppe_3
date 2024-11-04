@@ -3,6 +3,7 @@ package ace.database.services;
 import ace.database.DatabaseConnection;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class ServiceProvider
 {
@@ -16,13 +17,13 @@ public class ServiceProvider
         try
         {
             setDbConnection(dbConnection);
-        } catch (IOException e)
+        } catch (IOException | SQLException e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    public static void setDbConnection(DatabaseConnection dbConnection) throws IOException
+    public static void setDbConnection(DatabaseConnection dbConnection) throws IOException, SQLException
     {
         _dbConnection = dbConnection;
         _dbConnection.openConnection();
