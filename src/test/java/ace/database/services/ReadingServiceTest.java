@@ -5,19 +5,18 @@ import ace.database.DbHelperService;
 import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
-import ace.model.interfaces.IReading.KindOfMeter;
 import ace.model.interfaces.ICustomer.Gender;
+import ace.model.interfaces.IReading.KindOfMeter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReadingServiceTest
@@ -30,7 +29,7 @@ public class ReadingServiceTest
     private CustomerService _customerService;
 
     @BeforeEach
-    void SetUp()
+    void SetUp() throws IOException
     {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe"
                 , LocalDate.now(), Gender.M);
@@ -121,7 +120,8 @@ public class ReadingServiceTest
 
         // Because Java is shit
         Reading reading1 = this._testReading;
-        List<Reading> prepeared = new ArrayList<>(){
+        List<Reading> prepeared = new ArrayList<>()
+        {
             {
                 add(reading1);
                 add(reading2);

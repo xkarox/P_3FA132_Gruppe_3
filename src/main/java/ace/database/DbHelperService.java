@@ -15,16 +15,20 @@ import java.util.Properties;
 
 public class DbHelperService
 {
-    private List<IDbItem> _tables = new ArrayList<IDbItem>(){
+    private List<IDbItem> _tables = new ArrayList<IDbItem>()
+    {
         {
             add(new Customer());
             add(new Reading());
         }
     };
 
-    public DbHelperService(){ }
+    public DbHelperService()
+    {
+    }
 
-    public DbHelperService(List<IDbItem> tables){
+    public DbHelperService(List<IDbItem> tables)
+    {
         this._tables = tables;
     }
 
@@ -43,37 +47,26 @@ public class DbHelperService
         return commands;
     }
 
-    public static Properties loadProperties()
+    public static Properties loadProperties() throws IOException
     {
         Properties properties;
 
         Path currentPath = Paths.get(System.getProperty("user.dir"));
         Path filePath = currentPath.resolve("config/properties.config");
 
-        try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath()))) {
-            properties = loadProperties(input);
-        }
-        catch (IOException e)
+        try (InputStream input = new FileInputStream(String.valueOf(filePath.toAbsolutePath())))
         {
-            throw new RuntimeException(e);
+            properties = loadProperties(input);
         }
 
         return properties;
     }
 
-    public static Properties loadProperties(InputStream fileStream)
+    public static Properties loadProperties(InputStream fileStream) throws IOException
     {
         Properties properties = new Properties();
-
-        try
-        {
-            properties.load(fileStream);
-            fileStream.close();
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        properties.load(fileStream);
+        fileStream.close();
 
         return properties;
     }

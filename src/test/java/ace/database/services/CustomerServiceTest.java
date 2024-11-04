@@ -1,26 +1,24 @@
 package ace.database.services;
 
 import ace.database.DatabaseConnection;
-import ace.model.interfaces.ICustomer.Gender;
 import ace.database.DbHelperService;
 import ace.database.DbTestHelper;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
+import ace.model.interfaces.ICustomer.Gender;
 import ace.model.interfaces.IReading;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CustomerServiceTest
 {
@@ -30,7 +28,8 @@ public class CustomerServiceTest
     private ReadingService _readingService;
 
     @BeforeEach
-    void SetUp() {
+    void SetUp() throws IOException
+    {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(),
                 ICustomer.Gender.M);
         this._testReading = new Reading(UUID.randomUUID(), "", this._testCustomer.getId(), LocalDate.now(),
