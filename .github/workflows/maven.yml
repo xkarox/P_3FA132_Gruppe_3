@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "Checking MariaDB connection..."
           for i in {1..2}; do
-            if mysql -h 127.0.0.1 -P 3306 -u testuser -ptestpassword -e "SELECT 1" testdb; then
+            if mysql -h 127.0.0.1 -P 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }} -e "SELECT 1" ${{ MYSQL_DATABASE }}; then
               echo "MariaDB is reachable!"
               break
             else
