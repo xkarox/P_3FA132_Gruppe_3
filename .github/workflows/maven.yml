@@ -32,13 +32,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Wait for MariaDB to be ready
+      - name: Wait for MariaDB to start
         run: |
-            echo "Waiting for MariaDB to be healthy..."
-            until docker inspect --format='{{.State.Health.Status}}' $(docker-compose ps -q mariadb) | grep -q "healthy"; do
-              sleep 2
-            done
-            echo "MariaDB is ready!"
+            echo "Waiting for MariaDB to be ready..."
+            sleep 20
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
