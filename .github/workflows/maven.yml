@@ -12,15 +12,17 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:11.5.2 # or specify a version like mariadb:11.5.2
+        image: mariadb:11.5.2
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: testdb
-          ports:
-            - 3306:3306
-          options: >-
-            --health-cmd="mysqladmin ping -h localhost" --health-interval=10s
-            --health-timeout=5s --health-retries=3
+          MYSQL_USER: my_user          # Set your user
+          MYSQL_PASSWORD: my_password  # Set your password
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost --user=my_user --password=my_password" 
+          --health-interval=10s
+          --health-timeout=5s 
+          --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
@@ -28,24 +30,24 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'  # Change to '17' since your setup mentioned JDK 17
           distribution: 'temurin'
           cache: maven
 
       - name: Wait for MariaDB to be ready
         run: |
-            for i in {1..3}; do
-              if mysqladmin ping -h "127.0.0.1" --user=my_user --password=my_password --silent; then
-                echo "MariaDB is ready!"
-                break
-              fi
-              echo "Waiting for MariaDB..."
-              sleep 5
-            done
+          for i in {1..10}; do
+            if mysqladmin ping -h "127.0.0.1" --user=my_user --password=my_password --silent; then
+              echo "MariaDB is ready!"
+              break
+            fi
+            echo "Waiting for MariaDB..."
+            sleep 5
+          done
 
       - name: Check MariaDB connection
         run: |
-          mysql -h 127.0.0.1 -u my_user -p my_password || { echo "Database connection failed!"; exit 1; }
+          mysql -h 127.0.0.1 -u my_user -pmy_password testdb || { echo "Database connection failed!"; exit 1; }
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
