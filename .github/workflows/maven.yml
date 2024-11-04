@@ -57,6 +57,11 @@ jobs:
           echo "runner.db.user=pipeline_user" >> config/properties.config.test
           echo "runner.db.pw=pipeline_password" >> config/properties.config.test
 
+      - name: Display database configuration
+        run: |
+          echo "Displaying the database configuration..."
+          cat config/properties.config.test  # Dieser Befehl zeigt den Inhalt der Datei an 
+
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
