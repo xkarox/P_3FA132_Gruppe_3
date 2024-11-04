@@ -45,11 +45,14 @@ jobs:
               sleep 5
             fi
           done
+      - name: Display database configuration
+        run: |
+          echo "Displaying the database configuration..."
+          cat config/properties.config.test  # Dieser Befehl zeigt den Inhalt der Datei an
 
       - name: Configure database connection for CI
         run: |
           echo "Setting up database configuration for CI environment..."
-          SYSTEM_USER=$(whoami)
           echo "runner.db.url=localhost:3306/homeautomation_test" >> config/properties.config.test
           echo "runner.db.user=pipeline_user" >> config/properties.config.test
           echo "runner.db.pw=pipeline_password" >> config/properties.config.test
