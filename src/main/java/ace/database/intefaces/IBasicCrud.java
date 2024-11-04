@@ -12,7 +12,7 @@ public interface IBasicCrud<T>
 
     List<T> getAll() throws ReflectiveOperationException, SQLException;       // Get all items from db
 
-    T update(T item);       // Update
+    T update(T item) throws SQLException;       // Update
 
-    void remove(T item);    // Delete
+    void remove(T item) throws IllegalArgumentException, SQLException;    // Delete
 }

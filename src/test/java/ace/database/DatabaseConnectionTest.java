@@ -3,12 +3,10 @@ package ace.database;
 import ace.ErrorMessages;
 import ace.database.mocks.MockTableObject;
 import ace.database.mocks.MockTableObject2;
-import ace.model.interfaces.IDbItem;
 import org.junit.jupiter.api.*;
 
 import static org.mockito.Mockito.*;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -271,7 +269,7 @@ public class DatabaseConnectionTest
         Connection connection = mock(Connection.class);
         when(connection.createStatement()).thenReturn(mockStatement);
         when(mockStatement.executeQuery(anyString())).thenThrow(simFailedException);
-        insertMockConnection(connection);
+        DbTestHelper.InsertMockConnection(this._dbConnection, connection);
 
         var caughtException = assertThrows(SQLException.class,
                 () -> this._dbConnection.getAllObjectsFromDbTable(new MockTableObject()));
@@ -338,10 +336,4 @@ public class DatabaseConnectionTest
         return result;
     }
 
-    private void insertMockConnection(Connection mockConnection) throws NoSuchFieldException, IllegalAccessException
-    {
-        Field secretField = DatabaseConnection.class.getDeclaredField("_connection");
-        secretField.setAccessible(true);
-        secretField.set(this._dbConnection, mockConnection);
-    }
 }

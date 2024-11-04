@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,6 +21,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CustomerServiceTest
 {
@@ -102,6 +107,24 @@ public class CustomerServiceTest
     }
 
     @Test
+    void getByIdSizeErrorTest() throws ReflectiveOperationException, SQLException
+    {
+        List<Customer> items = new ArrayList<>();
+        items.add(new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
+        items.add(new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), Gender.W));
+
+        Exception thrownException = new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", items.size()));
+
+        DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+        when(mockConnection.getAllObjectsFromDbTableWithFilter(any(), anyString()))
+                .thenAnswer(invocation -> items);
+
+        var caughtException = assertThrows(RuntimeException.class,
+                () -> new CustomerService(mockConnection).getById( new Customer().getId()));
+        assertEquals(thrownException.getMessage(), caughtException.getMessage());
+    }
+
+    @Test
     void getAllTest() throws ReflectiveOperationException, SQLException
     {
         var nullResult = this._customerService.getAll();
@@ -116,7 +139,20 @@ public class CustomerServiceTest
         assertEquals(customers, result, "Because all customers should exist");
     }
 
-    private List<Customer> createTestData()
+    @Test
+    void crudNullCheck() throws NoSuchFieldException, IllegalAccessException
+    {
+        Customer customer = _testCustomer;
+        Field secretField = Customer.class.getDeclaredField("_id");
+        secretField.setAccessible(true);
+        secretField.set(customer, null);
+
+        assertThrows(IllegalArgumentException.class, () -> this._customerService.add(null));
+        assertThrows(IllegalArgumentException.class, () -> this._customerService.update(customer));
+        assertThrows(IllegalArgumentException.class, () -> this._customerService.remove(customer));
+    }
+
+    private List<Customer> createTestData() throws SQLException
     {
         List<Customer> items = new ArrayList<>();
         items.add(new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
