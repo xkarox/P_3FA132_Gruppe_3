@@ -75,11 +75,11 @@ jobs:
             fi
           done
           
-          if mysql -u root -proot -e "USE homeautomation_test"; then
+          if mysql -h 127.0.0.1 -u root -proot -e "USE homeautomation_test"; then
           echo "Datenbank homeautomation_test existiert bereits."
           else
           echo "Datenbank homeautomation_test existiert nicht. Erstelle die Datenbank..."
-          mysql -u root -proot -e "CREATE DATABASE homeautomation_test"
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE homeautomation_test"
           echo "Datenbank homeautomation_test wurde erstellt."
           fi
 
