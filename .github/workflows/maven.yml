@@ -36,7 +36,7 @@ jobs:
       - name: Check MariaDB Connection
         run: |
           echo "Checking MariaDB connection..."
-          for i in {1..2}; do
+          for i in {1..5}; do
             if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1" homeautomation_test; then
               echo "MariaDB is reachable!"
               break
