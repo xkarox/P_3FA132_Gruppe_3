@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
@@ -44,7 +45,7 @@ public class CustomerControllerTest
 
 
     @BeforeEach
-    void setUp() throws IOException
+    void setUp() throws IOException, SQLException
     {
         Server.startServer(" ");
         _httpClient = HttpClient.newHttpClient();
@@ -76,7 +77,7 @@ public class CustomerControllerTest
     }
 
     @Test
-    void postCustomerValidRequestWithId() throws IOException, InterruptedException
+    void postCustomerWithId() throws IOException, InterruptedException
     {
         String jsonString = _objMapper.writeValueAsString(this._customer);
         HttpRequest request = HttpRequest.newBuilder()
@@ -91,7 +92,7 @@ public class CustomerControllerTest
     }
 
     @Test
-    void postCustomerValidRequestWithoutId()  throws IOException, InterruptedException
+    void postCustomerWithoutId()  throws IOException, InterruptedException
     {
         Customer customerWithoutId = new Customer();
         customerWithoutId.setLastName("Ruehl");
