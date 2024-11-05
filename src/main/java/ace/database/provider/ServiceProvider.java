@@ -36,4 +36,9 @@ public class ServiceProvider
     {
         _services.dbConnectionPropertiesOverwrite(properties);
     }
+
+    public static void ConfigureMaxConnections(int maxDbConnections, int maxCustomerConnections, int maxReadingConnections)
+    {
+        _services.configureMaxConnections(maxDbConnections, maxCustomerConnections, maxReadingConnections);
+    }
 }

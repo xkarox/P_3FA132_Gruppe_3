@@ -14,15 +14,15 @@ public class InternalServiceProvider
 {
     private Properties _properties = null;
 
-    private final int _maxDbConnections;
+    private int _maxDbConnections;
     private final Map<Integer, DatabaseConnection> _possibleDbConnections = new HashMap<>();
     private final List<Integer> _usedDbConnections = new ArrayList<>();
 
-    private final int _maxCustomerConnections;
+    private int _maxCustomerConnections;
     private final Map<Integer, CustomerService> _possibleCustomerServices = new HashMap<>();
     private final List<Integer> _usedCustomerConnections = new ArrayList<>();
 
-    private final int _maxReadingConnections;
+    private int _maxReadingConnections;
     private final Map<Integer, ReadingService> _possibleReadingServices = new HashMap<>();
     private final List<Integer> _usedReadingConnections = new ArrayList<>();
 
@@ -188,5 +188,12 @@ public class InternalServiceProvider
     public void dbConnectionPropertiesOverwrite(Properties properties)
     {
         this._properties = properties;
+    }
+
+    public void configureMaxConnections(int maxDbConnections, int maxCustomerConnections, int maxReadingConnections)
+    {
+        this._maxDbConnections = maxDbConnections;
+        this._maxCustomerConnections = maxCustomerConnections;
+        this._maxReadingConnections = maxReadingConnections;
     }
 }
