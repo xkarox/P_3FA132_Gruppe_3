@@ -63,6 +63,16 @@ jobs:
           echo "Displaying the database configuration..."
           cat config/properties.config.test  # Dieser Befehl zeigt den Inhalt der Datei an 
 
+      - name: Check if database exists
+        run: |
+          if mysql -u root -proot -e "USE homeautomation_test"; then
+          echo "Datenbank homeautomation_test existiert bereits."
+          else
+          echo "Datenbank homeautomation_test existiert nicht. Erstelle die Datenbank..."
+          mysql -u root -proot -e "CREATE DATABASE homeautomation_test"
+          echo "Datenbank homeautomation_test wurde erstellt."
+          fi
+
       - name: Check database
         run: |
           if mysql -u root -proot -e "CREATE DATABASE test"; then
