@@ -39,6 +39,7 @@ jobs:
           for i in {1..5}; do
             if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; then
               echo "MariaDB is reachable!"
+              mysql.server start
               break
             else
               echo "MariaDB is not reachable yet. Retrying in 5 seconds..."
