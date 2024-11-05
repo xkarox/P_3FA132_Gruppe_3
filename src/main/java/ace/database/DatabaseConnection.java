@@ -3,6 +3,7 @@ package ace.database;
 import ace.ErrorMessages;
 import ace.Utils;
 import ace.database.intefaces.IDatabaseConnection;
+import ace.database.provider.InternalServiceProvider;
 import ace.model.decorator.FieldInfo;
 import ace.model.interfaces.IDbItem;
 
@@ -12,8 +13,11 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 
-public class DatabaseConnection implements IDatabaseConnection
+public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
 {
+    private final InternalServiceProvider _provider;
+
+
     private Connection _connection;
     private DbHelperService _helperService;
     private String _databaseName;
@@ -32,8 +36,15 @@ public class DatabaseConnection implements IDatabaseConnection
         this._helperService = helperService;
     }
 
+    public DatabaseConnection(InternalServiceProvider provider)
+    {
+        this._provider = provider;
+        setHelperService(new DbHelperService());
+    }
+
     public DatabaseConnection()
     {
+        this._provider = null;
         setHelperService(new DbHelperService());
     }
 
@@ -256,4 +267,10 @@ public class DatabaseConnection implements IDatabaseConnection
 
     }
 
+    @Override
+    public void close()
+    {
+        if (this._provider != null)
+            this._provider.releaseDbConnection(this);
+    }
 }
