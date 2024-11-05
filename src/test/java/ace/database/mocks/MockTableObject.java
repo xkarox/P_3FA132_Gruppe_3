@@ -12,10 +12,10 @@ public class MockTableObject implements IDbItem
     public int age;
 
     private String _schema = """
-                id INT PRIMARY KEY,
-                name VARCHAR (50),
-                age INT
-                """;
+            id INT PRIMARY KEY,
+            name VARCHAR (50),
+            age INT
+            """;
     private String _tableName = "testing";
 
     public MockTableObject()
@@ -30,11 +30,13 @@ public class MockTableObject implements IDbItem
         this.age = age;
     }
 
-    public void testSetSchema(String schema){
+    public void testSetSchema(String schema)
+    {
         this._schema = schema;
     }
 
-    public void testSetTableName(String tableName){
+    public void testSetTableName(String tableName)
+    {
         this._tableName = tableName;
     }
 
@@ -59,11 +61,14 @@ public class MockTableObject implements IDbItem
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
             return true;
         }
-        if (obj instanceof MockTableObject other) {
+        if (obj instanceof MockTableObject other)
+        {
             return this.age == other.age && this.name.equals(other.name);
         }
         return false;

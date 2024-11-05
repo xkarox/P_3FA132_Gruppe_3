@@ -171,7 +171,7 @@ public class Reading implements IReading
         this._comment = (String) args[1];
         this._customerId = UUID.fromString((String) args[2]);
         this._dateOfReading = date;
-        this._kindOfMeter = IReading.KindOfMeter.values() [(int) args[4]];
+        this._kindOfMeter = IReading.KindOfMeter.values()[(int) args[4]];
         this._meterCount = Double.parseDouble((String) args[5]);
         this._meterId = (String) args[6];
         this._substitute = (Boolean) args[7];
@@ -208,7 +208,7 @@ public class Reading implements IReading
 
         Reading item = (Reading) obj;
 
-        return  Objects.equals(this.getId(),item.getId())
+        return Objects.equals(this.getId(), item.getId())
                 && Objects.equals(this.getComment(), item.getComment())
                 && Objects.equals(this.getDateOfReading(), item.getDateOfReading())
                 && Objects.equals(this.getKindOfMeter(), item.getKindOfMeter())

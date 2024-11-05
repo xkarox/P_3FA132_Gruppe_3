@@ -120,7 +120,7 @@ public class Customer implements ICustomer
         this._firstName = (String) args[1];
         this._lastName = (String) args[2];
         this._birthDate = date;
-        this._gender = Gender.values() [(int) args[4]];
+        this._gender = Gender.values()[(int) args[4]];
         return this;
     }
 
@@ -150,7 +150,7 @@ public class Customer implements ICustomer
 
         Customer item = (Customer) obj;
 
-        return  Objects.equals(this.getId(), item.getId())
+        return Objects.equals(this.getId(), item.getId())
                 && Objects.equals(this.getBirthDate(), item.getBirthDate())
                 && Objects.equals(this.getFirstName(), item.getFirstName())
                 && Objects.equals(this.getLastName(), item.getLastName())

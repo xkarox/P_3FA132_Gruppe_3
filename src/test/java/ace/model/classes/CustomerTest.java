@@ -1,7 +1,6 @@
 package ace.model.classes;
 
 import ace.model.interfaces.ICustomer.Gender;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -147,6 +146,39 @@ public class CustomerTest
     {
         Customer customer1 = new Customer(this._id, this._firstName, this._lastName, this._birthDate, this._gender);
         Customer customer2 = new Customer(this._id, this._firstName, this._lastName, this._birthDate, this._gender);
+
+        Customer customer3 = new Customer(UUID.randomUUID(), this._firstName, this._lastName, this._birthDate, this._gender);
+        Customer customer4 = new Customer(this._id, "Hans", this._lastName, this._birthDate, this._gender);
+        Customer customer5 = new Customer(this._id, this._firstName, "Peter", this._birthDate, this._gender);
+        Customer customer6 = new Customer(this._id, this._firstName, this._lastName, LocalDate.now().minusWeeks(2), this._gender);
+        Customer customer7 = new Customer(this._id, this._firstName, this._lastName, this._birthDate, Gender.D);
+
+        Reading reading1 = new Reading();
+
         assertEquals(customer1, customer2, "Because they should be the same");
+        assertEquals(customer1, customer1, "Because they are the same");
+        assertNotEquals(customer1, reading1, "Because equals should fail");
+        assertNotEquals(customer1, null, "Because it is null");
+
+        assertNotEquals(customer1, customer3, "Diff id");
+        assertNotEquals(customer1, customer4, "Diff bday");
+        assertNotEquals(customer1, customer5, "Diff firstName");
+        assertNotEquals(customer1, customer6, "Diff lastName");
+        assertNotEquals(customer1, customer7, "Diff gender");
+    }
+
+    @Test
+    void constructorNullTest()
+    {
+        boolean exceptionThrown = false;
+        try
+        {
+            new Customer(this._id, this._firstName, this._lastName, this._birthDate, null);
+        } catch (IllegalArgumentException e)
+        {
+            exceptionThrown = true;
+            assertEquals(e.getMessage(), "Gender cannot be null");
+        }
+        assertTrue(exceptionThrown, "Because the exception should have been triggert");
     }
 }
