@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class DbHelperServiceTest
 {
     private final MockTableObject mockData = new MockTableObject();
-    private final String _expectedSchema = String.format("CREATE TABLE %s (%s);",
+    private final String _expectedSchema = String.format("CREATE TABLE IF NOT EXISTS %s (%s);",
             this.mockData.getSerializedTableName(), this.mockData.getSerializedStructure());
 
     @Test
@@ -38,7 +38,7 @@ public class DbHelperServiceTest
     {
         String secondTableName = "Testing1";
         String secondSqlSchema = "id INT PRIMARY KEY, name VARCHAR(100), age DOUBLE";
-        String secondExpectedSchema = "CREATE TABLE " + secondTableName + " (" + secondSqlSchema + ");";
+        String secondExpectedSchema = "CREATE TABLE IF NOT EXISTS " + secondTableName + " (" + secondSqlSchema + ");";
 
         MockTableObject mockTable = new MockTableObject();
         MockTableObject secondMockTable = new MockTableObject();

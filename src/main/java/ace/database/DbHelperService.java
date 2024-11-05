@@ -40,7 +40,7 @@ public class DbHelperService
         {
             String columnDefinition = table.getSerializedStructure();
             String tableName = table.getSerializedTableName();
-            String createStatement = String.format("CREATE TABLE %s (%s);", tableName, columnDefinition);
+            String createStatement = String.format("CREATE TABLE IF NOT EXISTS %s (%s);", tableName, columnDefinition);
             commands.add(createStatement);
         }
 
