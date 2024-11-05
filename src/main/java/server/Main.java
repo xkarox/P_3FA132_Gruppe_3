@@ -18,6 +18,7 @@ public class Main {
 
 		// test
 		// connection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
+		connection.removeAllTables();
 		connection.createAllTables();
 		// CustomerService service = new CustomerService(connection);
 		Server.startServer("{{ DatabaseUrl }}");
