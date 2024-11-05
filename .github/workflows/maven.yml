@@ -65,8 +65,15 @@ jobs:
 
       - name: Check if database exists
         run: |
-          if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; then
+          for i in {1..5}; do
+            if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; then
               echo "MariaDB is reachable!"
+              break
+            else
+              echo "MariaDB is not reachable yet. Retrying in 5 seconds..."
+              sleep 5
+            fi
+          done
           
           if mysql -u root -proot -e "USE homeautomation_test"; then
           echo "Datenbank homeautomation_test existiert bereits."
