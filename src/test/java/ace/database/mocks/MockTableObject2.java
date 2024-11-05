@@ -3,11 +3,11 @@ package ace.database.mocks;
 import ace.model.decorator.IFieldInfo;
 import ace.model.interfaces.IDbItem;
 
-import java.util.UUID;
+import java.util.ArrayList;
 
-public class MockTableObject implements IDbItem
+public class MockTableObject2 implements IDbItem
 {
-    @IFieldInfo(fieldName = "name", fieldType = UUID.class)
+    @IFieldInfo(fieldName = "name", fieldType = ArrayList.class)
     public String name;
 
     @IFieldInfo(fieldName = "age", fieldType = int.class)
@@ -20,13 +20,13 @@ public class MockTableObject implements IDbItem
             """;
     private String _tableName = "testing";
 
-    public MockTableObject()
+    public MockTableObject2()
     {
         this.name = "";
         this.age = 0;
     }
 
-    public MockTableObject(String name, int age)
+    public MockTableObject2(String name, int age)
     {
         this.name = name;
         this.age = age;
@@ -76,3 +76,4 @@ public class MockTableObject implements IDbItem
         return false;
     }
 }
+

@@ -4,6 +4,7 @@ import ace.database.DatabaseConnection;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ServiceProviderTest
 {
     @Test
-    void setDbConnection() throws IOException
+    void setDbConnection() throws IOException, SQLException
     {
         DatabaseConnection dbConnection = new DatabaseConnection();
         ServiceProvider.setDbConnection(dbConnection);

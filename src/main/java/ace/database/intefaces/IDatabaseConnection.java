@@ -1,16 +1,17 @@
 package ace.database.intefaces;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 public interface IDatabaseConnection
 {
-    IDatabaseConnection openConnection(Properties properties);
+    IDatabaseConnection openConnection(Properties properties) throws SQLException;
 
-    void createAllTables();
+    void createAllTables() throws SQLException;
 
-    void truncateAllTables();
+    void truncateAllTables() throws SQLException;
 
-    void removeAllTables();
+    void removeAllTables() throws SQLException;
 
-    void closeConnection();
+    void closeConnection() throws SQLException;
 }

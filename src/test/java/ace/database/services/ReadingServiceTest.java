@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,6 +20,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ReadingServiceTest
 {
@@ -29,7 +35,7 @@ public class ReadingServiceTest
     private CustomerService _customerService;
 
     @BeforeEach
-    void SetUp() throws IOException
+    void SetUp() throws IOException, SQLException
     {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe"
                 , LocalDate.now(), Gender.M);
@@ -50,7 +56,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void testAdd()
+    void testAdd() throws ReflectiveOperationException, SQLException
     {
         this._readingService.add(this._testReading);
         Reading readingFromDb = this._readingService.getById(this._testReading.getId());
@@ -67,7 +73,15 @@ public class ReadingServiceTest
     }
 
     @Test
-    void updateTest()
+    void addSqlTest() throws SQLException
+    {
+        DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+        when(mockConnection.newPrepareStatement(anyString())).thenThrow(SQLException.class);
+        assertThrows(SQLException.class, () -> new ReadingService(mockConnection).add(new Reading()));
+    }
+
+    @Test
+    void updateTest() throws ReflectiveOperationException, SQLException
     {
         this._customerService.add(this._testCustomer);
 //        add origin reading
@@ -88,7 +102,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void getByIdTest()
+    void getByIdTest() throws ReflectiveOperationException, SQLException
     {
         this._customerService.add(this._testCustomer);
         this._readingService.add(this._testReading);
@@ -101,7 +115,25 @@ public class ReadingServiceTest
     }
 
     @Test
-    void getAllTest()
+    void getByIdSizeErrorTest() throws ReflectiveOperationException, SQLException
+    {
+        List<Reading> items = new ArrayList<>();
+        items.add(new Reading());
+        items.add(new Reading());
+
+        Exception thrownException = new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", items.size()));
+
+        DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+        when(mockConnection.getAllObjectsFromDbTableWithFilter(any(), anyString()))
+                .thenAnswer(invocation -> items);
+
+        var caughtException = assertThrows(RuntimeException.class,
+                () -> new ReadingService(mockConnection).getById(new Reading().getId()));
+        assertEquals(thrownException.getMessage(), caughtException.getMessage());
+    }
+
+    @Test
+    void getAllTest() throws ReflectiveOperationException, SQLException
     {
         this._customerService.add(this._testCustomer);
         this._readingService.add(this._testReading);
@@ -134,7 +166,7 @@ public class ReadingServiceTest
 
 
     @Test
-    void removeTest()
+    void removeTest() throws ReflectiveOperationException, SQLException
     {
 //        add Customer and Reading
         this._customerService.add(this._testCustomer);
@@ -144,5 +176,18 @@ public class ReadingServiceTest
 //        try to get reading
         assertNull(this._readingService.getById(this._testReading.getId()), "Should return null because the " +
                 "reading was deleted before");
+    }
+
+    @Test
+    void crudNullCheck() throws NoSuchFieldException, IllegalAccessException
+    {
+        Reading reading = _testReading;
+        Field secretField = Reading.class.getDeclaredField("_id");
+        secretField.setAccessible(true);
+        secretField.set(reading, null);
+
+        assertThrows(IllegalArgumentException.class, () -> this._readingService.add(null));
+        assertThrows(IllegalArgumentException.class, () -> this._readingService.update(reading));
+        assertThrows(IllegalArgumentException.class, () -> this._readingService.remove(reading));
     }
 }
