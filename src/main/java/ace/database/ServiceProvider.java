@@ -4,6 +4,7 @@ import ace.database.services.CustomerService;
 import ace.database.services.ReadingService;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class ServiceProvider
 {
@@ -17,11 +18,17 @@ public class ServiceProvider
         try
         {
             _connection.openConnection();
-        } catch (IOException e)
+        } catch (IOException | SQLException e)
         {
             throw new RuntimeException(e);
         }
-        _connection.createAllTables();
+        try
+        {
+            _connection.createAllTables();
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
         _customerService = new CustomerService(_connection);
         _readingService = new ReadingService(_connection);
     }

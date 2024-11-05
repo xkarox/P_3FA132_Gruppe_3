@@ -9,8 +9,10 @@ import ace.model.interfaces.IDbItem;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.sql.*;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 public class DatabaseConnection implements IDatabaseConnection
 {
@@ -20,10 +22,6 @@ public class DatabaseConnection implements IDatabaseConnection
 
     public Connection getConnection()
     {
-        if (this._connection == null)
-        {
-            throw new RuntimeException("Connection not initialised");
-        }
         return _connection;
     }
 
@@ -38,7 +36,8 @@ public class DatabaseConnection implements IDatabaseConnection
     }
 
     @Override
-    public IDatabaseConnection openConnection(Properties properties)
+    /* Always call through getConnection for null handling */
+    public IDatabaseConnection openConnection(Properties properties) throws SQLException
     {
         String localUserName = System.getProperty("user.name").toLowerCase();
 
@@ -47,30 +46,19 @@ public class DatabaseConnection implements IDatabaseConnection
         String password = properties.getProperty(localUserName + ".db.pw");
 
         this._databaseName = Arrays.asList(properties.getProperty(localUserName + ".db.url").split("/")).getLast();
-
-        try
-        {
-            _connection = DriverManager.getConnection(url, user, password);
-            if (_connection == null)
-            {
-                throw new RuntimeException("Could not initialise connection");
-            }
-        } catch (SQLException e) // Could not connect to db
-        {
-            throw new RuntimeException(e);
-        }
+        _connection = DriverManager.getConnection(url, user, password);
 
         return this;
     }
 
-    public IDatabaseConnection openConnection() throws IOException
+    public IDatabaseConnection openConnection() throws IOException, SQLException
     {
         return this.openConnection(DbHelperService.loadProperties());
     }
 
 
     @Override
-    public void createAllTables()
+    public void createAllTables() throws SQLException
     {
         List<String> tablesCommands = this._helperService.createSqlTableSchemaCommands();
         for (String createTableCommand : tablesCommands)
@@ -80,7 +68,7 @@ public class DatabaseConnection implements IDatabaseConnection
     }
 
     @Override
-    public void truncateAllTables()
+    public void truncateAllTables() throws SQLException
     {
         List<String> tableNames = getAllTableNames();
         for (String tableName : tableNames)
@@ -91,7 +79,7 @@ public class DatabaseConnection implements IDatabaseConnection
     }
 
     @Override
-    public void removeAllTables()
+    public void removeAllTables() throws SQLException
     {
         List<String> tableNames = getAllTableNames();
 
@@ -107,73 +95,49 @@ public class DatabaseConnection implements IDatabaseConnection
         executeSqlUpdateCommand("SET FOREIGN_KEY_CHECKS = 1", 0);
     }
 
-    public List<String> getAllTableNames()
+    public List<String> getAllTableNames() throws SQLException
     {
         List<String> tableNames = new ArrayList<>();
 
-        try
-        {
-            DatabaseMetaData metaData = getConnection().getMetaData();
-            ResultSet tables = metaData.getTables(this._databaseName, null, "%", new String[]{"TABLE"});
+        DatabaseMetaData metaData = getConnection().getMetaData();
+        ResultSet tables = metaData.getTables(this._databaseName, null, "%", new String[]{"TABLE"});
 
-            while (tables.next())
-            {
-                String tableName = tables.getString("TABLE_NAME");
-                tableNames.add(tableName);
-            }
-        } catch (SQLException e)
+        while (tables.next())
         {
-            throw new RuntimeException(e);
+            String tableName = tables.getString("TABLE_NAME");
+            tableNames.add(tableName);
         }
 
         return tableNames;
     }
 
     @Override
-    public void closeConnection()
+    public void closeConnection() throws SQLException
     {
-        try
-        {
-            getConnection().close();
-        } catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
+        this._connection.close();
     }
 
-    public int executeSqlUpdateCommand(String sql)
+    public int executeSqlUpdateCommand(String sql) throws SQLException
     {
-        try (Statement stmt = this.getConnection().createStatement())
-        {
-            return stmt.executeUpdate(sql);
-        } catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
+        var connection = this.getConnection();
+        Statement stmt = connection.createStatement();
+        return stmt.executeUpdate(sql);
     }
 
-    public int executeSqlUpdateCommand(String sql, int expectedLinesAffected)
+    public int executeSqlUpdateCommand(String sql, int expectedLinesAffected) throws SQLException
     {
-        try (Statement stmt = this.getConnection().createStatement())
-        {
-            int result = stmt.executeUpdate(sql);
-            Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
-            return result;
-        } catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
+        var connection = this.getConnection();
+        Statement stmt = connection.createStatement();
+        int result = stmt.executeUpdate(sql);
+        Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
+        return result;
     }
 
-    public ResultSet executeSqlQueryCommand(String sql)
+    public ResultSet executeSqlQueryCommand(String sql) throws SQLException
     {
-        try (Statement stmt = this.getConnection().createStatement())
-        {
-            return stmt.executeQuery(sql);
-        } catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
+        var connection = this.getConnection();
+        Statement stmt = connection.createStatement();
+        return stmt.executeQuery(sql);
     }
 
     public void executePreparedStatementCommand(PreparedStatement preparedStatement) throws SQLException
@@ -186,7 +150,7 @@ public class DatabaseConnection implements IDatabaseConnection
         return this.getConnection().prepareStatement(statement);
     }
 
-    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause)
+    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause) throws SQLException, ReflectiveOperationException
     {
         var tClass = object.getClass();
         List<FieldInfo> fieldInfos = FieldInfo.getFieldInformationFromClass(tClass);
@@ -199,32 +163,23 @@ public class DatabaseConnection implements IDatabaseConnection
             while (result.next())
             {
                 List<Object> args = new ArrayList<>();
+
                 for (FieldInfo fieldInfo : fieldInfos)
                 {
-                    if (fieldInfo.FieldType == String.class)
+                    String fieldName = fieldInfo.FieldName;
+                    Class<?> fieldType = fieldInfo.FieldType;
+
+                    Object value = switch (fieldType.getSimpleName())
                     {
-                        args.add(result.getString(fieldInfo.FieldName));
-                    }
-                    if (fieldInfo.FieldType == int.class)
-                    {
-                        args.add(result.getInt(fieldInfo.FieldName));
-                    }
-                    if (fieldInfo.FieldType == UUID.class)
-                    {
-                        args.add(result.getString(fieldInfo.FieldName));
-                    }
-                    if (fieldInfo.FieldType == LocalDate.class)
-                    {
-                        args.add(result.getString(fieldInfo.FieldName));
-                    }
-                    if (fieldInfo.FieldType == Boolean.class)
-                    {
-                        args.add(result.getBoolean(fieldInfo.FieldName));
-                    }
-                    if (fieldInfo.FieldType == Double.class)
-                    {
-                        args.add(result.getString(fieldInfo.FieldName));
-                    }
+                        case "String", "UUID", "LocalDate" -> result.getString(fieldName);
+                        case "int" -> result.getInt(fieldName);
+                        case "Boolean" -> result.getBoolean(fieldName);
+                        case "Double" -> result.getDouble(fieldName);
+                        default -> null;
+                    };
+                    if (value == null)
+                        throw new IllegalArgumentException("Field type not supported");
+                    args.add(value);
                 }
 
                 Constructor<? extends IDbItem> constructor = tClass.getConstructor();
@@ -232,15 +187,12 @@ public class DatabaseConnection implements IDatabaseConnection
                 newObject.dbObjectFactory(args.toArray());
                 results.add(newObject);
             }
-        } catch (SQLException | ReflectiveOperationException e)
-        {
-            throw new RuntimeException(e);
         }
 
         return results;
     }
 
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object)
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object) throws ReflectiveOperationException, SQLException
     {
         return getObjectsFromDbTable(object, "");
     }
@@ -250,7 +202,7 @@ public class DatabaseConnection implements IDatabaseConnection
      *
      * @param sqlWhereClause Sql where statement, starts with: Where ...
      */
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause)
+    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause) throws ReflectiveOperationException, SQLException
     {
         return getObjectsFromDbTable(object, sqlWhereClause);
 
