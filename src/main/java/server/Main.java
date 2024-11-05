@@ -12,15 +12,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException
     {
-		// prod
-		DatabaseConnection connection = new DatabaseConnection();
-		connection.openConnection();
 
-		// test
-		// connection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
-		connection.removeAllTables();
-		connection.createAllTables();
-		// CustomerService service = new CustomerService(connection);
 		Server.startServer("{{ DatabaseUrl }}");
 	}
 }
