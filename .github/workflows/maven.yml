@@ -65,42 +65,12 @@ jobs:
 
       - name: Check if database exists
         run: |
-          for i in {1..5}; do
-            if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; then
-              echo "MariaDB is reachable!"
-              break
-            else
-              echo "MariaDB is not reachable yet. Retrying in 5 seconds..."
-              sleep 5
-            fi
-          done
-          
           if mysql -h 127.0.0.1 -u root -proot -e "USE homeautomation_test"; then
           echo "Datenbank homeautomation_test existiert bereits."
           else
           echo "Datenbank homeautomation_test existiert nicht. Erstelle die Datenbank..."
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE homeautomation_test"
           echo "Datenbank homeautomation_test wurde erstellt."
-          fi
-
-      - name: Check database
-        run: |
-          if mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE test"; then
-          echo "Berechtigung zum Erstellen von Datenbanken ist vorhanden."
-          
-          mysql -h 127.0.0.1 -u root -proot -e "DROP DATABASE test"
-          else
-          echo "Fehler: Keine Berechtigung zum Erstellen von Datenbanken."
-          mysql -h 127.0.0.1 -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-          exit 1
-          fi
-          
-          if ! mysql -h 127.0.0.1 -u root -proot -e homeautomation_test; then
-          echo "Datenbank homeautomation_test existiert nicht. Erstelle die Datenbank..."
-          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE homeautomation_test"
-          echo "Datenbank homeautomation_test wurde erstellt."
-          else
-          echo "Datenbank homeautomation_test existiert bereits."
           fi
           
 
