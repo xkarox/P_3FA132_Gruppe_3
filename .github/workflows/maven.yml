@@ -63,6 +63,17 @@ jobs:
           echo "Displaying the database configuration..."
           cat config/properties.config.test  # Dieser Befehl zeigt den Inhalt der Datei an 
 
+      - name: Check database
+        run: |
+          if ! mysql -u pipeline_user -ppipeline_password -e homeautomation_test; then
+          echo "Datenbank homeautomation_test existiert nicht. Erstelle die Datenbank..."
+          mysql -u pipeline_user -ppipeline_password -e "CREATE DATABASE homeautomation_test"
+          echo "Datenbank homeautomation_test wurde erstellt."
+          else
+          echo "Datenbank homeautomation_test existiert bereits."
+          fi
+          
+
       - name: Build with Maven
         run: mvn -B package --file pom.xml -X
 
