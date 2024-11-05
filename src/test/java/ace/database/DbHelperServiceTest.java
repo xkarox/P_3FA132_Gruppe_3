@@ -85,6 +85,7 @@ public class DbHelperServiceTest
     void loadPropertiesTest() throws IOException
     {
         String localUserName = System.getProperty("user.name").toLowerCase();
+        System.out.println(localUserName);
         Properties properties = DbHelperService.loadProperties();
 
         // Depends on values in the properties.config file ... but test coverage ...
