@@ -3,8 +3,10 @@ package ace.database;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
 
 public class DbTestHelper
 {
@@ -20,5 +22,12 @@ public class DbTestHelper
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void InsertMockConnection(DatabaseConnection dbConnection, Connection mockConnection) throws NoSuchFieldException, IllegalAccessException
+    {
+        Field secretField = DatabaseConnection.class.getDeclaredField("_connection");
+        secretField.setAccessible(true);
+        secretField.set(dbConnection, mockConnection);
     }
 }
