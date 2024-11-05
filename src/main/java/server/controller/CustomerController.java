@@ -11,9 +11,9 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/customers")
-@ResponseStatus(HttpStatus.CREATED)
 public class CustomerController {
 
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
     public Customer postCustomer(@RequestBody Customer customer)
     {
@@ -28,7 +28,7 @@ public class CustomerController {
         }
         catch (Exception e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error adding customer", e);
         }
     }
 }
