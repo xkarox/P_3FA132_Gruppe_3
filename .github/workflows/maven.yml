@@ -54,7 +54,7 @@ jobs:
         run: |
           echo "Setting up database configuration for CI environment..."
           echo "" >> config/properties.config.test
-          echo "runner.db.url=localhost:3306/homeautomation_test" >> config/properties.config.test
+          echo "runner.db.url=127.0.0.1:3306/homeautomation_test" >> config/properties.config.test
           echo "runner.db.user=root" >> config/properties.config.test
           echo "runner.db.pw=root" >> config/properties.config.test
 
