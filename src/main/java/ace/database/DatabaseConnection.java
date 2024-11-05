@@ -220,7 +220,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
     }
 
     @Override
-    public void close()
+    public void close() throws SQLException
     {
         if (this._provider != null)
             this._provider.releaseDbConnection(this);

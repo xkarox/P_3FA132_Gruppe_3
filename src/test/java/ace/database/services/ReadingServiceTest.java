@@ -3,10 +3,12 @@ package ace.database.services;
 import ace.database.DatabaseConnection;
 import ace.database.DbHelperService;
 import ace.database.DbTestHelper;
+import ace.database.provider.ServiceProvider;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer.Gender;
 import ace.model.interfaces.IReading.KindOfMeter;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +36,12 @@ public class ReadingServiceTest
     private ReadingService _readingService;
     private CustomerService _customerService;
 
+    @BeforeAll
+    static void OneTimeSetup() throws IOException
+    {
+        ServiceProvider.DbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
+    }
+
     @BeforeEach
     void SetUp() throws IOException, SQLException
     {
@@ -56,7 +64,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void testAdd() throws ReflectiveOperationException, SQLException
+    void testAdd() throws ReflectiveOperationException, SQLException, IOException
     {
         this._readingService.add(this._testReading);
         Reading readingFromDb = this._readingService.getById(this._testReading.getId());
@@ -81,7 +89,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void updateTest() throws ReflectiveOperationException, SQLException
+    void updateTest() throws ReflectiveOperationException, SQLException, IOException
     {
         this._customerService.add(this._testCustomer);
 //        add origin reading
@@ -102,7 +110,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void getByIdTest() throws ReflectiveOperationException, SQLException
+    void getByIdTest() throws ReflectiveOperationException, SQLException, IOException
     {
         this._customerService.add(this._testCustomer);
         this._readingService.add(this._testReading);
@@ -133,7 +141,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void getAllTest() throws ReflectiveOperationException, SQLException
+    void getAllTest() throws ReflectiveOperationException, SQLException, IOException
     {
         this._customerService.add(this._testCustomer);
         this._readingService.add(this._testReading);
@@ -166,7 +174,7 @@ public class ReadingServiceTest
 
 
     @Test
-    void removeTest() throws ReflectiveOperationException, SQLException
+    void removeTest() throws ReflectiveOperationException, SQLException, IOException
     {
 //        add Customer and Reading
         this._customerService.add(this._testCustomer);

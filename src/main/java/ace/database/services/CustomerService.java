@@ -112,7 +112,7 @@ public class CustomerService extends AbstractBaseService<Customer>
     }
 
     @Override
-    public void close()
+    public void close() throws SQLException
     {
         if (this._provider != null){
             this._provider.releaseDbConnection(this._dbConnection);

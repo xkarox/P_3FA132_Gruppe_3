@@ -28,7 +28,7 @@ public class ReadingService extends AbstractBaseService<Reading>
 
 
     @Override
-    public Reading add(Reading item) throws SQLException, ReflectiveOperationException
+    public Reading add(Reading item) throws SQLException, ReflectiveOperationException, IOException
     {
         if (item == null)
         {
@@ -124,7 +124,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     }
 
     @Override
-    public void close()
+    public void close() throws SQLException
     {
         if (this._provider != null)
         {

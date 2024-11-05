@@ -1,17 +1,19 @@
 package ace.database.provider;
 
 import ace.database.DatabaseConnection;
+import ace.database.DbHelperService;
 import ace.database.services.CustomerService;
 import ace.database.services.ReadingService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.*;
 
 public class InternalServiceProvider
 {
+    private Properties _properties = null;
+
     private final int _maxDbConnections;
     private final Map<Integer, DatabaseConnection> _possibleDbConnections = new HashMap<>();
     private final List<Integer> _usedDbConnections = new ArrayList<>();
@@ -32,7 +34,7 @@ public class InternalServiceProvider
         this._maxReadingConnections = maxReadingConnections;
     }
 
-    public synchronized DatabaseConnection getDatabaseConnection() throws IOException
+    public synchronized DatabaseConnection getDatabaseConnection() throws IOException, SQLException
     {
         while (this._usedDbConnections.size() >= _maxDbConnections) {
             try {
@@ -45,11 +47,15 @@ public class InternalServiceProvider
         int connectionKey = searchFreeDbConnection();
         this._usedDbConnections.add(connectionKey);
         DatabaseConnection connection = this._possibleDbConnections.get(connectionKey);
-        connection.openConnection();
+        if (this._properties == null)
+            connection.openConnection();
+        else
+            connection.openConnection(_properties);
+
         return connection;
     }
 
-    public synchronized CustomerService getCustomerService() throws IOException
+    public synchronized CustomerService getCustomerService() throws IOException, SQLException
     {
         while (this._usedCustomerConnections.size() >= _maxCustomerConnections) {
             try {
@@ -65,7 +71,7 @@ public class InternalServiceProvider
         return this._possibleCustomerServices.get(connectionKey);
     }
 
-    public synchronized ReadingService getReadingService() throws IOException
+    public synchronized ReadingService getReadingService() throws IOException, SQLException
     {
         while (this._usedReadingConnections.size() >= _maxReadingConnections) {
             try {
@@ -142,7 +148,7 @@ public class InternalServiceProvider
         }
     }
 
-    public synchronized void releaseDbConnection(DatabaseConnection connection)
+    public synchronized void releaseDbConnection(DatabaseConnection connection) throws SQLException
     {
         int id = getObjectId(connection);
         connection.closeConnection();
@@ -177,5 +183,10 @@ public class InternalServiceProvider
     {
         return System.identityHashCode(object);
 
+    }
+
+    public void dbConnectionPropertiesOverwrite(Properties properties)
+    {
+        this._properties = properties;
     }
 }

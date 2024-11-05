@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface IBasicCrud<T>
 {
-    T add(T item) throws ReflectiveOperationException, SQLException;          // Create
+    T add(T item) throws ReflectiveOperationException, SQLException, IOException;          // Create
 
     T getById(UUID id) throws ReflectiveOperationException, SQLException;     // Read
 
