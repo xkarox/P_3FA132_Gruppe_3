@@ -75,3 +75,9 @@ jobs:
 
       - name: Run Tests
         run: mvn -B test --file pom.xml
+
+      - name: Upload Maven artifacts
+        uses: actions/upload-artifact@v3
+        with:
+            name: maven-artifacts
+            path: target/*.jar
