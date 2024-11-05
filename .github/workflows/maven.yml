@@ -68,6 +68,12 @@ jobs:
           if mysql -u pipeline_user -ppipeline_password -e "CREATE DATABASE test"; then
           echo "Berechtigung zum Erstellen von Datenbanken ist vorhanden."
           
+          mysql -u pipeline_user -ppipeline_password -e "DROP DATABASE $TEMP_DB"
+          else
+          echo "Fehler: Keine Berechtigung zum Erstellen von Datenbanken."
+          exit 1
+          fi
+          
           if ! mysql -u pipeline_user -ppipeline_password -e homeautomation_test; then
           echo "Datenbank homeautomation_test existiert nicht. Erstelle die Datenbank..."
           mysql -u pipeline_user -ppipeline_password -e "CREATE DATABASE homeautomation_test"
