@@ -221,16 +221,16 @@ public class ReadingTest
         UUID customerId = UUID.randomUUID();
         this._customer.setId(customerId);
 
-        Reading reading1 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
-        Reading reading2 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading1 = new Reading(id, "none", customerId, null, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading2 = new Reading(id, "none", customerId, null, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
 
-        Reading reading3 = new Reading(UUID.randomUUID(), "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
-        Reading reading4 = new Reading(id, "one", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
-        Reading reading5 = new Reading(id, "none", customerId, LocalDate.now().minusWeeks(2), this._kindOfMeter, this._meterCount, this._meterId, true);
-        Reading reading6 = new Reading(id, "none", customerId, this._dateOfReading, KindOfMeter.HEIZUNG, this._meterCount, this._meterId, true);
-        Reading reading7 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, 6969.69, this._meterId, true);
-        Reading reading8 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, "9999", true);
-        Reading reading9 = new Reading(id, "none", customerId, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, false);
+        Reading reading3 = new Reading(UUID.randomUUID(), "none", customerId, null,  this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading4 = new Reading(id, "one", customerId, null, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading5 = new Reading(id, "none", customerId, null, LocalDate.now().minusWeeks(2), this._kindOfMeter, this._meterCount, this._meterId, true);
+        Reading reading6 = new Reading(id, "none", customerId, null, this._dateOfReading, KindOfMeter.HEIZUNG, this._meterCount, this._meterId, true);
+        Reading reading7 = new Reading(id, "none", customerId, null, this._dateOfReading, this._kindOfMeter, 6969.69, this._meterId, true);
+        Reading reading8 = new Reading(id, "none", customerId, null, this._dateOfReading, this._kindOfMeter, this._meterCount, "9999", true);
+        Reading reading9 = new Reading(id, "none", customerId, null, this._dateOfReading, this._kindOfMeter, this._meterCount, this._meterId, false);
 
         assertEquals(reading1, reading2, "Because they should be the same");
         assertEquals(reading1, reading1, "Because they are the same");

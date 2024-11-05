@@ -4,6 +4,8 @@ import ace.model.decorator.IFieldInfo;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IDbItem;
 import ace.model.interfaces.IReading;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
@@ -13,36 +15,56 @@ import java.util.UUID;
 
 public class Reading implements IReading
 {
+    @JsonProperty("id")
     @IFieldInfo(fieldName = "id", fieldType = String.class)
     private UUID _id;
+
+    @JsonProperty("comment")
     @IFieldInfo(fieldName = "comment", fieldType = String.class)
     private String _comment;
+
+    @JsonProperty("customerId")
     @IFieldInfo(fieldName = "customerId", fieldType = String.class)
     private UUID _customerId;
+
+    @JsonProperty("customer")
     private Customer _customer;
+
+    @JsonProperty("dateOfReading")
     @IFieldInfo(fieldName = "dateOfReading", fieldType = LocalDate.class)
     private LocalDate _dateOfReading;
+
+    @JsonProperty("kindOfMeter")
     @IFieldInfo(fieldName = "kindOfMeter", fieldType = int.class)
     private KindOfMeter _kindOfMeter;
+
+    @JsonProperty("meterCount")
     @IFieldInfo(fieldName = "meterCount", fieldType = Double.class)
     private Double _meterCount;
+
+    @JsonProperty("meterId")
     @IFieldInfo(fieldName = "meterId", fieldType = String.class)
     private String _meterId;
+
+    @JsonProperty("substitute")
     @IFieldInfo(fieldName = "substitute", fieldType = Boolean.class)
     private Boolean _substitute;
+//TODO RUF DEN KONSTRUKTOR FUER CUSTOMER AUF :))) )
+    public Reading(){}
 
-    public Reading()
+    public Reading(UUID id)
     {
-        this._id = UUID.randomUUID();
+        this._id = (id == null) ? UUID.randomUUID() : id;
     }
 
-    public Reading(UUID id, String comment, UUID customerId
+    public Reading(UUID id, String comment, UUID customerId, Customer customer
             , LocalDate dateOfReading, KindOfMeter kindOfMeter, Double meterCount
             , String meterId, Boolean substitute)
     {
         this._id = id;
         this._comment = comment;
         this._customerId = customerId;
+        this._customer = customer;
         this._dateOfReading = dateOfReading;
         this._kindOfMeter = kindOfMeter;
         this._meterCount = meterCount;
@@ -50,6 +72,7 @@ public class Reading implements IReading
         this._substitute = substitute;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public String getComment()
@@ -57,6 +80,7 @@ public class Reading implements IReading
         return this._comment;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public ICustomer getCustomer()
@@ -64,6 +88,7 @@ public class Reading implements IReading
         return this._customer;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public LocalDate getDateOfReading()
@@ -71,6 +96,7 @@ public class Reading implements IReading
         return this._dateOfReading;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public KindOfMeter getKindOfMeter()
@@ -78,12 +104,14 @@ public class Reading implements IReading
         return this._kindOfMeter;
     }
 
+    @JsonIgnore
     @Override
     public Double getMeterCount()
     {
         return this._meterCount;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public String getMeterId()
@@ -91,66 +119,77 @@ public class Reading implements IReading
         return this._meterId;
     }
 
+    @JsonIgnore
     @Override
     public Boolean getSubstitute()
     {
         return this._substitute;
     }
 
+    @JsonIgnore
     @Override
     public String printDateOfReading()
     {
         return this._dateOfReading.toString();
     }
 
+    @JsonIgnore
     @Override
     public void setComment(String comment)
     {
         this._comment = comment;
     }
 
+    @JsonIgnore
     @Override
     public void setCustomer(ICustomer customer)
     {
         this._customer = (Customer) customer;
     }
 
+    @JsonIgnore
     @Override
     public void setDateOfReading(LocalDate dateOfReading)
     {
         this._dateOfReading = dateOfReading;
     }
 
+    @JsonIgnore
     @Override
     public void setKindOfMeter(KindOfMeter kindOfMeter)
     {
         this._kindOfMeter = kindOfMeter;
     }
 
+    @JsonIgnore
     @Override
     public void setMeterCount(double meterCount)
     {
         this._meterCount = meterCount;
     }
 
+    @JsonIgnore
     @Override
     public void setMeterId(String meterId)
     {
         this._meterId = meterId;
     }
 
+    @JsonIgnore
     @Override
     public void setSubstitute(boolean substitute)
     {
         this._substitute = substitute;
     }
 
+    @JsonIgnore
     @Override
     public UUID getId()
     {
         return this._id;
     }
 
+    @JsonIgnore
     @Override
     public void setId(UUID id)
     {
@@ -178,6 +217,7 @@ public class Reading implements IReading
         return this;
     }
 
+    @JsonIgnore
     @Override
     public String getSerializedStructure()
     {
@@ -194,6 +234,7 @@ public class Reading implements IReading
         return strBuilder.toString();
     }
 
+    @JsonIgnore
     @Override
     public String getSerializedTableName()
     {
