@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "Checking MariaDB connection..."
           for i in {1..5}; do
-            if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1" homeautomation_test; then
+            if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; then
               echo "MariaDB is reachable!"
               break
             else
@@ -54,7 +54,7 @@ jobs:
         run: |
           echo "Setting up database configuration for CI environment..."
           echo "" >> config/properties.config.test
-          echo "runner.db.url=127.0.0.1:3306/homeautomation_test" >> config/properties.config.test
+          echo "runner.db.url=localhost:3306/homeautomation_test" >> config/properties.config.test
           echo "runner.db.user=root" >> config/properties.config.test
           echo "runner.db.pw=root" >> config/properties.config.test
 
