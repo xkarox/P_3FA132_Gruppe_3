@@ -3,8 +3,6 @@ package server.controller;
 import ace.database.ServiceProvider;
 import ace.database.services.CustomerService;
 import ace.model.classes.Customer;
-import ace.services.logService.LogLevel;
-import ace.services.logService.LogService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;

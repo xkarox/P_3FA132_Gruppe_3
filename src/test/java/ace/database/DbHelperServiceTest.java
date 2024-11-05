@@ -23,7 +23,7 @@ public class DbHelperServiceTest
     @Test
     void testCreateSqlSchema()
     {
-        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>()
+        DbHelperService dbHelperService = new DbHelperService(new ArrayList<>()
         {{
             add(mockData);
         }});
@@ -45,7 +45,7 @@ public class DbHelperServiceTest
         secondMockTable.testSetSchema(secondSqlSchema);
         secondMockTable.testSetTableName(secondTableName);
 
-        DbHelperService dbHelperService = new DbHelperService(new ArrayList<IDbItem>()
+        DbHelperService dbHelperService = new DbHelperService(new ArrayList<>()
         {{
             add(mockTable);
             add(secondMockTable);

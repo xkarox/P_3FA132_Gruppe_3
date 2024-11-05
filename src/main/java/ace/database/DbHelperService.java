@@ -15,7 +15,7 @@ import java.util.Properties;
 
 public class DbHelperService
 {
-    private List<IDbItem> _tables = new ArrayList<IDbItem>()
+    private List<IDbItem> _tables = new ArrayList<>()
     {
         {
             add(new Customer());
@@ -34,7 +34,7 @@ public class DbHelperService
 
     public List<String> createSqlTableSchemaCommands()
     {
-        List<String> commands = new ArrayList<String>();
+        List<String> commands = new ArrayList<>();
 
         for (IDbItem table : _tables)
         {
