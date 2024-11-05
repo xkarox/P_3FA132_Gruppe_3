@@ -58,6 +58,11 @@ jobs:
           echo "runner.db.url=localhost:3306/homeautomation_test" >> config/properties.config.test
           echo "runner.db.user=root" >> config/properties.config.test
           echo "runner.db.pw=root" >> config/properties.config.test
+          
+          echo "" >> config/properties.config
+          echo "runner.db.url=localhost:3306/homeautomation_test" >> config/properties.config
+          echo "runner.db.user=root" >> config/properties.config
+          echo "runner.db.pw=root" >> config/properties.config
 
       - name: Display database configuration
         run: |
