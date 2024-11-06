@@ -152,6 +152,18 @@ public class CustomerServiceTest
         assertThrows(IllegalArgumentException.class, () -> this._customerService.remove(customer));
     }
 
+    @Test
+    void closeDisposeNullTest()
+    {
+        try(CustomerService con = new CustomerService(new DatabaseConnection()))
+        {
+            // Do nothing
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<Customer> createTestData() throws SQLException
     {
         List<Customer> items = new ArrayList<>();

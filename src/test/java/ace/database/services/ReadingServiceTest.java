@@ -198,4 +198,16 @@ public class ReadingServiceTest
         assertThrows(IllegalArgumentException.class, () -> this._readingService.update(reading));
         assertThrows(IllegalArgumentException.class, () -> this._readingService.remove(reading));
     }
+
+    @Test
+    void closeDisposeNullTest()
+    {
+        try(ReadingService con = new ReadingService(new DatabaseConnection()))
+        {
+            // Do nothing
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -111,6 +111,24 @@ class ServiceProviderTest
     }
 
     @Test
+    void ReleaseUnregisteredConnectionTest() throws SQLException, IOException
+    {
+        InternalServiceProvider provider = new InternalServiceProvider(100, 10, 10);
+        DatabaseConnection dbCon = ServiceProvider.Services.getDatabaseConnection();
+
+        boolean exceptionTriggert = false;
+        try
+        {
+            provider.releaseDbConnection(dbCon);
+        } catch (IllegalArgumentException e)
+        {
+            exceptionTriggert = true;
+            assertTrue(e.getMessage().contains("Connection was not registered with the current service provider."));
+        }
+        assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
+    }
+
+    @Test
     void GetDatabaseConnectionTest()
     {
     }
@@ -128,6 +146,18 @@ class ServiceProviderTest
     @Test
     void DbConnectionPropertiesOverwriteTest()
     {
+    }
+
+    @Test
+    void MultithreadingTest()
+    {
+    }
+
+    @Test
+        // Just for coverage in jacoco report
+    void staticTest()
+    {
+        ServiceProvider serviceProvider = new ServiceProvider();
     }
 
     private void assertOpenConnections(int dbCon, int custCon, int readCon)

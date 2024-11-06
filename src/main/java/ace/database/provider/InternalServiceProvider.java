@@ -1,6 +1,5 @@
 package ace.database.provider;
 
-import ace.ErrorMessages;
 import ace.database.DatabaseConnection;
 import ace.database.services.CustomerService;
 import ace.database.services.ReadingService;
@@ -36,127 +35,92 @@ public class InternalServiceProvider
         this._maxReadingConnections = maxReadingConnections;
     }
 
-    public synchronized DatabaseConnection getDatabaseConnection() throws IOException, SQLException
+    // ToDo: handle errors better (-1) for not available services
+    private synchronized <T> T getService(Class<T> serviceClass) throws IOException, SQLException
     {
-        while (this._usedDbConnections.size() >= _maxDbConnections) {
+        while (this._usedDbConnections.size() >= _maxDbConnections ||
+               (serviceClass == CustomerService.class && this._usedCustomerConnections.size() >= _maxCustomerConnections) ||
+               (serviceClass == ReadingService.class && this._usedReadingConnections.size() >= _maxReadingConnections)) {
             try {
                 if (!_useMultiThreading)
-                    throw  new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
+                    throw new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
                 wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return null;
             }
         }
-        int connectionKey = searchFreeDbConnection();
-        this._usedDbConnections.add(connectionKey);
-        DatabaseConnection connection = this._possibleDbConnections.get(connectionKey);
-        if (this._properties == null)
-            connection.openConnection();
-        else
-            connection.openConnection(_properties);
 
-        return connection;
+        int connectionKey;
+        DatabaseConnection dbConnection;
+        if (serviceClass == CustomerService.class) {
+            dbConnection = getDatabaseConnection();
+            connectionKey = searchFreeCustomerService(dbConnection);
+            this._usedCustomerConnections.add(connectionKey);
+            return serviceClass.cast(this._possibleCustomerServices.get(connectionKey));
+        } else if (serviceClass == ReadingService.class) {
+            dbConnection = getDatabaseConnection();
+            connectionKey = searchFreeReadingService(dbConnection);
+            this._usedReadingConnections.add(connectionKey);
+            return serviceClass.cast(this._possibleReadingServices.get(connectionKey));
+        } else {
+            connectionKey = searchFreeDbConnection();
+            this._usedDbConnections.add(connectionKey);
+            dbConnection = this._possibleDbConnections.get(connectionKey);
+            if (this._properties == null)
+                dbConnection.openConnection();
+            else
+                dbConnection.openConnection(_properties);
+            return serviceClass.cast(dbConnection);
+        }
+    }
+
+    private synchronized <T> Integer searchFreeService(Map<Integer, T> possibleServices, List<Integer> usedConnections, int maxConnections, T newService) {
+        for (int key : possibleServices.keySet()) {
+            if (!usedConnections.contains(key)) {
+                return key;
+            }
+        }
+        if (possibleServices.size() > maxConnections) {
+            return -1;
+        } else {
+            int objectId = System.identityHashCode(newService);
+            possibleServices.put(objectId, newService);
+            return objectId;
+        }
+    }
+
+    private synchronized Integer searchFreeDbConnection()
+    {
+        return searchFreeService(_possibleDbConnections, _usedDbConnections, _maxDbConnections, new DatabaseConnection(this));
+    }
+
+    private synchronized Integer searchFreeCustomerService(DatabaseConnection dbConnection)
+    {
+        return searchFreeService(_possibleCustomerServices, _usedCustomerConnections, _maxCustomerConnections, new CustomerService(dbConnection, this));
+    }
+
+    private synchronized Integer searchFreeReadingService(DatabaseConnection dbConnection)
+    {
+        return searchFreeService(_possibleReadingServices, _usedReadingConnections, _maxReadingConnections, new ReadingService(dbConnection, this));
+    }
+
+    public synchronized DatabaseConnection getDatabaseConnection() throws IOException, SQLException
+    {
+        return getService(DatabaseConnection.class);
     }
 
     public synchronized CustomerService getCustomerService() throws IOException, SQLException
     {
-        while (this._usedDbConnections.size() >= _maxDbConnections || this._usedCustomerConnections.size() >= _maxCustomerConnections) {
-            try {
-                if (!_useMultiThreading)
-                    throw  new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return null;
-            }
-        }
-        DatabaseConnection dbConnection = getDatabaseConnection();
-        int connectionKey = searchFreeCustomerService(dbConnection);
-        this._usedCustomerConnections.add(connectionKey);
-        return this._possibleCustomerServices.get(connectionKey);
+        return getService(CustomerService.class);
     }
 
     public synchronized ReadingService getReadingService() throws IOException, SQLException
     {
-        while (this._usedDbConnections.size() >= _maxDbConnections || this._usedReadingConnections.size() >= _maxReadingConnections) {
-            try {
-                if (!_useMultiThreading)
-                    throw  new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return null;
-            }
-        }
-        DatabaseConnection dbConnection = getDatabaseConnection();
-        int connectionKey = searchFreeReadingService(dbConnection);
-        this._usedReadingConnections.add(connectionKey);
-        return this._possibleReadingServices.get(connectionKey);
+        return getService(ReadingService.class);
     }
 
-    public synchronized Integer searchFreeDbConnection()
-    {
-        for (int key : _possibleDbConnections.keySet())
-        {
-            if (!_usedDbConnections.contains(key))
-            {
-                return key;
-            }
-        }
-        if (this._possibleDbConnections.size() > this._maxDbConnections)
-            return -1;
-        else
-        {
-            DatabaseConnection newConnection = new DatabaseConnection(this);
-            int objectId = System.identityHashCode(newConnection);
-            this._possibleDbConnections.put(objectId, newConnection);
-            return objectId;
-        }
-    }
-
-    public synchronized Integer searchFreeCustomerService(DatabaseConnection dbConnection)
-    {
-        for (int key : _possibleCustomerServices.keySet())
-        {
-            if (!_usedCustomerConnections.contains(key))
-            {
-                return key;
-            }
-        }
-        if (this._possibleCustomerServices.size() > this._maxCustomerConnections)
-            return -1;
-        else
-        {
-            CustomerService newService = new CustomerService(dbConnection, this);
-            int objectId = System.identityHashCode(newService);
-            this._possibleCustomerServices.put(objectId, newService);
-            return objectId;
-        }
-    }
-
-    public synchronized Integer searchFreeReadingService(DatabaseConnection dbConnection)
-    {
-        for (int key : _possibleReadingServices.keySet())
-        {
-            if (!_usedReadingConnections.contains(key))
-            {
-                return key;
-            }
-        }
-        if (this._possibleReadingServices.size() > this._maxReadingConnections)
-            return -1;
-        else
-        {
-
-            ReadingService newService = new ReadingService(dbConnection, this);
-            int objectId = System.identityHashCode(newService);
-            this._possibleReadingServices.put(objectId, newService);
-            return objectId;
-        }
-    }
-
-    public synchronized <T> void releaseService(T service, Map<Integer, T> possibleServices, List<Integer> usedConnections) throws SQLException
+    private synchronized <T> void releaseService(T service, Map<Integer, T> possibleServices, List<Integer> usedConnections) throws SQLException
     {
         int id = getObjectId(service);
         if (service instanceof DatabaseConnection) {
@@ -166,6 +130,8 @@ public class InternalServiceProvider
             possibleServices.remove(id, service);
             usedConnections.remove(Integer.valueOf(id));
             notifyAll();
+        } else {
+            throw new IllegalArgumentException("Connection was not registered with the current service provider.");
         }
     }
 
@@ -174,28 +140,19 @@ public class InternalServiceProvider
         releaseService(connection, _possibleDbConnections, _usedDbConnections);
     }
 
-    public void releaseCustomerService(CustomerService connection)
+    public void releaseCustomerService(CustomerService connection) throws SQLException
     {
-        try {
-            releaseService(connection, _possibleCustomerServices, _usedCustomerConnections);
-        } catch (SQLException e) {
-            // Handle exception
-        }
+        releaseService(connection, _possibleCustomerServices, _usedCustomerConnections);
     }
 
-    public void releaseReadingService(ReadingService connection)
+    public void releaseReadingService(ReadingService connection) throws SQLException
     {
-        try {
-            releaseService(connection, _possibleReadingServices, _usedReadingConnections);
-        } catch (SQLException e) {
-            // Handle exception
-        }
+        releaseService(connection, _possibleReadingServices, _usedReadingConnections);
     }
 
     private int getObjectId(Object object)
     {
         return System.identityHashCode(object);
-
     }
 
     public void dbConnectionPropertiesOverwrite(Properties properties)
