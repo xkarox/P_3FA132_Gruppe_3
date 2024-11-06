@@ -3,6 +3,7 @@ import ace.CsvParser;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
+import java.util.Arrays;
 
 @SpringBootApplication
 public class Main {
@@ -18,8 +19,8 @@ public class Main {
 		File fileTest = new File(filePathTest);
 
 
-		CsvParser csv = new CsvParser(fileTest);
-		csv.getAllValues();
+		CsvParser csv = new CsvParser(fileReading);
+		System.out.println(Arrays.toString(csv.getHeader()));
 		// Server.startServer("{{ DatabaseUrl }}");
 	}
 }
