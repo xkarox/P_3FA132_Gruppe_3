@@ -21,7 +21,6 @@ public class CustomerController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
-    public Customer postCustomer(@RequestBody Customer customer)
     public Customer addCustomer(@RequestBody String customerJson)
     {
         try
@@ -39,19 +38,26 @@ public class CustomerController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
         }
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.PUT)
+    public ResponseEntity<String> updateCustomer(@RequestBody String customerJson)
     {
-        CustomerService cs = ServiceProvider.GetCustomerService();
-        if (customer.getId() == null)
-        {
-            customer.setId(UUID.randomUUID());
-        }
         try
         {
-            return cs.add(customer);
+            Customer customer = _objMapper.readValue(customerJson, Customer.class);
+            CustomerService cs = ServiceProvider.GetCustomerService();
+            Customer dbCustomer = cs.getById(customer.getId());
+            if (dbCustomer == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+            }
+            cs.update(customer);
+            return new ResponseEntity<String>("Customer successfully updated", HttpStatus.OK);
         }
-        catch (Exception e)
+        catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error adding customer", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
         }
     }
 }
