@@ -6,6 +6,7 @@ import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IReading;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -23,6 +24,7 @@ import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,7 +96,7 @@ public class ReadingControllerTest
     }
 
     @Test
-    void postReadingWithId() throws IOException, InterruptedException
+    void addReadingWithId() throws IOException, InterruptedException
     {
         String jsonString = _objMapper.writeValueAsString(this._reading);
         Reading reading = _objMapper.readValue(jsonString, Reading.class);
@@ -112,7 +114,7 @@ public class ReadingControllerTest
     }
 
     @Test
-    void postReadingWithoutId() throws IOException, InterruptedException
+    void addReadingWithoutId() throws IOException, InterruptedException
     {
         Reading readingWithoutId = new Reading();
         readingWithoutId.setComment("Level is over 9k >.>");
@@ -146,7 +148,7 @@ public class ReadingControllerTest
     }
 
     @Test
-    void postReadingWithNewCustomer() throws IOException, InterruptedException
+    void addReadingWithNewCustomer() throws IOException, InterruptedException
     {
         this._reading.setCustomer(this._customer);
         String jsonString = _objMapper.writeValueAsString(this._reading);
@@ -166,7 +168,7 @@ public class ReadingControllerTest
     }
 
     @Test
-    void postReadingWithExistingCustomer() throws IOException, InterruptedException
+    void addReadingWithExistingCustomer() throws IOException, InterruptedException
     {
         boolean customerAddSuccess = false;
         String customerJsonString = _objMapper.writeValueAsString(this._customer);
@@ -190,5 +192,37 @@ public class ReadingControllerTest
             assertEquals(this._reading, reading, "Should return the same object");
         }
         assertTrue(customerAddSuccess);
+    }
+
+    @Test
+    void addReadingEmptyBody() throws IOException, InterruptedException
+    {
+        String jsonString = "{}";
+        HttpRequest customerRequest = HttpRequest.newBuilder()
+                .uri(URI.create(this._url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(customerRequest, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Status code should be 400 BAD REQUEST");
+        assertEquals("Invalid reading data provided", body.get("message"), "Message should be Invalid reading data provided");
+    }
+
+    @Test
+    void addReadingInvalidObject() throws IOException, InterruptedException
+    {
+        String jsonString = "sdfnasdf3223{2#$//";
+        HttpRequest customerRequest = HttpRequest.newBuilder()
+                .uri(URI.create(this._url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(customerRequest, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Status code should be 400 BAD REQUEST");
+        assertEquals("Invalid reading data provided", body.get("message"), "Message should be Invalid reading data provided");
     }
 }
