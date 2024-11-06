@@ -1,6 +1,5 @@
 package server;
-import ace.CsvHelper;
-import org.springframework.boot.SpringApplication;
+import ace.CsvParser;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
@@ -12,10 +11,15 @@ public class Main {
 	{
 		String filePathReading = "src/main/resources/heizung.csv";
 		String filePathCustomer = "src/main/resources/kunden_utf8.csv";
+		String filePathTest = "src/main/resources/test.csv";
+
 		File fileCustomer = new File(filePathCustomer);
 		File fileReading = new File(filePathReading);
-		CsvHelper csv = new CsvHelper(fileCustomer);
-		csv.readCsvFile();
+		File fileTest = new File(filePathTest);
+
+
+		CsvParser csv = new CsvParser(fileTest);
+		csv.getAllValues();
 		// Server.startServer("{{ DatabaseUrl }}");
 	}
 }
