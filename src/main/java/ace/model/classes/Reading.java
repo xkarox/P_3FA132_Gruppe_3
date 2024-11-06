@@ -49,7 +49,7 @@ public class Reading implements IReading
     @JsonProperty("substitute")
     @IFieldInfo(fieldName = "substitute", fieldType = Boolean.class)
     private Boolean _substitute;
-//TODO RUF DEN KONSTRUKTOR FUER CUSTOMER AUF :))) )
+
     public Reading(){}
 
     public Reading(UUID id)

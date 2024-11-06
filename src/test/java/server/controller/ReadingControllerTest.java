@@ -5,6 +5,7 @@ import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer;
 import ace.model.interfaces.IReading;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -23,13 +24,13 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ReadingControllerTest
 {
     DatabaseConnection _connection;
     String _url = "http://0.0.0.0:8080/readings";
+    String _customerUrl = "http://0.0.0.0:8080/customers";
     HttpClient _httpClient;
     Customer _customer;
     Reading _reading;
@@ -83,6 +84,7 @@ public class ReadingControllerTest
 
         this._customer = this.getTestCustomer();
         this._reading = this.getTestReading();
+        this._reading.setCustomer(this._customer);
     }
 
     @AfterEach
@@ -102,7 +104,6 @@ public class ReadingControllerTest
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
-        String boidy = request.bodyPublisher().toString();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(HttpStatus.CREATED.value(), response.statusCode(), "Should return status code 201 CREATED");
@@ -120,6 +121,7 @@ public class ReadingControllerTest
         readingWithoutId.setMeterCount(625197.7);
         readingWithoutId.setMeterId("X1D3-ABCD");
         readingWithoutId.setSubstitute(false);
+        readingWithoutId.setCustomer(this._customer);
 
         String jsonString = _objMapper.writeValueAsString(readingWithoutId);
         HttpRequest request = HttpRequest.newBuilder()
@@ -143,22 +145,50 @@ public class ReadingControllerTest
         assertNotEquals(readingWithoutId.getId(), reading.getId(), "ID should be set");
     }
 
-//    @Test
-//    void postReadingWithNewCustomer() throws IOException, InterruptedException
-//    {
-////        this._reading.setCustomer(this._customer);
-////        String jsonString = _objMapper.writeValueAsString(this._reading);
-////
-////        HttpRequest request = HttpRequest.newBuilder()
-////                .uri(URI.create(_url))
-////                .header("Content-Type", "application/json")
-////                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-////                .build();
-////
-////        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-////        Reading reading = _objMapper.readValue(response.body(), Reading.class);
-//    }
-//
-//    @Test
-//    void postReadingWithExistingCustomer(){}
+    @Test
+    void postReadingWithNewCustomer() throws IOException, InterruptedException
+    {
+        this._reading.setCustomer(this._customer);
+        String jsonString = _objMapper.writeValueAsString(this._reading);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Reading reading = _objMapper.readValue(response.body(), Reading.class);
+
+
+        assertEquals(this._reading, reading, "Should return the same object");
+//        TODO check if customer is added to db
+    }
+
+    @Test
+    void postReadingWithExistingCustomer() throws IOException, InterruptedException
+    {
+        boolean customerAddSuccess = false;
+        String customerJsonString = _objMapper.writeValueAsString(this._customer);
+        HttpRequest customerRequest = HttpRequest.newBuilder()
+                .uri(URI.create(this._customerUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(customerJsonString))
+                .build();
+        HttpResponse<String> customerResponse = _httpClient.send(customerRequest, HttpResponse.BodyHandlers.ofString());
+        if (customerResponse.statusCode() == 201)
+        {
+            customerAddSuccess = true;
+            String readingJsonString = _objMapper.writeValueAsString(this._reading);
+            HttpRequest readingRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(_url))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(readingJsonString))
+                    .build();
+            HttpResponse<String> readingResponse = _httpClient.send(readingRequest, HttpResponse.BodyHandlers.ofString());
+            Reading reading = _objMapper.readValue(readingResponse.body(), Reading.class);
+            assertEquals(this._reading, reading, "Should return the same object");
+        }
+        assertTrue(customerAddSuccess);
+    }
 }

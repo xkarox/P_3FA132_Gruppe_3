@@ -17,9 +17,6 @@ public class ReadingController
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
     public Reading postReading(@RequestBody Reading reading){
-        if (reading == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reading cannot be null");
-        }
         ReadingService rs = ServiceProvider.GetReadingService();
         if (reading.getId() == null)
         {
