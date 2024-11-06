@@ -44,6 +44,12 @@ public class CustomerControllerTest
         return customer;
     }
 
+    String formatJson(String jsonString)
+    {
+        return new StringBuilder("{\"customer\":").append(jsonString).append("}").toString();
+    }
+
+
     void addCustomer() throws IOException, InterruptedException
     {
         String jsonString = _objMapper.writeValueAsString(this._customer);
