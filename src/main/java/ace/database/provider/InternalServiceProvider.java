@@ -1,18 +1,20 @@
 package ace.database.provider;
 
+import ace.ErrorMessages;
 import ace.database.DatabaseConnection;
-import ace.database.DbHelperService;
 import ace.database.services.CustomerService;
 import ace.database.services.ReadingService;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
+
+import static ace.ErrorMessages.ServicesNotAvailable;
 
 public class InternalServiceProvider
 {
     private Properties _properties = null;
+    private boolean _useMultiThreading = false;
 
     private int _maxDbConnections;
     private final Map<Integer, DatabaseConnection> _possibleDbConnections = new HashMap<>();
@@ -38,6 +40,8 @@ public class InternalServiceProvider
     {
         while (this._usedDbConnections.size() >= _maxDbConnections) {
             try {
+                if (!_useMultiThreading)
+                    throw  new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
                 wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -57,8 +61,10 @@ public class InternalServiceProvider
 
     public synchronized CustomerService getCustomerService() throws IOException, SQLException
     {
-        while (this._usedCustomerConnections.size() >= _maxCustomerConnections) {
+        while (this._usedDbConnections.size() >= _maxDbConnections || this._usedCustomerConnections.size() >= _maxCustomerConnections) {
             try {
+                if (!_useMultiThreading)
+                    throw  new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
                 wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -73,8 +79,10 @@ public class InternalServiceProvider
 
     public synchronized ReadingService getReadingService() throws IOException, SQLException
     {
-        while (this._usedReadingConnections.size() >= _maxReadingConnections) {
+        while (this._usedDbConnections.size() >= _maxDbConnections || this._usedReadingConnections.size() >= _maxReadingConnections) {
             try {
+                if (!_useMultiThreading)
+                    throw  new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
                 wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -148,34 +156,39 @@ public class InternalServiceProvider
         }
     }
 
-    public synchronized void releaseDbConnection(DatabaseConnection connection) throws SQLException
+    public synchronized <T> void releaseService(T service, Map<Integer, T> possibleServices, List<Integer> usedConnections) throws SQLException
     {
-        int id = getObjectId(connection);
-        connection.closeConnection();
-        if (this._usedDbConnections.contains(id)) {
-            this._possibleDbConnections.remove(id, connection);
-            this._usedDbConnections.remove(Integer.valueOf(id));
+        int id = getObjectId(service);
+        if (service instanceof DatabaseConnection) {
+            ((DatabaseConnection) service).closeConnection();
+        }
+        if (usedConnections.contains(id)) {
+            possibleServices.remove(id, service);
+            usedConnections.remove(Integer.valueOf(id));
             notifyAll();
         }
     }
 
-    public synchronized void releaseCustomerService(CustomerService connection)
+    public void releaseDbConnection(DatabaseConnection connection) throws SQLException
     {
-        int id = getObjectId(connection);
-        if (this._usedCustomerConnections.contains(id)) {
-            this._possibleCustomerServices.remove(id, connection);
-            this._usedCustomerConnections.remove(Integer.valueOf(id));
-            notifyAll();
+        releaseService(connection, _possibleDbConnections, _usedDbConnections);
+    }
+
+    public void releaseCustomerService(CustomerService connection)
+    {
+        try {
+            releaseService(connection, _possibleCustomerServices, _usedCustomerConnections);
+        } catch (SQLException e) {
+            // Handle exception
         }
     }
 
-    public synchronized void releaseReadingService(ReadingService connection)
+    public void releaseReadingService(ReadingService connection)
     {
-        int id = getObjectId(connection);
-        if (this._usedReadingConnections.contains(id)) {
-            this._possibleReadingServices.remove(id, connection);
-            this._usedReadingConnections.remove(Integer.valueOf(id));
-            notifyAll();
+        try {
+            releaseService(connection, _possibleReadingServices, _usedReadingConnections);
+        } catch (SQLException e) {
+            // Handle exception
         }
     }
 
@@ -195,5 +208,25 @@ public class InternalServiceProvider
         this._maxDbConnections = maxDbConnections;
         this._maxCustomerConnections = maxCustomerConnections;
         this._maxReadingConnections = maxReadingConnections;
+    }
+
+    public int getOpenDbConnectionsCount()
+    {
+        return _usedDbConnections.size();
+    }
+
+    public int getOpenCustomerServicesCount()
+    {
+        return _usedCustomerConnections.size();
+    }
+
+    public int getOpenReadingServicesCount()
+    {
+        return _usedReadingConnections.size();
+    }
+
+    public void setMultithreading(boolean state)
+    {
+        this._useMultiThreading = state;
     }
 }

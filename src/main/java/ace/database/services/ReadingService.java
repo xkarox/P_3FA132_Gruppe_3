@@ -46,7 +46,7 @@ public class ReadingService extends AbstractBaseService<Reading>
             return null;
         } else
         {
-            try(CustomerService customerService = ServiceProvider.GetCustomerService()){
+            try(CustomerService customerService = ServiceProvider.Services.getCustomerService()){
                 Customer existingCustomer = customerService.getById(item.getCustomer().getId());
 
                 // customer does not exists

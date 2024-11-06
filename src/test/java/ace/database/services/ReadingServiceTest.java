@@ -39,7 +39,7 @@ public class ReadingServiceTest
     @BeforeAll
     static void OneTimeSetup() throws IOException
     {
-        ServiceProvider.DbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
+        ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
     }
 
     @BeforeEach
