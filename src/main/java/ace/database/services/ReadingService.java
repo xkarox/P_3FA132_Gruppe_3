@@ -19,6 +19,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     }
 
 
+
     @Override
     public Reading add(Reading item) throws SQLException, ReflectiveOperationException
     {
@@ -33,7 +34,10 @@ public class ReadingService extends AbstractBaseService<Reading>
         PreparedStatement statement = this._dbConnection.newPrepareStatement(sqlStatement);
         statement.setObject(1, item.getId());
         statement.setString(2, item.getComment());
-        if (item.getCustomer() != null)
+        if (item.getCustomer() == null)
+        {
+            return null;
+        } else
         {
             CustomerService customerService = new CustomerService(this._dbConnection);
             Customer existingCustomer = customerService.getById(item.getCustomer().getId());
@@ -45,10 +49,6 @@ public class ReadingService extends AbstractBaseService<Reading>
             }
 
             statement.setObject(3, item.getCustomer().getId());
-        }
-        else
-        {
-            statement.setObject(3, null);
         }
         statement.setDate(4, Date.valueOf(item.getDateOfReading()));
         statement.setString(5, String.valueOf(item.getKindOfMeter().ordinal()));
