@@ -3,6 +3,7 @@ package server.controller;
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
 import ace.model.interfaces.ICustomer.Gender;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -20,6 +21,7 @@ import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -42,7 +44,16 @@ public class CustomerControllerTest
         return customer;
     }
 
-
+    void addCustomer() throws IOException, InterruptedException
+    {
+        String jsonString = _objMapper.writeValueAsString(this._customer);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    }
 
     @BeforeEach
     void setUp() throws IOException, SQLException
@@ -77,7 +88,7 @@ public class CustomerControllerTest
     }
 
     @Test
-    void postCustomerWithId() throws IOException, InterruptedException
+    void addCustomerWithId() throws IOException, InterruptedException
     {
         String jsonString = _objMapper.writeValueAsString(this._customer);
         HttpRequest request = HttpRequest.newBuilder()
@@ -92,7 +103,7 @@ public class CustomerControllerTest
     }
 
     @Test
-    void postCustomerWithoutId()  throws IOException, InterruptedException
+    void addCustomerWithoutId()  throws IOException, InterruptedException
     {
         Customer customerWithoutId = new Customer();
         customerWithoutId.setLastName("Ruehl");
@@ -118,7 +129,7 @@ public class CustomerControllerTest
     }
 
     @Test
-    void postCustomerInvalidRequest() throws IOException, InterruptedException
+    void addCustomerInvalidObject() throws IOException, InterruptedException
     {
         String jsonString = "\"id\":\"123123123\", \"kennzeichen\":\"STA-GM405\"";
         HttpRequest request = HttpRequest.newBuilder()
@@ -127,21 +138,89 @@ public class CustomerControllerTest
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(response.statusCode(), HttpStatus.BAD_REQUEST.value(), "Should return a 400 BAD REQUEST");
+        assertEquals("Invalid customer data provided", body.get("message"), "Message should be Invalid customer data provided");
     }
 
     @Test
-    void postCustomerEmptyBody() throws IOException, InterruptedException {
+    void addCustomerEmptyBody() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString("{}"))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals("Invalid customer data provided", body.get("message"), "Message should be Invalid customer data provided");
+    }
+
+    @Test
+    void updateCustomer() throws IOException, InterruptedException
+    {
+        this.addCustomer();
+
+        String newFirstName = "Donald";
+        String newLastName = "Trump";
+        LocalDate newBirthday = LocalDate.of(1977, 11, 2);
+        Gender newGender = Gender.D;
+
+        this._customer.setGender(newGender);
+        this._customer.setFirstName(newFirstName);
+        this._customer.setLastName(newLastName);
+        this._customer.setBirthDate(newBirthday);
+
+        String jsonString = _objMapper.writeValueAsString(this._customer);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+//        TODO get customer from db
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Status code should be 200 OK");
+        assertEquals("Customer successfully updated", response.body(), "Should return a message on success");
+    }
+
+    @Test
+    void updateCustomerBadRequest() throws IOException, InterruptedException
+    {
+        String jsonString = "{sl;fjk;lsdkf}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should be Status Code 400 Bad Request");
+        assertEquals("Invalid customer data provided", body.get("message"), "Message should be Invalid customer data provided");
+    }
+
+    @Test
+    void updateCustomerNotFound() throws IOException, InterruptedException
+    {
+        String jsonString = _objMapper.writeValueAsString(this._customer);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Should return Status Code 404 Not Found");
+        assertEquals("Customer not found in database", body.get("message"), "Message should be Customer not found in database");
     }
 
 }
-
