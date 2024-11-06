@@ -21,7 +21,8 @@ public class Main {
 		File fileTest = new File(filePathTest);
 
 
-		CsvParser csv = new CsvParser(fileCustomer);
+		CsvParser csv = new CsvParser(fileReading);
+		// System.out.println(csv.getFileType());
 		// System.out.println(Arrays.toString(csv.getHeader()));
 		ArrayList<Map<String, String>> metaData = csv.getMetaData();
 

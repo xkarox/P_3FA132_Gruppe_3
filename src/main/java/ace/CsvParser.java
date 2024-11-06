@@ -22,8 +22,8 @@ public class CsvParser
     public CsvParser(File csvFile)
     {
         this._csvFile = csvFile;
+        // this._csvFile = this._csvFormatter.formatCsv(this._csvFile);
         this._csvFormatter = new CsvFormatter();
-        this._csvFile = this._csvFormatter.formatCsv(this._csvFile);
         this.setFileType();
     }
 
@@ -38,10 +38,12 @@ public class CsvParser
             while (scanner.hasNextLine())
             {
                 String line = scanner.nextLine().trim();
-                if (valuesSectionStarted && this.getFileType(this._csvFile)) {
+                if (valuesSectionStarted)
+                {
                     String[] data = line.split(",");
                 }
-                if (isHeader(line, previousLine)) {
+                if (isHeader(line, previousLine))
+                {
                     valuesSectionStarted = true;
                     continue;
                 }
@@ -61,25 +63,13 @@ public class CsvParser
         {
             if (scanner.hasNextLine())
             {
-                // checks if csv-header has mandatory customer attributes
-                // if yes => customer-header
-                // if no => reading-header
-
                 String line = scanner.nextLine();
-                boolean containsRequiredCustomerHeader = false;
-                for (String s : _REQUIRED_CUSTOMER_HEADER)
-                {
-                    if (line.contains(s))
-                    {
-                        containsRequiredCustomerHeader = true;
-                        break;
-                    }
-                }
-                if (!containsRequiredCustomerHeader)
+                if (this._csvFileType == FileType.customerFileType)
                 {
                     String[] header = line.split(",");
                     return header;
-                } else
+                }
+                if (this._csvFileType == FileType.readingFileType)
                 {
                     boolean foundSeparator = false;
                     while (scanner.hasNextLine())
@@ -97,7 +87,6 @@ public class CsvParser
                             return header;
                         }
                     }
-
                 }
             }
         } catch (Exception e)
@@ -110,73 +99,85 @@ public class CsvParser
     public ArrayList<Map<String, String>> getMetaData()
     {
         ArrayList<Map<String, String>> metaDataList = new ArrayList<>();
-        try (Scanner scanner = new Scanner(this._csvFile))
+        if (this._csvFileType == FileType.readingFileType)
         {
-            while (scanner.hasNextLine())
+            try (Scanner scanner = new Scanner(this._csvFile))
             {
-                String line = scanner.nextLine();
+                while (scanner.hasNextLine())
+                {
+                    String line = scanner.nextLine();
 
-                if (line.contains(";;"))
-                {
-                    break;
-                }
-                for (String s : _REQUIRED_CUSTOMER_HEADER)
-                {
-                    if (line.contains(s))
+                    if (line.contains(";;"))
                     {
-                        return metaDataList;
+                        break;
+                    }
+                    line = line.replace("\"", "");
+                    String[] parts = line.split(";");
+
+                    if (parts.length == 2)
+                    {
+                        Map<String, String> metaData = new HashMap<>();
+                        metaData.put(parts[0], parts[1]);
+                        metaDataList.add(metaData);
                     }
                 }
-                line = line.replace("\"", "");
-                String[] parts = line.split(";");
 
-                if (parts.length == 2)
-                {
-                    Map<String, String> metaData = new HashMap<>();
-                    metaData.put(parts[0], parts[1]);
-                    metaDataList.add(metaData);
-                }
+            } catch (Exception e)
+            {
+                e.printStackTrace();
             }
-        } catch (Exception e)
+
+        } else if (this._csvFileType == FileType.customerFileType)
         {
-            e.printStackTrace();
+            return metaDataList;
         }
         return metaDataList;
     }
 
-    private boolean isHeader(String line, String previousLine) {
-        for (String s : _REQUIRED_CUSTOMER_HEADER) {
-            if (!line.contains(s)) {
+    private boolean isHeader(String line, String previousLine)
+    {
+        for (String s : _REQUIRED_CUSTOMER_HEADER)
+        {
+            if (!line.contains(s))
+            {
                 return false;
             }
         }
         return previousLine.equals(";;");
     }
 
-    private void setFileType() {
-        try (Scanner scanner = new Scanner(this._csvFile)) {
-            if (scanner.hasNextLine()) {
+    private void setFileType()
+    {
+        try (Scanner scanner = new Scanner(this._csvFile))
+        {
+            if (scanner.hasNextLine())
+            {
                 String line = scanner.nextLine();
                 boolean requiredCustomerAttributes = true;
-                for (String s : _REQUIRED_CUSTOMER_HEADER) {
-                    if (!line.contains(s)) {
+                for (String s : _REQUIRED_CUSTOMER_HEADER)
+                {
+                    if (!line.contains(s))
+                    {
                         requiredCustomerAttributes = false;
                         break;
                     }
                 }
-                if (requiredCustomerAttributes) {
+                if (requiredCustomerAttributes)
+                {
                     this._csvFileType = FileType.customerFileType;
-                }
-                else {
+                } else
+                {
                     this._csvFileType = FileType.readingFileType;
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
-    public FileType getFileType() {
+
+    public FileType getFileType()
+    {
         return this._csvFileType;
     }
 
