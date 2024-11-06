@@ -15,6 +15,7 @@ public class CsvParser
 
     private File _csvFile;
     private CsvFormatter _csvFormatter;
+    private FileType _csvFileType;
     private static final String[] _REQUIRED_CUSTOMER_HEADER = {"Anrede", "Vorname", "Nachname"};
 
 
@@ -22,18 +23,30 @@ public class CsvParser
     {
         this._csvFile = csvFile;
         this._csvFormatter = new CsvFormatter();
+        this._csvFile = this._csvFormatter.formatCsv(this._csvFile);
+        this.setFileType();
     }
 
-    public List<Dictionary<String, String>> getAllValues()
+    public ArrayList<Map<String, String>> getValues()
     {
-        this._csvFile = this._csvFormatter.formatCsv(this._csvFile);
-
+        ArrayList<Map<String, String>> result = new ArrayList<>();
         try (Scanner scanner = new Scanner(this._csvFile))
         {
+            String previousLine = "";
+            boolean valuesSectionStarted = false;
+            ArrayList<String> headers = new ArrayList<>();
             while (scanner.hasNextLine())
             {
-                String line = scanner.nextLine();
-                System.out.println(line);
+                String line = scanner.nextLine().trim();
+                if (valuesSectionStarted && this.getFileType(this._csvFile)) {
+                    String[] data = line.split(",");
+                }
+                if (isHeader(line, previousLine)) {
+                    valuesSectionStarted = true;
+                    continue;
+                }
+                previousLine = line;
+
             }
         } catch (Exception e)
         {
@@ -48,17 +61,21 @@ public class CsvParser
         {
             if (scanner.hasNextLine())
             {
+                // checks if csv-header has mandatory customer attributes
+                // if yes => customer-header
+                // if no => reading-header
+
                 String line = scanner.nextLine();
-                boolean containsRequiredCustomerHeader = true;
+                boolean containsRequiredCustomerHeader = false;
                 for (String s : _REQUIRED_CUSTOMER_HEADER)
                 {
-                    if (!line.contains(s))
+                    if (line.contains(s))
                     {
-                        containsRequiredCustomerHeader = false;
+                        containsRequiredCustomerHeader = true;
                         break;
                     }
                 }
-                if (containsRequiredCustomerHeader)
+                if (!containsRequiredCustomerHeader)
                 {
                     String[] header = line.split(",");
                     return header;
@@ -90,55 +107,77 @@ public class CsvParser
         return new String[0];
     }
 
-    public void readCsvFile()
+    public ArrayList<Map<String, String>> getMetaData()
     {
+        ArrayList<Map<String, String>> metaDataList = new ArrayList<>();
         try (Scanner scanner = new Scanner(this._csvFile))
         {
-            switch (this.checkFileType(scanner.nextLine()))
+            while (scanner.hasNextLine())
             {
-                case FileType.customerFileType:
-                    List<String> templateHeader = new ArrayList<>();
-                    List<List<String>> data = new ArrayList<>();
-                    if (scanner.hasNextLine())
-                    {
-                        scanner.nextLine();
-                    }
-                    while (scanner.hasNextLine())
-                    {
-                        String line = scanner.nextLine();
-                        String[] values = line.split(",");
-                        Customer customer = new Customer();
-                        // customer = values[0];
-                        System.out.println(Arrays.toString(values));
-                    }
+                String line = scanner.nextLine();
 
+                if (line.contains(";;"))
+                {
                     break;
-                case FileType.readingFileType:
+                }
+                for (String s : _REQUIRED_CUSTOMER_HEADER)
+                {
+                    if (line.contains(s))
+                    {
+                        return metaDataList;
+                    }
+                }
+                line = line.replace("\"", "");
+                String[] parts = line.split(";");
 
-                    break;
-                case null:
-                    break;
+                if (parts.length == 2)
+                {
+                    Map<String, String> metaData = new HashMap<>();
+                    metaData.put(parts[0], parts[1]);
+                    metaDataList.add(metaData);
+                }
             }
         } catch (Exception e)
         {
+            e.printStackTrace();
+        }
+        return metaDataList;
+    }
 
+    private boolean isHeader(String line, String previousLine) {
+        for (String s : _REQUIRED_CUSTOMER_HEADER) {
+            if (!line.contains(s)) {
+                return false;
+            }
+        }
+        return previousLine.equals(";;");
+    }
+
+    private void setFileType() {
+        try (Scanner scanner = new Scanner(this._csvFile)) {
+            if (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                boolean requiredCustomerAttributes = true;
+                for (String s : _REQUIRED_CUSTOMER_HEADER) {
+                    if (!line.contains(s)) {
+                        requiredCustomerAttributes = false;
+                        break;
+                    }
+                }
+                if (requiredCustomerAttributes) {
+                    this._csvFileType = FileType.customerFileType;
+                }
+                else {
+                    this._csvFileType = FileType.readingFileType;
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
-    private FileType checkFileType(String firstLine)
-    {
-        if (firstLine.startsWith("UUID"))
-        {
-            return FileType.customerFileType;
-        } else if (firstLine.startsWith("\"Kunde\""))
-        {
-            return FileType.readingFileType;
-        }
-        return null;
+    public FileType getFileType() {
+        return this._csvFileType;
     }
 
-    private File getCsvFile()
-    {
-        return this._csvFile;
-    }
 }

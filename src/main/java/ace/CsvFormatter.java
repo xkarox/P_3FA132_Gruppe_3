@@ -10,7 +10,6 @@ public class CsvFormatter
 
     public File formatCsv(File csvFile) {
         File formattedFile = new File("formattedFile");
-        // file should not have empty lines
         try (Scanner scanner = new Scanner(csvFile)) {
             PrintWriter writer = new PrintWriter(new FileWriter(formattedFile));
 

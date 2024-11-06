@@ -3,7 +3,9 @@ import ace.CsvParser;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 @SpringBootApplication
 public class Main {
@@ -19,8 +21,12 @@ public class Main {
 		File fileTest = new File(filePathTest);
 
 
-		CsvParser csv = new CsvParser(fileReading);
-		System.out.println(Arrays.toString(csv.getHeader()));
+		CsvParser csv = new CsvParser(fileCustomer);
+		// System.out.println(Arrays.toString(csv.getHeader()));
+		ArrayList<Map<String, String>> metaData = csv.getMetaData();
+
+		// Ausgabe der Meta-Daten (direkt die ArrayList mit den Maps)
+		System.out.println(metaData);
 		// Server.startServer("{{ DatabaseUrl }}");
 	}
 }
