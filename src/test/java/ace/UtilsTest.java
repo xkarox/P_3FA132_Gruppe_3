@@ -1,6 +1,11 @@
 package ace;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
+
+import java.text.SimpleDateFormat;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,6 +34,19 @@ public class UtilsTest
             assertEquals(e.getMessage(), resultString);
         }
         assertTrue(exceptionTriggert, "Because the exception should have been triggert");
+    }
+
+    @Test
+    void getObjectMapper()
+    {
+        Object expectedJavaTimeModuleTypeId = String.valueOf(new JavaTimeModule().getTypeId());
+        SimpleDateFormat expectedDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        ObjectMapper objMapper = Utils.getObjectMapper();
+        Set<Object> moduleIds =  objMapper.getRegisteredModuleIds();
+        System.out.println();
+        assertEquals(1, moduleIds.size(), "There should be only one registered module");
+        assertTrue(moduleIds.contains(expectedJavaTimeModuleTypeId), "The registered modules should contain the JavaTimeModule");
+        assertEquals(expectedDateFormat, objMapper.getDateFormat(), "Date format should be set to yyyy-MM-dd");
     }
 
     @Test
