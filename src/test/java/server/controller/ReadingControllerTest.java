@@ -1,5 +1,6 @@
 package server.controller;
 
+import ace.Utils;
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
@@ -59,7 +60,6 @@ public class ReadingControllerTest
         return reading;
     }
 
-
     @BeforeEach
     void setUp() throws IOException, SQLException
     {
@@ -97,9 +97,8 @@ public class ReadingControllerTest
     @Test
     void addReadingWithId() throws IOException, InterruptedException
     {
-        String jsonString = _objMapper.writeValueAsString(this._reading);
-        Reading reading = _objMapper.readValue(jsonString, Reading.class);
-        System.out.println(reading);
+        String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
@@ -124,7 +123,7 @@ public class ReadingControllerTest
         readingWithoutId.setSubstitute(false);
         readingWithoutId.setCustomer(this._customer);
 
-        String jsonString = _objMapper.writeValueAsString(readingWithoutId);
+        String jsonString = Utils.packIntoJsonString(readingWithoutId, Reading.class);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
@@ -132,9 +131,8 @@ public class ReadingControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-        Reading reading = _objMapper.readValue(response.body(), Reading.class);
-
+        String readingString = Utils.unpackFromJsonString(response.body(), Reading.class);
+        Reading reading = _objMapper.readValue(readingString, Reading.class);
 
         assertEquals(response.statusCode(), HttpStatus.CREATED.value(), "Should return status code 201 CREATED");
         assertEquals(readingWithoutId.getComment(), reading.getComment(), "Comment should match");
@@ -150,7 +148,7 @@ public class ReadingControllerTest
     void addReadingWithNewCustomer() throws IOException, InterruptedException
     {
         this._reading.setCustomer(this._customer);
-        String jsonString = _objMapper.writeValueAsString(this._reading);
+        String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
@@ -159,7 +157,8 @@ public class ReadingControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Reading reading = _objMapper.readValue(response.body(), Reading.class);
+        String readingString = Utils.unpackFromJsonString(response.body(), Reading.class);
+        Reading reading = _objMapper.readValue(readingString, Reading.class);
 
 
         assertEquals(this._reading, reading, "Should return the same object");
@@ -170,7 +169,7 @@ public class ReadingControllerTest
     void addReadingWithExistingCustomer() throws IOException, InterruptedException
     {
         boolean customerAddSuccess = false;
-        String customerJsonString = _objMapper.writeValueAsString(this._customer);
+        String customerJsonString = Utils.packIntoJsonString(this._customer, Customer.class);
         HttpRequest customerRequest = HttpRequest.newBuilder()
                 .uri(URI.create(this._customerUrl))
                 .header("Content-Type", "application/json")
@@ -180,14 +179,15 @@ public class ReadingControllerTest
         if (customerResponse.statusCode() == 201)
         {
             customerAddSuccess = true;
-            String readingJsonString = _objMapper.writeValueAsString(this._reading);
+            String readingJsonString = Utils.packIntoJsonString(this._reading, Reading.class);
             HttpRequest readingRequest = HttpRequest.newBuilder()
                     .uri(URI.create(_url))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(readingJsonString))
                     .build();
             HttpResponse<String> readingResponse = _httpClient.send(readingRequest, HttpResponse.BodyHandlers.ofString());
-            Reading reading = _objMapper.readValue(readingResponse.body(), Reading.class);
+            String readingString = Utils.unpackFromJsonString(readingResponse.body(), Reading.class);
+            Reading reading = _objMapper.readValue(readingString, Reading.class);
             assertEquals(this._reading, reading, "Should return the same object");
         }
         assertTrue(customerAddSuccess);
@@ -213,12 +213,12 @@ public class ReadingControllerTest
     void addReadingInvalidObject() throws IOException, InterruptedException
     {
         String jsonString = "sdfnasdf3223{2#$//";
-        HttpRequest customerRequest = HttpRequest.newBuilder()
+        HttpRequest readingRequest = HttpRequest.newBuilder()
                 .uri(URI.create(this._url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
-        HttpResponse<String> response = _httpClient.send(customerRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = _httpClient.send(readingRequest, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Status code should be 400 BAD REQUEST");

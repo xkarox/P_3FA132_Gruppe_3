@@ -1,5 +1,6 @@
 package server.controller;
 
+import ace.Utils;
 import ace.database.DatabaseConnection;
 import ace.model.classes.Customer;
 import ace.model.interfaces.ICustomer.Gender;
@@ -44,15 +45,9 @@ public class CustomerControllerTest
         return customer;
     }
 
-    String formatJson(String jsonString)
-    {
-        return new StringBuilder("{\"customer\":").append(jsonString).append("}").toString();
-    }
-
-
     void addCustomer() throws IOException, InterruptedException
     {
-        String jsonString = _objMapper.writeValueAsString(this._customer);
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
@@ -96,7 +91,7 @@ public class CustomerControllerTest
     @Test
     void addCustomerWithId() throws IOException, InterruptedException
     {
-        String jsonString = _objMapper.writeValueAsString(this._customer);
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
@@ -104,7 +99,7 @@ public class CustomerControllerTest
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(response.statusCode(), HttpStatus.CREATED.value(), "Should return status code 201 CREATED");
+        assertEquals(HttpStatus.CREATED.value(), response.statusCode(),"Should return status code 201 CREATED");
         assertEquals(jsonString, response.body(), "Should return the same object send in request");
     }
 
@@ -117,14 +112,14 @@ public class CustomerControllerTest
         customerWithoutId.setBirthDate(LocalDate.of(1972,2,22));
         customerWithoutId.setGender(Gender.M);
 
-        String jsonString = _objMapper.writeValueAsString(customerWithoutId);
+        String jsonString = Utils.packIntoJsonString(customerWithoutId, Customer.class);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Customer customer = _objMapper.readValue(response.body(), Customer.class);
+        Customer customer = _objMapper.readValue(Utils.unpackFromJsonString(response.body(), Customer.class), Customer.class);
 
         assertEquals(response.statusCode(), HttpStatus.CREATED.value(), "Should return status code 201 CREATED");
         assertEquals(customerWithoutId.getFirstName(), customer.getFirstName(), "First name should match");
@@ -179,7 +174,7 @@ public class CustomerControllerTest
         this._customer.setLastName(newLastName);
         this._customer.setBirthDate(newBirthday);
 
-        String jsonString = _objMapper.writeValueAsString(this._customer);
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
@@ -214,8 +209,7 @@ public class CustomerControllerTest
     @Test
     void updateCustomerNotFound() throws IOException, InterruptedException
     {
-        String jsonString = _objMapper.writeValueAsString(this._customer);
-
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
