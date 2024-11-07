@@ -21,9 +21,9 @@ public class CsvParser
 
     public CsvParser(File csvFile)
     {
-        this._csvFile = csvFile;
-        // this._csvFile = this._csvFormatter.formatCsv(this._csvFile);
         this._csvFormatter = new CsvFormatter();
+        this._csvFile = csvFile;
+        this._csvFile = this._csvFormatter.formatFile(this._csvFile);
         this.setFileType();
     }
 

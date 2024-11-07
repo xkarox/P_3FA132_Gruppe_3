@@ -21,13 +21,15 @@ public class Main {
 		File fileTest = new File(filePathTest);
 
 
-		CsvParser csv = new CsvParser(fileReading);
+		CsvParser csv = new CsvParser(fileTest);
+
+
 		// System.out.println(csv.getFileType());
 		// System.out.println(Arrays.toString(csv.getHeader()));
-		ArrayList<Map<String, String>> metaData = csv.getMetaData();
+		// ArrayList<Map<String, String>> metaData = csv.getMetaData();
 
 		// Ausgabe der Meta-Daten (direkt die ArrayList mit den Maps)
-		System.out.println(metaData);
+		// System.out.println(metaData);
 		// Server.startServer("{{ DatabaseUrl }}");
 	}
 }
