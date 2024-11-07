@@ -1,91 +1,106 @@
 package ace;
 
-import ace.model.classes.Customer;
-
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class CsvParser
 {
-    public enum FileType
-    {
-        customerFileType,
-        readingFileType
-    }
-
     private File _csvFile;
-    private CsvFormatter _csvFormatter;
-    private FileType _csvFileType;
-    private static final String[] _REQUIRED_CUSTOMER_HEADER = {"Anrede", "Vorname", "Nachname"};
-
 
     public CsvParser(File csvFile)
     {
-        this._csvFormatter = new CsvFormatter();
         this._csvFile = csvFile;
-        this._csvFile = this._csvFormatter.formatFile(this._csvFile);
-        this.setFileType();
     }
 
     public ArrayList<Map<String, String>> getValues()
     {
-        ArrayList<Map<String, String>> result = new ArrayList<>();
+        ArrayList<Map<String, String>> valuesList = new ArrayList<>();
         try (Scanner scanner = new Scanner(this._csvFile))
         {
-            String previousLine = "";
-            boolean valuesSectionStarted = false;
-            ArrayList<String> headers = new ArrayList<>();
-            while (scanner.hasNextLine())
-            {
-                String line = scanner.nextLine().trim();
-                if (valuesSectionStarted)
-                {
-                    String[] data = line.split(",");
-                }
-                if (isHeader(line, previousLine))
-                {
-                    valuesSectionStarted = true;
-                    continue;
-                }
-                previousLine = line;
+            String[] header = this.getHeader();
 
+            if (this.getSeparator() == ',')
+            {
+                if (scanner.hasNextLine())
+                {
+                    scanner.nextLine();
+                }
+
+                while (scanner.hasNextLine())
+                {
+                    String line = scanner.nextLine();
+                    String[] values = line.split(",");
+
+                    Map<String, String> dataMap = new HashMap<>();
+
+                    for (int i = 0; i < header.length; i++)
+                    {
+                        if (i < values.length)
+                        {
+                            dataMap.put(header[i], values[i].isEmpty() ? "" : values[i]);
+                        } else
+                        {
+                            dataMap.put(header[i], "");
+                        }
+                    }
+                    valuesList.add(dataMap);
+                }
+            } else if (this.getSeparator() == ';')
+            {
+                for (int i = 0; i < 4 && scanner.hasNextLine(); i++) {
+                    scanner.nextLine();
+                }
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    line = line.replace("\"", "");
+                    String[] values = line.split(";");
+
+                    Map<String, String> dataMap = new HashMap<>();
+
+                    for (int i = 0; i < header.length; i++)
+                    {
+                        if (i < values.length)
+                        {
+                            dataMap.put(header[i], values[i].isEmpty() ? "" : values[i]);
+                        } else
+                        {
+                            dataMap.put(header[i], "");
+                        }
+                    }
+                    valuesList.add(dataMap);
+                }
             }
         } catch (Exception e)
         {
             e.printStackTrace();
         }
-        return null;
+        return valuesList;
     }
 
     public String[] getHeader()
     {
         try (Scanner scanner = new Scanner(this._csvFile))
         {
-            if (scanner.hasNextLine())
+            if (this.getSeparator() == ',')
             {
-                String line = scanner.nextLine();
-                if (this._csvFileType == FileType.customerFileType)
+                if (scanner.hasNextLine())
                 {
-                    String[] header = line.split(",");
-                    return header;
+                    String line = scanner.nextLine();
+                    return line.split(",");
                 }
-                if (this._csvFileType == FileType.readingFileType)
+            } else if (this.getSeparator() == ';')
+            {
+                int lineNumber = 0;
+                while (scanner.hasNextLine())
                 {
-                    boolean foundSeparator = false;
-                    while (scanner.hasNextLine())
+                    String line = scanner.nextLine();
+                    lineNumber++;
+
+                    if (lineNumber == 4)
                     {
-                        String currentLine = scanner.nextLine();
-                        if (currentLine.equals(";;"))
-                        {
-                            foundSeparator = true;
-                            continue;
-                        }
-                        if (foundSeparator)
-                        {
-                            currentLine = currentLine.replace("\"", "");
-                            String[] header = currentLine.split(";");
-                            return header;
-                        }
+                        line = line.replace("\"", "");
+                        return line.split(";");
                     }
                 }
             }
@@ -99,86 +114,57 @@ public class CsvParser
     public ArrayList<Map<String, String>> getMetaData()
     {
         ArrayList<Map<String, String>> metaDataList = new ArrayList<>();
-        if (this._csvFileType == FileType.readingFileType)
+        int lineCount = 0;
+        try (Scanner scanner = new Scanner(this._csvFile))
         {
-            try (Scanner scanner = new Scanner(this._csvFile))
+            if (this.getSeparator() == ';')
             {
-                while (scanner.hasNextLine())
+                while (scanner.hasNextLine() && lineCount < 2)
                 {
                     String line = scanner.nextLine();
+                    lineCount++;
 
-                    if (line.contains(";;"))
-                    {
-                        break;
-                    }
                     line = line.replace("\"", "");
                     String[] parts = line.split(";");
 
                     if (parts.length == 2)
                     {
-                        Map<String, String> metaData = new HashMap<>();
-                        metaData.put(parts[0], parts[1]);
-                        metaDataList.add(metaData);
+                        Map<String, String> dataMap = new HashMap<>();
+                        dataMap.put(parts[0], parts[1]); // Füge Schlüssel-Wert-Paar hinzu
+                        metaDataList.add(dataMap);       // Map zur ArrayList hinzufügen
                     }
                 }
-
-            } catch (Exception e)
+            } else if (this.getSeparator() == ',')
             {
-                e.printStackTrace();
+                return metaDataList;
             }
-
-        } else if (this._csvFileType == FileType.customerFileType)
+        } catch (Exception e)
         {
-            return metaDataList;
+            e.printStackTrace();
         }
         return metaDataList;
     }
 
-    private boolean isHeader(String line, String previousLine)
-    {
-        for (String s : _REQUIRED_CUSTOMER_HEADER)
-        {
-            if (!line.contains(s))
-            {
-                return false;
-            }
-        }
-        return previousLine.equals(";;");
-    }
-
-    private void setFileType()
+    public char getSeparator()
     {
         try (Scanner scanner = new Scanner(this._csvFile))
         {
             if (scanner.hasNextLine())
             {
                 String line = scanner.nextLine();
-                boolean requiredCustomerAttributes = true;
-                for (String s : _REQUIRED_CUSTOMER_HEADER)
+                if (line.contains(","))
                 {
-                    if (!line.contains(s))
-                    {
-                        requiredCustomerAttributes = false;
-                        break;
-                    }
-                }
-                if (requiredCustomerAttributes)
+                    return ',';
+                } else if (line.contains(";"))
                 {
-                    this._csvFileType = FileType.customerFileType;
-                } else
-                {
-                    this._csvFileType = FileType.readingFileType;
+                    return ';';
                 }
             }
-        } catch (Exception e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
-    }
-
-    public FileType getFileType()
-    {
-        return this._csvFileType;
+        return '"';
     }
 
 }
