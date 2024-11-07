@@ -27,7 +27,6 @@ public class InternalServiceProvider
     private final Map<Integer, ReadingService> _possibleReadingServices = new HashMap<>();
     private final List<Integer> _usedReadingConnections = new ArrayList<>();
 
-
     public InternalServiceProvider(int maxDbConnections, int maxCustomerConnections, int maxReadingConnections)
     {
         this._maxDbConnections = maxDbConnections;
@@ -75,19 +74,19 @@ public class InternalServiceProvider
         }
     }
 
-    private synchronized <T> Integer searchFreeService(Map<Integer, T> possibleServices, List<Integer> usedConnections, int maxConnections, T newService) {
-        for (int key : possibleServices.keySet()) {
-            if (!usedConnections.contains(key)) {
+    private synchronized <T> Integer searchFreeService(Map<Integer, T> possibleServices, List<Integer> usedConnections, int maxConnections, T newService)
+    {
+        for (int key : possibleServices.keySet())
+        {
+            boolean keyFound = !usedConnections.contains(key);
+            if (keyFound)
+            {
                 return key;
             }
         }
-        if (possibleServices.size() > maxConnections) {
-            return -1;
-        } else {
-            int objectId = System.identityHashCode(newService);
-            possibleServices.put(objectId, newService);
-            return objectId;
-        }
+        int objectId = System.identityHashCode(newService);
+        possibleServices.put(objectId, newService);
+        return objectId;
     }
 
     private synchronized Integer searchFreeDbConnection()
