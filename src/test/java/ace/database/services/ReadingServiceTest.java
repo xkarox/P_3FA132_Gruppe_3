@@ -3,7 +3,7 @@ package ace.database.services;
 import ace.database.DatabaseConnection;
 import ace.database.DbHelperService;
 import ace.database.DbTestHelper;
-import ace.database.provider.ServiceProvider;
+import ace.ServiceProvider;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 import ace.model.interfaces.ICustomer.Gender;

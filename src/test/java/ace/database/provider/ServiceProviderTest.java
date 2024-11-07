@@ -1,6 +1,7 @@
 package ace.database.provider;
 
 import ace.ErrorMessages;
+import ace.ServiceProvider;
 import ace.database.DatabaseConnection;
 import ace.database.DbHelperService;
 import ace.database.DbTestHelper;

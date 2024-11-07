@@ -2,7 +2,7 @@ package ace.database.services;
 
 import ace.database.DatabaseConnection;
 import ace.database.provider.InternalServiceProvider;
-import ace.database.provider.ServiceProvider;
+import ace.ServiceProvider;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 
