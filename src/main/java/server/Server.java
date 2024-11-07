@@ -17,4 +17,9 @@ public class Server
         SpringApplication.exit(_appContext, () -> 0);
     }
 
+    public static ApplicationContext getAppContext()
+    {
+        return _appContext;
+    }
+
 }
