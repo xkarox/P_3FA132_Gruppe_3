@@ -79,7 +79,7 @@ public class CustomerServiceTest
     }
 
     @Test
-    void removeTest() throws ReflectiveOperationException, SQLException
+    void removeTest() throws ReflectiveOperationException, SQLException, IOException
     {
 //        add customer and reading
         this._customerService.add(this._testCustomer);
@@ -150,6 +150,18 @@ public class CustomerServiceTest
         assertThrows(IllegalArgumentException.class, () -> this._customerService.add(null));
         assertThrows(IllegalArgumentException.class, () -> this._customerService.update(customer));
         assertThrows(IllegalArgumentException.class, () -> this._customerService.remove(customer));
+    }
+
+    @Test
+    void closeDisposeNullTest()
+    {
+        try(CustomerService con = new CustomerService(new DatabaseConnection()))
+        {
+            // Do nothing
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<Customer> createTestData() throws SQLException

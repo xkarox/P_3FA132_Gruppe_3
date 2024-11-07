@@ -1,9 +1,12 @@
 package ace.database.services;
 
 import ace.database.DatabaseConnection;
+import ace.database.provider.InternalServiceProvider;
+import ace.database.provider.ServiceProvider;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -13,15 +16,20 @@ import java.util.UUID;
 
 public class ReadingService extends AbstractBaseService<Reading>
 {
+    public ReadingService(DatabaseConnection dbConnection, InternalServiceProvider provider)
+    {
+        super(dbConnection, provider);
+    }
+
     public ReadingService(DatabaseConnection dbConnection)
     {
-        super(dbConnection);
+        super(dbConnection, null);
     }
 
 
 
     @Override
-    public Reading add(Reading item) throws SQLException, ReflectiveOperationException
+    public Reading add(Reading item) throws SQLException, ReflectiveOperationException, IOException
     {
         if (item == null)
         {
@@ -40,16 +48,17 @@ public class ReadingService extends AbstractBaseService<Reading>
         }
         else
         {
-            CustomerService customerService = new CustomerService(this._dbConnection);
-            Customer existingCustomer = customerService.getById(item.getCustomer().getId());
+            try(CustomerService customerService = ServiceProvider.Services.getCustomerService()){
+                Customer existingCustomer = customerService.getById(item.getCustomer().getId());
 
-            // customer does not exists
-            if (existingCustomer == null)
-            {
-                customerService.add((Customer) item.getCustomer());
+                // customer does not exists
+                if (existingCustomer == null)
+                {
+                    customerService.add((Customer) item.getCustomer());
+                }
+
+                statement.setObject(3, item.getCustomer().getId());
             }
-
-            statement.setObject(3, item.getCustomer().getId());
         }
         statement.setDate(4, Date.valueOf(item.getDateOfReading()));
         statement.setString(5, String.valueOf(item.getKindOfMeter().ordinal()));
@@ -114,5 +123,15 @@ public class ReadingService extends AbstractBaseService<Reading>
         PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(delStatement);
         preparedStatement.setString(1, item.getId().toString());
         preparedStatement.executeUpdate();
+    }
+
+    @Override
+    public void close() throws SQLException
+    {
+        if (this._provider != null)
+        {
+            this._provider.releaseDbConnection(this._dbConnection);
+            this._provider.releaseReadingService(this);
+        }
     }
 }

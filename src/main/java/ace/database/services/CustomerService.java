@@ -1,6 +1,7 @@
 package ace.database.services;
 
 import ace.database.DatabaseConnection;
+import ace.database.provider.InternalServiceProvider;
 import ace.model.classes.Customer;
 import ace.model.classes.Reading;
 
@@ -12,9 +13,14 @@ import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>
 {
+    public CustomerService(DatabaseConnection dbConnection, InternalServiceProvider provider)
+    {
+        super(dbConnection, provider);
+    }
+
     public CustomerService(DatabaseConnection dbConnection)
     {
-        super(dbConnection);
+        super(dbConnection, null);
     }
 
 
@@ -103,5 +109,14 @@ public class CustomerService extends AbstractBaseService<Customer>
         PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(updateStatement);
         preparedStatement.setString(1, customerId.toString());
         preparedStatement.executeUpdate();
+    }
+
+    @Override
+    public void close() throws SQLException
+    {
+        if (this._provider != null){
+            this._provider.releaseDbConnection(this._dbConnection);
+            this._provider.releaseCustomerService(this);
+        }
     }
 }

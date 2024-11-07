@@ -161,9 +161,15 @@ public class DatabaseConnectionTest
     {
         assertNotNull(this._dbConnection.getConnection(), "Because a connection should be established");
         this._dbConnection.closeConnection();
-        try
+        assertTrue(this._dbConnection.getConnection().isClosed(), "Because the connection was closed");
+    }
+
+    @Test
+    void closeDisposeNullTest()
+    {
+        try(DatabaseConnection con = new DatabaseConnection())
         {
-            assertTrue(this._dbConnection.getConnection().isClosed(), "Because the connection was closed");
+            // Do nothing
         } catch (SQLException e)
         {
             throw new RuntimeException(e);
@@ -253,7 +259,7 @@ public class DatabaseConnectionTest
 
     @Test
     @Tag("createMockHelperService")
-    void getObjectsFromDbTableDefaultCaseTest() throws SQLException, ReflectiveOperationException
+    void getObjectsFromDbTableDefaultCaseTest() throws SQLException
     {
         this._dbConnection.createAllTables();
         this.createTestData(this._dbConnection);
