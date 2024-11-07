@@ -55,4 +55,27 @@ public class UtilsTest
     {
         Utils utils = new Utils();
     }
+
+
+    @Test
+    void getLastPartAfterDot()
+    {
+        String test = "this.is.a.string";
+        String expectedOutput = "string";
+
+        String output = Utils.getLastPartAfterDot(test);
+
+        assertEquals(expectedOutput, output, "Strings should match");
+    }
+
+    @Test
+    void getLastPartAfterDotNoDotInput()
+    {
+        String test = "string";
+        String expectedOutput = "string";
+
+        String output = Utils.getLastPartAfterDot(test);
+
+        assertEquals(expectedOutput, output, "Strings should match");
+    }
 }
