@@ -10,7 +10,9 @@ public class CsvParser
 
     public CsvParser(File csvFile)
     {
+        CsvFormatter formatter = new CsvFormatter(csvFile);
         this._csvFile = csvFile;
+        this._csvFile = formatter.formatFile(csvFile, this.getSeparator());
     }
 
     public ArrayList<Map<String, String>> getValues()
@@ -48,10 +50,12 @@ public class CsvParser
                 }
             } else if (this.getSeparator() == ';')
             {
-                for (int i = 0; i < 4 && scanner.hasNextLine(); i++) {
+                for (int i = 0; i < 4 && scanner.hasNextLine(); i++)
+                {
                     scanner.nextLine();
                 }
-                while (scanner.hasNextLine()) {
+                while (scanner.hasNextLine())
+                {
                     String line = scanner.nextLine();
                     line = line.replace("\"", "");
                     String[] values = line.split(";");
@@ -97,7 +101,7 @@ public class CsvParser
                     String line = scanner.nextLine();
                     lineNumber++;
 
-                    if (lineNumber == 4)
+                    if (lineNumber == 3)
                     {
                         line = line.replace("\"", "");
                         return line.split(";");

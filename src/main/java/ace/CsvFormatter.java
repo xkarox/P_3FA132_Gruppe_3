@@ -9,70 +9,54 @@ import java.util.Scanner;
 public class CsvFormatter
 {
     private File _csvFile;
+    private String _location;
 
-    private File removeEmptyLines(File csvFile)
+    public CsvFormatter(File csvFile)
     {
-        File tempFile = new File("tempFile.csv");
+        this._location = csvFile.getPath();
+    }
+
+    private File removeEmptyLines(File csvFile, char separator)
+    {
+        File tempFile = new File(csvFile.getParent(), "temp.csv");
 
         try (Scanner scanner = new Scanner(csvFile);
              FileWriter writer = new FileWriter(tempFile))
         {
+            String regex = "^" + separator + "+$";
 
             while (scanner.hasNextLine())
             {
                 String line = scanner.nextLine();
 
-                if (line.trim().isEmpty())
+                if (line.trim().isEmpty() || line.matches(regex))
                 {
                     continue;
                 }
                 writer.write(line + System.lineSeparator());
             }
-           return tempFile;
         } catch (IOException e)
         {
             throw new RuntimeException(e);
         }
+
+        if (csvFile.delete())
+        {
+            if (!tempFile.renameTo(csvFile))
+            {
+                throw new RuntimeException("Error at replacing of old file");
+            }
+        } else
+        {
+            throw new RuntimeException("Error at deleting old file");
+        }
+        return csvFile;
     }
 
-    private char getSeparator(File csvFile)
-    {
-       try (Scanner scanner = new Scanner(csvFile)) {
-           if (scanner.hasNextLine()){
-               String line = scanner.nextLine();
-               if (line.contains(",")) {
-                   return ',';
-               }
-               else if (line.contains(";")) {
-                   return ';';
-               }
-           }
-       }
-       catch (IOException e) {
-           e.printStackTrace();
-       }
-       return '"';
-    }
-
-
-    public File formatFile(File csvFile)
+    public File formatFile(File csvFile, char separator)
     {
         this._csvFile = csvFile;
-        this._csvFile = this.removeEmptyLines(csvFile);
-        char separator = this.getSeparator(this._csvFile);
-
-        // test
-        try (Scanner scanner = new Scanner(this._csvFile))
-        {
-            while (scanner.hasNextLine()) {
-                System.out.println(separator);
-            }
-        }
-        catch (Exception e) {
-
-        }
-
+        this._csvFile = this.removeEmptyLines(csvFile, separator);
         return this._csvFile;
-
     }
 }

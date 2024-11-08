@@ -12,7 +12,7 @@ public class Main {
 
 	public static void main(String[] args)
 	{
-		String filePathReading = "src/main/resources/heizung.csv";
+		String filePathReading = "src/main/resources/wasser.csv";
 		String filePathCustomer = "src/main/resources/kunden_utf8.csv";
 		String filePathTest = "src/main/resources/test.csv";
 
@@ -21,11 +21,12 @@ public class Main {
 		File fileTest = new File(filePathTest);
 
 
-		CsvParser csv = new CsvParser(fileReading);
+		CsvParser csv = new CsvParser(fileCustomer);
 		// System.out.println(csv.getSeparator());
 		// System.out.println(Arrays.toString(csv.getHeader()));
 		// System.out.println(csv.getMetaData());
-		System.out.println(csv.getValues().size());
+		System.out.println(Arrays.toString(csv.getHeader()));
+		// System.out.println(csv.getValues().size());
 
 
 
