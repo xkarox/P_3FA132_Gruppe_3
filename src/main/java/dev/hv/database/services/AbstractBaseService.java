@@ -1,8 +1,8 @@
 package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
-import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.database.intefaces.IBasicCrud;
+import dev.hv.database.provider.InternalServiceProvider;
 
 public abstract class AbstractBaseService<T> implements IBasicCrud<T>, AutoCloseable
 {

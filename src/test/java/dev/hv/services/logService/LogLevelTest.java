@@ -1,6 +1,5 @@
 package dev.hv.services.logService;
 
-import dev.hv.services.logService.LogLevel;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

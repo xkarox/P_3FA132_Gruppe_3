@@ -1,7 +1,7 @@
 package dev.hv.model.classes;
 
-import dev.hv.model.decorator.IFieldInfo;
 import dev.hv.model.ICustomer;
+import dev.hv.model.decorator.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 import org.checkerframework.checker.nullness.qual.Nullable;
 

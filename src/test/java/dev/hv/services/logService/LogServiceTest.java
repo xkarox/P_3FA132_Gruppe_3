@@ -1,7 +1,5 @@
 package dev.hv.services.logService;
 
-import dev.hv.services.logService.LogLevel;
-import dev.hv.services.logService.LogService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +50,7 @@ public class LogServiceTest
 //        Test for ClassType as Type
         outContent.reset();
         expectedLog = new StringBuilder(sb.toString())
-                .append(" (ace.services.logService.LogServiceTest) \u001B[34mINFO\u001B[0m: This is a INFO message\n").toString();
+                .append(" (dev.hv.services.logService.LogServiceTest) \u001B[34mINFO\u001B[0m: This is a INFO message\n").toString();
         log(this.getClass(), LogLevel.INFO, "This is a INFO message");
         assertEquals(filterAnsi(expectedLog), filterAnsi(outContent.toString()));
     }

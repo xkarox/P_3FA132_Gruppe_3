@@ -3,11 +3,11 @@ package dev.hv.database.services;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.DbTestHelper;
-import dev.hv.model.classes.Customer;
-import dev.hv.model.classes.Reading;
 import dev.hv.model.ICustomer;
 import dev.hv.model.ICustomer.Gender;
 import dev.hv.model.IReading;
+import dev.hv.model.classes.Customer;
+import dev.hv.model.classes.Reading;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

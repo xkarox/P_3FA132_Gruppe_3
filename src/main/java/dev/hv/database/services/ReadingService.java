@@ -2,9 +2,9 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.provider.ServiceProvider;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
+import dev.provider.ServiceProvider;
 
 import java.io.IOException;
 import java.sql.Date;

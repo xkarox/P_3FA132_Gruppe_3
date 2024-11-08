@@ -1,7 +1,5 @@
 package dev.hv.model.classes;
 
-import dev.hv.model.classes.Customer;
-import dev.hv.model.classes.Reading;
 import dev.hv.model.ICustomer;
 import dev.hv.model.ICustomer.Gender;
 import dev.hv.model.IReading.KindOfMeter;
