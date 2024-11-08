@@ -8,6 +8,8 @@ import dev.hv.model.ICustomer.Gender;
 import dev.hv.model.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +34,18 @@ public class CustomerServiceTest
     private Reading _testReading;
     private CustomerService _customerService;
     private ReadingService _readingService;
+
+    @BeforeAll
+    static void OneTimeSetup() throws IOException
+    {
+        DbTestHelper.LoadTestServiceProvider();
+    }
+
+    @AfterAll
+    static void OneTimeTearDown()
+    {
+        DbTestHelper.UnloadTestServiceProvider();
+    }
 
     @BeforeEach
     void SetUp() throws IOException, SQLException
@@ -83,6 +97,7 @@ public class CustomerServiceTest
     {
 //        add customer and reading
         this._customerService.add(this._testCustomer);
+        this._testReading.setCustomer(this._testCustomer);
         this._readingService.add(this._testReading);
 //        remove customer
         this._customerService.remove(this._testCustomer);
@@ -91,7 +106,7 @@ public class CustomerServiceTest
                 "customer was deleted before");
 //         get reading -> check if customer id is null
         Reading reading = this._readingService.getById(this._testReading.getId());
-        assertNull(reading, "Should return null because customer is already deleted");
+        assertNull(reading.getCustomer(), "Should return null because customer is already deleted");
     }
 
     @Test
@@ -162,6 +177,22 @@ public class CustomerServiceTest
         {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    void DateNullTest() throws ReflectiveOperationException, SQLException, IOException
+    {
+        this._testCustomer.setBirthDate(null);
+        this._customerService.add(this._testCustomer);
+        assertNull(this._customerService.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should be null");
+
+        this._testCustomer.setBirthDate(LocalDate.now());
+        this._customerService.update(this._testCustomer);
+        assertNotNull(this._customerService.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should not be null");
+
+        this._testCustomer.setBirthDate(null);
+        this._customerService.update(this._testCustomer);
+        assertNull(this._customerService.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should be null");
     }
 
     private List<Customer> createTestData() throws SQLException

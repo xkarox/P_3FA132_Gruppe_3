@@ -31,20 +31,20 @@ class InternalServiceProviderTest
     @BeforeAll
     static void OneTimeSetup() throws IOException
     {
-        ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
+        DbTestHelper.LoadTestServiceProvider();
     }
+
+    @AfterAll
+    static void OneTimeTearDown()
+    {
+        DbTestHelper.UnloadTestServiceProvider();
+    }
+
 
     @BeforeEach
     void beforeEach()
     {
-        ServiceProvider.Services.setMultithreading(false);
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
-    }
-
-    @AfterAll
-    static void afterAll()
-    {
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
+        DbTestHelper.UnloadTestServiceProvider();
     }
 
     @Test
@@ -154,6 +154,7 @@ class InternalServiceProviderTest
         possibleDbConnections.put(System.identityHashCode(testCon1), testCon1);
 
         DatabaseConnection lowerCon = System.identityHashCode(testCon) < System.identityHashCode(testCon1) ? testCon : testCon1;
+        DatabaseConnection higherCon = System.identityHashCode(testCon) > System.identityHashCode(testCon1) ? testCon : testCon1;
 
         Field secretField = InternalServiceProvider.class.getDeclaredField("_possibleDbConnections");
         secretField.setAccessible(true);
@@ -168,7 +169,7 @@ class InternalServiceProviderTest
 
         try(DatabaseConnection con1 = services.getDatabaseConnection())
         {
-            assertEquals(System.identityHashCode(testCon) ,System.identityHashCode(con1), "Because the connection should be the same");
+            assertEquals(System.identityHashCode(higherCon) ,System.identityHashCode(con1), "Because the connection should be the same");
         }
     }
 
