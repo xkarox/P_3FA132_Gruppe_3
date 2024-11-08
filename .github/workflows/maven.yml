@@ -25,10 +25,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '21'  # Change to '17' since your setup mentioned JDK 17
+          java-version: '21'
           distribution: 'temurin'
           cache: maven
 
@@ -36,6 +36,7 @@ jobs:
       - name: Check MariaDB Connection
         run: |
           echo "Checking MariaDB connection..."
+          success=false
           for i in {1..5}; do
             if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; then
               echo "MariaDB is reachable!"
@@ -45,6 +46,10 @@ jobs:
               sleep 5
             fi
           done
+          if ! $success; then
+          echo "Error: Could not establish a connection to MariaDB after multiple attempts. Please check if MariaDB is running, and verify the connection details (host, port, username, password)."
+          exit 1
+          fi
 
       - name: Configure database connection for CI
         run: |
