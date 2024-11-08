@@ -34,7 +34,6 @@ public class Utils
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
         return objectMapper;
-
     }
 
     public static String getLastPartAfterDot(String str) {

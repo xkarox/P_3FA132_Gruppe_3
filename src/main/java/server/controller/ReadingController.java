@@ -2,6 +2,7 @@ package server.controller;
 
 import ace.Utils;
 import ace.ServiceProvider;
+import ace.database.provider.InternalServiceProvider;
 import ace.database.services.ReadingService;
 import ace.model.classes.Reading;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,11 +21,22 @@ import java.util.UUID;
 @RequestMapping(value = "/readings")
 public class ReadingController
 {
-    static ObjectMapper _objMapper = Utils.getObjectMapper();
+    private static ObjectMapper _objMapper = Utils.getObjectMapper();
+    private static InternalServiceProvider _serviceProvider = ServiceProvider.Services;
+
+    public static void setObjectMapper(ObjectMapper objectMapper)
+    {
+        _objMapper = objectMapper;
+    }
+
+    public static void setServiceProvider(InternalServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
 
     private void validateRequestData(String jsonString)
     {
-        ReadingJsonSchemaValidationService readingValidator = ServiceProvider.Validator.getReadingValidator();
+        ReadingJsonSchemaValidationService readingValidator = ServiceProvider.Validator.get_readingValidator();
         boolean invalidCustomer = !readingValidator.validate(jsonString);
         if ( invalidCustomer )
         {
@@ -41,7 +53,7 @@ public class ReadingController
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = _objMapper.readValue(readingJson, Reading.class);
-            ReadingService rs = ServiceProvider.Services.getReadingService();
+            ReadingService rs = _serviceProvider.getReadingService();
             if (reading.getId() == null)
             {
                 reading.setId(UUID.randomUUID());
@@ -51,7 +63,7 @@ public class ReadingController
         }
         catch (JsonProcessingException | SQLException | ReflectiveOperationException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
         }
         catch (IOException e)
         {

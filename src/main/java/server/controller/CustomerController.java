@@ -2,6 +2,7 @@ package server.controller;
 
 import ace.ServiceProvider;
 import ace.Utils;
+import ace.database.provider.InternalServiceProvider;
 import ace.database.services.CustomerService;
 import ace.model.classes.Customer;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,11 +21,22 @@ import java.util.UUID;
 @RestController
 @RequestMapping(value = "/customers")
 public class CustomerController {
-    static ObjectMapper _objMapper = Utils.getObjectMapper();
+    private static ObjectMapper _objMapper = Utils.getObjectMapper();
+    private static InternalServiceProvider _serviceProvider = ServiceProvider.Services;
+
+    public static void setObjectMapper(ObjectMapper objectMapper)
+    {
+        _objMapper = objectMapper;
+    }
+
+    public static void setServiceProvider(InternalServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
 
     private void validateRequestData(String jsonString)
     {
-        CustomerJsonSchemaValidatorService customerValidator = ServiceProvider.Validator.getCustomerValidator();
+        CustomerJsonSchemaValidatorService customerValidator = ServiceProvider.Validator.get_customerValidator();
         boolean invalidCustomer = !customerValidator.validate(jsonString);
         if ( invalidCustomer )
         {
@@ -41,7 +53,7 @@ public class CustomerController {
         {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
             Customer customer = _objMapper.readValue(customerJson, Customer.class);
-            CustomerService cs = ServiceProvider.Services.getCustomerService();
+            CustomerService cs = _serviceProvider.getCustomerService();
             if (customer.getId() == null)
             {
                 customer.setId(UUID.randomUUID());
@@ -69,7 +81,7 @@ public class CustomerController {
         {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
             Customer customer = _objMapper.readValue(customerJson, Customer.class);
-            CustomerService cs = ServiceProvider.Services.getCustomerService();
+            CustomerService cs = _serviceProvider.getCustomerService();
             Customer dbCustomer = cs.getById(customer.getId());
             if (dbCustomer == null)
             {

@@ -5,22 +5,27 @@ import server.validator.ReadingJsonSchemaValidationService;
 
 public class ValidatorServiceProvider
 {
-    private final CustomerJsonSchemaValidatorService customerValidator;
-    private final ReadingJsonSchemaValidationService readingValidator;
+    private CustomerJsonSchemaValidatorService _customerValidator;
+    private ReadingJsonSchemaValidationService _readingValidator;
 
     public ValidatorServiceProvider()
     {
-        customerValidator = new CustomerJsonSchemaValidatorService();
-        readingValidator = new ReadingJsonSchemaValidationService();
+        _customerValidator = new CustomerJsonSchemaValidatorService();
+        _readingValidator = new ReadingJsonSchemaValidationService();
     }
 
-    public CustomerJsonSchemaValidatorService getCustomerValidator()
+    public CustomerJsonSchemaValidatorService get_customerValidator()
     {
-        return customerValidator;
+        return _customerValidator;
     }
 
-    public ReadingJsonSchemaValidationService getReadingValidator()
+    public ReadingJsonSchemaValidationService get_readingValidator()
     {
-        return readingValidator;
+        return _readingValidator;
+    }
+
+    public void setCustomerValidator(CustomerJsonSchemaValidatorService customerValidator)
+    {
+        this._customerValidator = customerValidator;
     }
 }

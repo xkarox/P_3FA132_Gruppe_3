@@ -1,9 +1,14 @@
 package server.controller;
 
+import ace.ServiceProvider;
 import ace.Utils;
 import ace.database.DatabaseConnection;
+import ace.database.provider.InternalServiceProvider;
+import ace.database.services.CustomerService;
 import ace.model.classes.Customer;
 import ace.model.interfaces.ICustomer.Gender;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -11,8 +16,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import server.Server;
+import server.validator.CustomerJsonSchemaValidatorService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -24,16 +33,18 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 public class CustomerControllerTest
 {
-    DatabaseConnection _connection;
-    String _url = "http://0.0.0.0:8080/customers";
-    HttpClient _httpClient;
-    Customer _customer;
-    ObjectMapper _objMapper;
+    private DatabaseConnection _connection;
+    private String _url = "http://0.0.0.0:8080/customers";
+    private HttpClient _httpClient;
+    private Customer _customer;
+    private ObjectMapper _objMapper;
+
 
     Customer getTestCustomer()
     {
@@ -83,9 +94,11 @@ public class CustomerControllerTest
     }
 
     @AfterEach
-    void tearDown()
+    void tearDown() throws SQLException, IOException
     {
         Server.stopServer();
+        CustomerController.setServiceProvider(ServiceProvider.Services);
+        CustomerController.setObjectMapper(Utils.getObjectMapper());
     }
 
     @Test
@@ -160,6 +173,46 @@ public class CustomerControllerTest
     }
 
     @Test
+    void addCustomerIOException() throws Exception
+    {
+        InternalServiceProvider serviceProvider = mock(InternalServiceProvider.class);
+        when(serviceProvider.getCustomerService()).thenThrow(IOException.class);
+        CustomerController.setServiceProvider(serviceProvider);
+
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals("Internal Server IOError", body.get("message"), "Message should be 'Internal Server IOError'");
+    }
+
+    @Test
+    void addCustomerJsonProcessingException() throws SQLException, IOException, InterruptedException
+    {
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
+
+        ObjectMapper objMapper = mock(ObjectMapper.class);
+        when(objMapper.readValue(jsonString, Customer.class)).thenThrow(JsonProcessingException.class);
+        CustomerController.setObjectMapper(objMapper);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals("Invalid customer data provided", body.get("message"), "Message should be 'Invalid customer data provided'");
+    }
+
+    @Test
     void updateCustomer() throws IOException, InterruptedException
     {
         this.addCustomer();
@@ -221,6 +274,50 @@ public class CustomerControllerTest
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Should return Status Code 404 Not Found");
         assertEquals("Customer not found in database", body.get("message"), "Message should be Customer not found in database");
+    }
+
+    @Test
+    void updateCustomerIOException() throws Exception
+    {
+        this.addCustomer();
+
+        InternalServiceProvider serviceProvider = mock(InternalServiceProvider.class);
+        when(serviceProvider.getCustomerService()).thenThrow(IOException.class);
+        CustomerController.setServiceProvider(serviceProvider);
+
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals("Internal Server IOError", body.get("message"), "Message should be 'Internal Server IOError'");
+    }
+
+    @Test
+    void updateCustomerJsonProcessingException() throws SQLException, IOException, InterruptedException
+    {
+        this.addCustomer();
+
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
+
+        ObjectMapper objMapper = mock(ObjectMapper.class);
+        when(objMapper.readValue(anyString(), eq(Customer.class))).thenThrow(JsonProcessingException.class);
+        CustomerController.setObjectMapper(objMapper);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals("Invalid customer data provided", body.get("message"), "Message should be 'Invalid customer data provided'");
     }
 
 }
