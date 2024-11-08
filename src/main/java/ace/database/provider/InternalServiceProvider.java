@@ -34,7 +34,6 @@ public class InternalServiceProvider
         this._maxReadingConnections = maxReadingConnections;
     }
 
-    // ToDo: handle errors better (-1) for not available services
     private synchronized <T> T getService(Class<T> serviceClass) throws IOException, SQLException
     {
         while (this._usedDbConnections.size() >= _maxDbConnections ||
@@ -50,6 +49,11 @@ public class InternalServiceProvider
             }
         }
 
+        return serviceFactory(serviceClass);
+    }
+
+    private synchronized <T> T serviceFactory(Class<T> serviceClass) throws SQLException, IOException
+    {
         int connectionKey;
         DatabaseConnection dbConnection;
         if (serviceClass == CustomerService.class) {
@@ -84,7 +88,7 @@ public class InternalServiceProvider
                 return key;
             }
         }
-        int objectId = System.identityHashCode(newService);
+        int objectId = getObjectId(newService);
         possibleServices.put(objectId, newService);
         return objectId;
     }

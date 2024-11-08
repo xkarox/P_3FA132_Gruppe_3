@@ -141,26 +141,6 @@ class ServiceProviderTest
     }
 
     @Test
-    void GetDatabaseConnectionTest()
-    {
-    }
-
-    @Test
-    void GetCustomerServiceTest()
-    {
-    }
-
-    @Test
-    void GetReadingServiceTest()
-    {
-    }
-
-    @Test
-    void DbConnectionPropertiesOverwriteTest()
-    {
-    }
-
-    @Test
     void FindUnusedService() throws NoSuchFieldException, IllegalAccessException, SQLException, IOException
     {
         InternalServiceProvider services = new InternalServiceProvider(2, 0, 0);
