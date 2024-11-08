@@ -10,7 +10,7 @@ public class CsvParser
 
     public CsvParser(File csvFile)
     {
-        CsvFormatter formatter = new CsvFormatter(csvFile);
+        CsvFormatter formatter = new CsvFormatter();
         this._csvFile = csvFile;
         this._csvFile = formatter.formatFile(csvFile, this.getSeparator());
     }

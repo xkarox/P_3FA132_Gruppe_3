@@ -9,12 +9,6 @@ import java.util.Scanner;
 public class CsvFormatter
 {
     private File _csvFile;
-    private String _location;
-
-    public CsvFormatter(File csvFile)
-    {
-        this._location = csvFile.getPath();
-    }
 
     private File removeEmptyLines(File csvFile, char separator)
     {
