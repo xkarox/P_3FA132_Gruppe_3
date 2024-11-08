@@ -21,7 +21,7 @@
         <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
 
 
-		<mainClass>server.Main</mainClass>
+		<mainClass>dev.server.Main</mainClass>
 	</properties>
 
 	<dependencies>
