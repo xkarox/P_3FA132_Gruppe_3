@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import dev.server.Server;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -68,6 +69,18 @@ public class ReadingControllerTest
         return reading;
     }
 
+    void addReading() throws IOException, InterruptedException
+    {
+        String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
+                .build();
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
     @BeforeEach
     void setUp() throws IOException, SQLException
     {
@@ -100,8 +113,7 @@ public class ReadingControllerTest
     void tearDown()
     {
         Server.stopServer();
-        ReadingController.setServiceProvider(ServiceProvider.Services);
-        ReadingController.setObjectMapper(Utils.getObjectMapper());
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);;
     }
 
     @Test
@@ -118,7 +130,6 @@ public class ReadingControllerTest
 
         assertEquals(HttpStatus.CREATED.value(), response.statusCode(), "Should return status code 201 CREATED");
         assertEquals(jsonString, response.body(), "Should return the same object send in request");
-        System.out.println();
     }
 
     @Test
@@ -236,11 +247,10 @@ public class ReadingControllerTest
     }
 
     @Test
-    void addCustomerIOException() throws Exception
+    void addReadingIOException() throws Exception
     {
-        InternalServiceProvider serviceProvider = mock(InternalServiceProvider.class);
-        when(serviceProvider.getReadingService()).thenThrow(IOException.class);
-        ReadingController.setServiceProvider(serviceProvider);
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        when(ServiceProvider.Services.getReadingService()).thenThrow(IOException.class);
 
         String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
 
@@ -256,22 +266,30 @@ public class ReadingControllerTest
     }
 
     @Test
-    void addCustomerJsonProcessingException() throws SQLException, IOException, InterruptedException
+    void addReadingJsonProcessingException() throws SQLException, IOException, InterruptedException
     {
         String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
 
-        ObjectMapper objMapper = mock(ObjectMapper.class);
-        when(objMapper.readValue(anyString(), eq(Reading.class))).thenThrow(JsonProcessingException.class);
-        ReadingController.setObjectMapper(objMapper);
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        when(ServiceProvider.Services.getReadingService()).thenThrow(JsonProcessingException.class);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
+
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
         assertEquals("Invalid reading data provided", body.get("message"), "Message should be 'Invalid reading data provided'");
+    }
+
+    @Test
+    void updateReading() throws IOException, InterruptedException
+    {
+        this.addReading();
+
+
     }
 }

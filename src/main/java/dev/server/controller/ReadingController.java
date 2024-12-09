@@ -1,6 +1,8 @@
 package dev.server.controller;
 
 import dev.hv.Utils;
+import dev.hv.database.services.CustomerService;
+import dev.hv.model.classes.Customer;
 import dev.provider.ServiceProvider;
 import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.database.services.ReadingService;
@@ -8,6 +10,7 @@ import dev.hv.model.classes.Reading;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import dev.server.validator.ReadingJsonSchemaValidationService;
@@ -21,18 +24,6 @@ import java.util.UUID;
 @RequestMapping(value = "/readings")
 public class ReadingController
 {
-    private static ObjectMapper _objMapper = Utils.getObjectMapper();
-    private static InternalServiceProvider _serviceProvider = ServiceProvider.Services;
-
-    public static void setObjectMapper(ObjectMapper objectMapper)
-    {
-        _objMapper = objectMapper;
-    }
-
-    public static void setServiceProvider(InternalServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
 
     private void validateRequestData(String jsonString)
     {
@@ -52,8 +43,8 @@ public class ReadingController
         try
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
-            Reading reading = _objMapper.readValue(readingJson, Reading.class);
-            ReadingService rs = _serviceProvider.getReadingService();
+            Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
+            ReadingService rs = ServiceProvider.Services.getReadingService();
             if (reading.getId() == null)
             {
                 reading.setId(UUID.randomUUID());
@@ -68,6 +59,35 @@ public class ReadingController
         catch (IOException e)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.PUT)
+    public ResponseEntity<String> updateReading(@RequestBody String readingJson)
+    {
+        this.validateRequestData(readingJson);
+        try
+        {
+            readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
+            Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
+            ReadingService rs = ServiceProvider.Services.getReadingService();
+            Reading dbCustomer = rs.getById(reading.getId());
+            if (dbCustomer == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+            }
+            rs.update(reading);
+            return new ResponseEntity<String>("Customer successfully updated", HttpStatus.OK);
+        }
+        catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
+        }
+        catch (IOException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
+
         }
     }
 }

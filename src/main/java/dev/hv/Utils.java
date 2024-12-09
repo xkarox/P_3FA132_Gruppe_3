@@ -44,6 +44,8 @@ public class Utils
         return str.substring(lastIndex + 1);
     }
 
+
+//    Removes the customer or reading declaration
     public static String unpackFromJsonString(String objectJson, Class classType) throws JsonProcessingException
     {
         String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase());

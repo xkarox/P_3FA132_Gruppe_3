@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import java.text.SimpleDateFormat;
 
 @Configuration
+//Configuration for Springs selected serialization package -> jackson
 public class JacksonConfig {
 
     @Bean

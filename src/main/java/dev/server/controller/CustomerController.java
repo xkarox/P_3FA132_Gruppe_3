@@ -22,17 +22,6 @@ import java.util.UUID;
 @RequestMapping(value = "/customers")
 public class CustomerController {
     private static ObjectMapper _objMapper = Utils.getObjectMapper();
-    private static InternalServiceProvider _serviceProvider = ServiceProvider.Services;
-
-    public static void setObjectMapper(ObjectMapper objectMapper)
-    {
-        _objMapper = objectMapper;
-    }
-
-    public static void setServiceProvider(InternalServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
 
     private void validateRequestData(String jsonString)
     {
@@ -52,8 +41,8 @@ public class CustomerController {
         try
         {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
-            Customer customer = _objMapper.readValue(customerJson, Customer.class);
-            CustomerService cs = _serviceProvider.getCustomerService();
+            Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
+            CustomerService cs = ServiceProvider.Services.getCustomerService();
             if (customer.getId() == null)
             {
                 customer.setId(UUID.randomUUID());
@@ -80,8 +69,8 @@ public class CustomerController {
         try
         {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
-            Customer customer = _objMapper.readValue(customerJson, Customer.class);
-            CustomerService cs = _serviceProvider.getCustomerService();
+            Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
+            CustomerService cs = ServiceProvider.Services.getCustomerService();
             Customer dbCustomer = cs.getById(customer.getId());
             if (dbCustomer == null)
             {
