@@ -40,7 +40,7 @@ public class RequirementsTracker
     {
         return Files.lines(file)
                 .map(String::trim)
-                .filter(line -> !line.isEmpty())
+                .filter(line -> !line.isEmpty() && !line.startsWith("#"))
                 .collect(Collectors.toList());
     }
 
