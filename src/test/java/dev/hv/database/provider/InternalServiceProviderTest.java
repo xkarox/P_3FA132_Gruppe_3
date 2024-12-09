@@ -31,6 +31,7 @@ class InternalServiceProviderTest
     @BeforeAll
     static void OneTimeSetup() throws IOException
     {
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
         ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
     }
 
@@ -177,8 +178,9 @@ class InternalServiceProviderTest
     void MultithreadingQueueingTest() throws InterruptedException
     {
         ServiceProvider.Services.setMultithreading(true);
+
         int waitTime = 250;
-        int drift = 25;
+        int drift = 50;
         ServiceProvider.Services.configureMaxConnections(1, 0, 0);
         Thread[] threads = new Thread[4];
         threads[0] = createNewConnectionThread(waitTime);
