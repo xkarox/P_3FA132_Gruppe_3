@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
+// Req. Nr.: 2
 public class Reading implements IReading
 {
     @IFieldInfo(fieldName = "id", fieldType = String.class)

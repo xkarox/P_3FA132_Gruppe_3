@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+// Req. Nr.: 13
 public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
 {
     private final InternalServiceProvider _provider;
