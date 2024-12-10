@@ -3,6 +3,10 @@ package dev.hv.model.classes;
 import dev.hv.model.ICustomer;
 import dev.hv.model.decorator.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dev.hv.model.classes.deserializer.LocalDateDeserializer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
@@ -13,20 +17,36 @@ import java.util.UUID;
 // Req. Nr.: 1
 public class Customer implements ICustomer
 {
+    @JsonProperty("id")
     @IFieldInfo(fieldName = "id", fieldType = String.class)
+    @Nullable
     private UUID _id;
+
+    @JsonProperty("firstName")
     @IFieldInfo(fieldName = "firstName", fieldType = String.class)
     private String _firstName;
+
+    @JsonProperty("lastName")
     @IFieldInfo(fieldName = "lastName", fieldType = String.class)
     private String _lastName;
+
+    @JsonProperty("birthDate")
     @IFieldInfo(fieldName = "birthDate", fieldType = LocalDate.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate _birthDate;
+
+    @JsonProperty("gender")
     @IFieldInfo(fieldName = "gender", fieldType = int.class)
     private Gender _gender;
 
     public Customer()
     {
-        this._id = UUID.randomUUID();
+        this._gender = Gender.U;
+    }
+
+    public Customer(UUID id)
+    {
+        this._id = (id == null) ? UUID.randomUUID() : id;
         this._gender = Gender.U;
     }
 
@@ -44,6 +64,7 @@ public class Customer implements ICustomer
         this._gender = gender;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public LocalDate getBirthDate()
@@ -51,6 +72,7 @@ public class Customer implements ICustomer
         return this._birthDate;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public String getFirstName()
@@ -58,12 +80,14 @@ public class Customer implements ICustomer
         return this._firstName;
     }
 
+    @JsonIgnore
     @Override
     public Gender getGender()
     {
         return this._gender;
     }
 
+    @JsonIgnore
     @Nullable
     @Override
     public String getLastName()
@@ -71,36 +95,43 @@ public class Customer implements ICustomer
         return this._lastName;
     }
 
+    @JsonIgnore
     @Override
     public void setBirthDate(LocalDate birtDate)
     {
         this._birthDate = birtDate;
     }
 
+    @JsonIgnore
     @Override
     public void setFirstName(String firstName)
     {
         this._firstName = firstName;
     }
 
+    @JsonIgnore
     @Override
     public void setGender(Gender gender)
     {
         this._gender = gender;
     }
 
+    @JsonIgnore
     @Override
     public void setLastName(String lastName)
     {
         this._lastName = lastName;
     }
 
+    @Nullable
+    @JsonIgnore
     @Override
     public UUID getId()
     {
         return this._id;
     }
 
+    @JsonIgnore
     @Override
     public void setId(UUID id)
     {
@@ -130,6 +161,7 @@ public class Customer implements ICustomer
         return this;
     }
 
+    @JsonIgnore
     @Override
     public String getSerializedStructure()
     {
@@ -142,6 +174,7 @@ public class Customer implements ICustomer
         return strBuilder.toString();
     }
 
+    @JsonIgnore
     @Override
     public String getSerializedTableName()
     {

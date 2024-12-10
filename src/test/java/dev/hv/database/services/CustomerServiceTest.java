@@ -52,7 +52,7 @@ public class CustomerServiceTest
     {
         this._testCustomer = new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(),
                 ICustomer.Gender.M);
-        this._testReading = new Reading(UUID.randomUUID(), "", this._testCustomer.getId(), LocalDate.now(),
+        this._testReading = new Reading(UUID.randomUUID(), "", this._testCustomer.getId(), null, LocalDate.now(),
                 IReading.KindOfMeter.HEIZUNG, 1.69, "90-238-01sdf", false);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
         _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));

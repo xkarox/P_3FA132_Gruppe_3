@@ -1,5 +1,4 @@
 package dev.provider;
-
 import dev.hv.database.provider.InternalServiceProvider;
 
 // This class is just a wrapper for other classes to be used in a static context.
