@@ -59,17 +59,11 @@ public class CustomerJsonSchemaValidatorServiceTest
         customerSchema = factory.getSchema(schema);
     }
 
-    @BeforeEach
-    void setUpBeforeEach()
-    {
-        customerJsonSchemaValidatorService = new CustomerJsonSchemaValidatorService();
-    }
-
     @Test
     void jsonSchemaPathSet()
     {
         String expectedJsonSchemaPath = "schemas/customer.json";
-        String jsonSchemaPath = customerJsonSchemaValidatorService.getJsonSchemaPath();
+        String jsonSchemaPath = CustomerJsonSchemaValidatorService.getInstance().getJsonSchemaPath();
 
         assertEquals(expectedJsonSchemaPath, jsonSchemaPath, "Path should be set to 'schemas/customer.json'");
     }
@@ -77,14 +71,15 @@ public class CustomerJsonSchemaValidatorServiceTest
     @Test
     void loadSchema()
     {
-        JsonSchema loadedSchema = customerJsonSchemaValidatorService.getJsonSchema();
+        JsonSchema loadedSchema = CustomerJsonSchemaValidatorService.getInstance().getJsonSchema();
         assertEquals(customerSchema.toString(), loadedSchema.toString(), "Should be the same schema");
     }
 
     @Test
     void loadSchemaWrongPath()
     {
-        customerJsonSchemaValidatorService.setJsonSchemaPath("some/random/path/lol");
-        assertThrows(IllegalArgumentException.class, () -> customerJsonSchemaValidatorService.loadSchema());
+        CustomerJsonSchemaValidatorService.getInstance().setJsonSchemaPath("some/random/path/lol");
+        assertThrows(IllegalArgumentException.class, () ->
+                CustomerJsonSchemaValidatorService.getInstance().loadSchema(CustomerJsonSchemaValidatorService.class));
     }
 }

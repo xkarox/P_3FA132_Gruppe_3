@@ -1,54 +1,31 @@
 package dev.server.validator;
 
+import com.networknt.schema.*;
 import dev.hv.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.ValidationMessage;
 
+import java.io.InputStream;
 import java.util.Set;
 
 public abstract class JsonSchemaValidatorServiceBase
 {
-    private JsonSchema _jsonSchema;
-    private String _jsonSchemaPath;
-    private static final ObjectMapper _objMapper = Utils.getObjectMapper();
+    protected JsonSchema _jsonSchema;
+    protected String _jsonSchemaPath;
 
-    public boolean validate(String jsonString)
-    {
-        try
-        {
-            JsonNode jsonNode = getObjectMapper().readTree(jsonString);
-            Set<ValidationMessage> validationMessages = _jsonSchema.validate(jsonNode);
-            return validationMessages.isEmpty();
-        } catch (JsonProcessingException e)
-        {
-            return false;
-        }
-    }
+    public abstract boolean validate(String jsonString);
 
-    protected JsonSchema getJsonSchema()
-    {
-        return this._jsonSchema;
-    }
+    public abstract JsonSchema getJsonSchema();
 
-    protected void setJsonSchema(JsonSchema jsonSchema)
-    {
-        this._jsonSchema = jsonSchema;
-    }
+    public abstract void setJsonSchema(JsonSchema jsonSchema);
 
-    protected String getJsonSchemaPath()
-    {
-        return this._jsonSchemaPath;
-    }
+    public abstract String getJsonSchemaPath();
 
-    protected void setJsonSchemaPath(String path)
+    public void setJsonSchemaPath(String path)
     {
         this._jsonSchemaPath = path;
     }
 
-    abstract void loadSchema();
-
-    ObjectMapper getObjectMapper(){ return _objMapper; }
+    public abstract void loadSchema(Class<? extends JsonSchemaValidatorServiceBase> currClass);
 }

@@ -21,12 +21,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping(value = "/customers")
 public class CustomerController {
-    private static ObjectMapper _objMapper = Utils.getObjectMapper();
-
     private void validateRequestData(String jsonString)
     {
-        CustomerJsonSchemaValidatorService customerValidator = ServiceProvider.Validator.getCustomerValidator();
-        boolean invalidCustomer = !customerValidator.validate(jsonString);
+        boolean invalidCustomer = CustomerJsonSchemaValidatorService.getInstance().validate(jsonString);
         if ( invalidCustomer )
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");

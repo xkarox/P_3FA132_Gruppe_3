@@ -9,6 +9,7 @@ import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.server.validator.CustomerJsonSchemaValidatorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,11 +25,9 @@ import java.util.UUID;
 @RequestMapping(value = "/readings")
 public class ReadingController
 {
-
     private void validateRequestData(String jsonString)
     {
-        ReadingJsonSchemaValidationService readingValidator = ServiceProvider.Validator.getReadingValidator();
-        boolean invalidCustomer = !readingValidator.validate(jsonString);
+        boolean invalidCustomer = ReadingJsonSchemaValidationService.getInstance().validate(jsonString);
         if ( invalidCustomer )
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");

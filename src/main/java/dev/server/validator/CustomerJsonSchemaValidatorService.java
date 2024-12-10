@@ -1,23 +1,67 @@
 package dev.server.validator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
+import dev.hv.Utils;
 
 import java.io.InputStream;
+import java.util.Set;
 
 public class CustomerJsonSchemaValidatorService extends JsonSchemaValidatorServiceBase
 {
+    static CustomerJsonSchemaValidatorService instance;
 
-    public CustomerJsonSchemaValidatorService()
+    static {
+        instance = new CustomerJsonSchemaValidatorService();
+        instance.setJsonSchemaPath("schemas/customer.json");
+        instance.loadSchema(CustomerJsonSchemaValidatorService.class);
+    }
+
+    public static JsonSchemaValidatorServiceBase getInstance()
     {
-        this.setJsonSchemaPath("schemas/customer.json");
-        this.loadSchema();
+        return instance;
     }
 
     @Override
-    void loadSchema()
+    public boolean validate(String jsonString)
     {
-        InputStream schemaStream = getClass().getClassLoader().getResourceAsStream(this.getJsonSchemaPath());
+        try
+        {
+            JsonNode jsonNode = Utils.getObjectMapper().readTree(jsonString);
+            Set<ValidationMessage> validationMessages = this._jsonSchema.validate(jsonNode);
+            return !validationMessages.isEmpty();
+        } catch (JsonProcessingException e)
+        {
+            return false;
+        }
+    }
+
+    @Override
+    public JsonSchema getJsonSchema()
+    {
+        return this._jsonSchema;
+    }
+
+    @Override
+    public void setJsonSchema(JsonSchema jsonSchema)
+    {
+        this._jsonSchema = jsonSchema;
+    }
+
+    @Override
+    public String getJsonSchemaPath()
+    {
+        return this._jsonSchemaPath;
+    }
+
+    @Override
+    public void loadSchema(Class<? extends JsonSchemaValidatorServiceBase> currClass)
+    {
+        InputStream schemaStream = currClass.getClassLoader().getResourceAsStream(getJsonSchemaPath());
         if (schemaStream == null)
         {
             throw new IllegalArgumentException("Schema file not found");

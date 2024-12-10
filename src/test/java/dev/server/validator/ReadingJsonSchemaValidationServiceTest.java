@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ReadingJsonSchemaValidationServiceTest
 {
     static JsonSchema customerSchema;
-    ReadingJsonSchemaValidationService readingJsonSchemaValidatorService;
 
     @BeforeAll
     static void setUp()
@@ -102,17 +101,11 @@ public class ReadingJsonSchemaValidationServiceTest
         customerSchema = factory.getSchema(schema);
     }
 
-    @BeforeEach
-    void setUpBeforeEach()
-    {
-        readingJsonSchemaValidatorService = new ReadingJsonSchemaValidationService();
-    }
-
     @Test
     void jsonSchemaPathSet()
     {
         String expectedJsonSchemaPath = "schemas/reading.json";
-        String jsonSchemaPath = readingJsonSchemaValidatorService.getJsonSchemaPath();
+        String jsonSchemaPath = ReadingJsonSchemaValidationService.getInstance().getJsonSchemaPath();
 
         assertEquals(expectedJsonSchemaPath, jsonSchemaPath, "Path should be set to 'schemas/customer.json'");
     }
@@ -120,14 +113,15 @@ public class ReadingJsonSchemaValidationServiceTest
     @Test
     void loadSchema()
     {
-        JsonSchema loadedSchema = readingJsonSchemaValidatorService.getJsonSchema();
+        JsonSchema loadedSchema = ReadingJsonSchemaValidationService.getInstance().getJsonSchema();
         assertEquals(customerSchema.toString(), loadedSchema.toString(), "Should be the same schema");
     }
 
     @Test
     void loadSchemaWrongPath()
     {
-        readingJsonSchemaValidatorService.setJsonSchemaPath("some/random/path/lol");
-        assertThrows(IllegalArgumentException.class, () -> readingJsonSchemaValidatorService.loadSchema());
+        ReadingJsonSchemaValidationService.getInstance().setJsonSchemaPath("some/random/path/lol");
+        assertThrows(IllegalArgumentException.class, ()
+                -> ReadingJsonSchemaValidationService.getInstance().loadSchema(ReadingJsonSchemaValidationService.class));
     }
 }

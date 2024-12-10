@@ -1,5 +1,6 @@
 package dev.server.controller;
 
+import dev.hv.database.services.CustomerService;
 import dev.hv.services.logService.LogLevel;
 import dev.hv.services.logService.LogService;
 import dev.provider.ServiceProvider;
@@ -34,6 +35,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -104,7 +106,7 @@ public class CustomerControllerTest
     }
 
     @Test
-    void addCustomerWithId() throws IOException, InterruptedException
+    void addCustomerWithId() throws IOException, InterruptedException, SQLException
     {
         String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
         HttpRequest request = HttpRequest.newBuilder()
@@ -113,6 +115,7 @@ public class CustomerControllerTest
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
 
         assertEquals(HttpStatus.CREATED.value(), response.statusCode(),"Should return status code 201 CREATED");
         assertEquals(jsonString, response.body(), "Should return the same object send in request");
@@ -236,7 +239,7 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-//        TODO get customer from db
+
         assertEquals(HttpStatus.OK.value(), response.statusCode(), "Status code should be 200 OK");
         assertEquals("Customer successfully updated", response.body(), "Should return a message on success");
     }
