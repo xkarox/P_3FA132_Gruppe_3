@@ -1,34 +1,38 @@
 # Sprint 1
+1. Implement customer from interface
+2. Implement reading from interface
 # CRUD
-1. Create Customer
-2. Read Customer
-3. Update Customer
-4. Delete Customer
-5. List Customers
-6. Create Reading
-7. Read Reading
-8. Update Reading
-9. Delete Reading
-10. List Readings
-11. Database connection
+3. Create Customer
+4. Read Customer
+5. Update Customer
+6. Delete Customer
+7. List Customers
+
+8. Create Reading
+9. Read Reading
+10. Update Reading
+11. Delete Reading
+12. List Readings
+
+13. Database connection
 # Misc
-12. When deleting a user all readings associated with that user should still be available but with a null reference as id
-13. There should be no reading without a user
-14. When a reading is added with a user that does not exist, the user should be created
-15. User db logins should be loaded from a properties file
+14. When deleting a user all readings associated with that user should still be available but with a null reference as id
+15. There should be no reading without a user
+16. When a reading is added with a user that does not exist, the user should be created
+17. User db logins should be loaded from a properties file
 # Sprint 2
-16. Implement CRUD server
+18. Implement CRUD server
 # REST
-17. Implement customer post
-18. Implement readings post
-19. Implement customers put
-20. Implement readings put
-21. Implement customers get
-22. Implement customers id get
-23. Implement readings id get
-24. Implement setupDb delete
-25. Implement readings id delete
-26. Implement customers id delete
-27. Implement readings parameter get
-28. Implement customer json validation
-29. Implement reading json validation
+19. Implement customer post
+20. Implement readings post
+21. Implement customers put
+22. Implement readings put
+23. Implement customers get
+24. Implement customers id get
+25. Implement readings id get
+26. Implement setupDb delete
+27. Implement readings id delete
+28. Implement customers id delete
+29. Implement readings parameter get
+30. Implement customer json validation
+31. Implement reading json validation

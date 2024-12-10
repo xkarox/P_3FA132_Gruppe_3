@@ -178,7 +178,7 @@ class InternalServiceProviderTest
         ServiceProvider.Services.setMultithreading(true);
 
         int waitTime = 250;
-        int drift = 50;
+        int drift = 25;
         ServiceProvider.Services.configureMaxConnections(1, 0, 0);
         Thread[] threads = new Thread[4];
         threads[0] = createNewConnectionThread(waitTime);

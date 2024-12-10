@@ -5,9 +5,11 @@ import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,12 +38,12 @@ public class CustomerService extends AbstractBaseService<Customer>
 
         try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
         {
-            stmt.setObject(1, item.getId());
+            stmt.setString(1, item.getId().toString());
             stmt.setString(2, item.getFirstName());
             stmt.setString(3, item.getLastName());
-            stmt.setDate(4, Date.valueOf(item.getBirthDate()));
+            stmt.setDate(4, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
             stmt.setString(5, String.valueOf(item.getGender().ordinal()));
-            this._dbConnection.executePreparedStatementCommand(stmt);
+            this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
 
         return item;
@@ -74,18 +76,20 @@ public class CustomerService extends AbstractBaseService<Customer>
     public Customer update(Customer item) throws IllegalArgumentException, SQLException
     {
         if (item.getId() == null)
-        {
             throw new IllegalArgumentException("Cannot update customer without id");
-        }
-        StringBuilder sb = new StringBuilder("UPDATE ");
-        sb.append(item.getSerializedTableName()).append(" SET");
-        sb.append(" firstName='").append(item.getFirstName());
-        sb.append("' ,lastName='").append(item.getLastName());
-        sb.append("' ,birthDate='").append(item.getBirthDate());
-        sb.append("' ,gender=").append(item.getGender().ordinal());
-        sb.append(" WHERE id='").append(item.getId()).append("';");
 
-        _dbConnection.executeSqlUpdateCommand(sb.toString(), 1);
+        String sqlStatement = "UPDATE " + item.getSerializedTableName() + " " +
+                "SET firstName = ?, lastName = ?, birthDate = ?, gender = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
+            stmt.setString(1, item.getFirstName());
+            stmt.setString(2, item.getLastName());
+            stmt.setDate(3, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
+            stmt.setInt(4, item.getGender().ordinal());
+            stmt.setString(5, item.getId().toString());
+
+            this._dbConnection.executePreparedStatementCommand(stmt, 1);
+        }
         return item;
     }
 
@@ -93,28 +97,21 @@ public class CustomerService extends AbstractBaseService<Customer>
     // Req. Nr.: 6
     public void remove(Customer item) throws IllegalArgumentException, SQLException
     {
-        String delStatement = new StringBuilder("DELETE FROM ").append(item.getSerializedTableName())
-                .append(" WHERE id=?").toString();
-        if (item.getId() == null)
-        {
-            throw new IllegalArgumentException("Cannot delete a customer without id");
-        }
-        PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(delStatement);
-        preparedStatement.setString(1, item.getId().toString());
-        preparedStatement.executeUpdate();
-
+        removeDbItem(item);
         cleanUpAfterCustomerRemove(item.getId());
     }
 
     // Req. Nr.: 14
     private void cleanUpAfterCustomerRemove(UUID customerId) throws SQLException
     {
-        String updateStatement = new StringBuilder("UPDATE ").append(new Reading().getSerializedTableName())
-                .append(" SET").append(" customerId=NULL ").append("WHERE customerId=?").toString();
+        String sqlStatement = "UPDATE " + new Reading().getSerializedTableName() + " " +
+                "SET customerId=NULL WHERE customerId = ?";
 
-        PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(updateStatement);
-        preparedStatement.setString(1, customerId.toString());
-        preparedStatement.executeUpdate();
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
+            stmt.setString(1, customerId.toString());
+
+            this._dbConnection.executePreparedStatementCommand(stmt);
+        }
     }
 
     @Override

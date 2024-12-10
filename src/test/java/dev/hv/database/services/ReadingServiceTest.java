@@ -75,9 +75,7 @@ public class ReadingServiceTest
         assertNotNull(createdCustomer, "A customer should be created");
         assertEquals(createdCustomer, this._testReading.getCustomer());
 
-        this._readingService.add((this._testReadingWithoutCustomer));
-        Reading readingWithoutCustomerFromDb = this._readingService.getById(this._testReadingWithoutCustomer.getId());
-        assertNull(readingWithoutCustomerFromDb, "Reading should be null because of no customer");
+        assertThrows(IllegalArgumentException.class, () -> this._readingService.add(this._testReadingWithoutCustomer));
     }
 
     @Test
@@ -85,7 +83,7 @@ public class ReadingServiceTest
     {
         DatabaseConnection mockConnection = mock(DatabaseConnection.class);
         when(mockConnection.newPrepareStatement(anyString())).thenThrow(SQLException.class);
-        assertThrows(SQLException.class, () -> new ReadingService(mockConnection).add(new Reading()));
+        assertThrows(IllegalArgumentException.class, () -> new ReadingService(mockConnection).add(new Reading()));
     }
 
     @Test
