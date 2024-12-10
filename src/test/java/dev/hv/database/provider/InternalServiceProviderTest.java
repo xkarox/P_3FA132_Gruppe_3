@@ -154,14 +154,12 @@ class InternalServiceProviderTest
         possibleDbConnections.put(System.identityHashCode(testCon), testCon);
         possibleDbConnections.put(System.identityHashCode(testCon1), testCon1);
 
-        DatabaseConnection lowerCon = System.identityHashCode(testCon) < System.identityHashCode(testCon1) ? testCon : testCon1;
-
         Field secretField = InternalServiceProvider.class.getDeclaredField("_possibleDbConnections");
         secretField.setAccessible(true);
         secretField.set(services, possibleDbConnections);
 
         List<Integer> usedDbConnections = new ArrayList<>();
-        usedDbConnections.add(System.identityHashCode(lowerCon));
+        usedDbConnections.add(System.identityHashCode(testCon));
 
         Field secretField1 = InternalServiceProvider.class.getDeclaredField("_usedDbConnections");
         secretField1.setAccessible(true);
@@ -169,7 +167,7 @@ class InternalServiceProviderTest
 
         try(DatabaseConnection con1 = services.getDatabaseConnection())
         {
-            assertEquals(System.identityHashCode(testCon) ,System.identityHashCode(con1), "Because the connection should be the same");
+            assertEquals(System.identityHashCode(testCon1) ,System.identityHashCode(con1), "Because the connection should be the same");
         }
     }
 
