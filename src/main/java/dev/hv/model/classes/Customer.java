@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
+// Req. Nr.: 1
 public class Customer implements ICustomer
 {
     @IFieldInfo(fieldName = "id", fieldType = String.class)

@@ -27,6 +27,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     }
 
     @Override
+    // Req. Nr.: 8
     public Reading add(Reading item) throws SQLException, ReflectiveOperationException, IOException
     {
         if (item == null)
@@ -48,6 +49,7 @@ public class ReadingService extends AbstractBaseService<Reading>
                 Customer existingCustomer = customerService.getById(item.getCustomer().getId());
                 if (existingCustomer == null)
                 {
+                    // Req. Nr.: 16
                     customerService.add((Customer) item.getCustomer());
                 }
                 customerId = item.getCustomer().getId().toString();
@@ -65,6 +67,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     }
 
     @Override
+    // Req. Nr.: 9
     public Reading getById(UUID id) throws ReflectiveOperationException, SQLException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Reading(), String.format("WHERE id = '%s'", id));
@@ -77,12 +80,14 @@ public class ReadingService extends AbstractBaseService<Reading>
 
     @SuppressWarnings("unchecked")
     @Override
+    // Req. Nr.: 12
     public List<Reading> getAll() throws ReflectiveOperationException, SQLException
     {
         return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(new Reading());
     }
 
     @Override
+    // Req. Nr.: 10
     public Reading update(Reading item) throws SQLException, IllegalArgumentException
     {
         if (item.getId() == null)
@@ -108,6 +113,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     }
 
     @Override
+    // Req. Nr.: 11
     public void remove(Reading item) throws SQLException
     {
         removeDbItem(item);
