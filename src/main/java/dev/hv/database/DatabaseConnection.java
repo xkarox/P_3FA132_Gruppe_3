@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+// Req. Nr.: 13
 public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
 {
     private final InternalServiceProvider _provider;
@@ -156,6 +157,13 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         preparedStatement.executeUpdate();
     }
 
+    public int executePreparedStatementCommand(PreparedStatement preparedStatement, int expectedLinesAffected) throws SQLException
+    {
+        int result = preparedStatement.executeUpdate();
+        Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
+        return result;
+    }
+
     public PreparedStatement newPrepareStatement(String statement) throws SQLException
     {
         return this.getConnection().prepareStatement(statement);
@@ -186,10 +194,8 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
                         case "int" -> result.getInt(fieldName);
                         case "Boolean" -> result.getBoolean(fieldName);
                         case "Double" -> result.getDouble(fieldName);
-                        default -> null;
+                        default -> throw new IllegalArgumentException("Field type not supported");
                     };
-                    if (value == null)
-                        throw new IllegalArgumentException("Field type not supported");
                     args.add(value);
                 }
 

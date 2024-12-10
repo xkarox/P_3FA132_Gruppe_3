@@ -47,6 +47,7 @@ public class DbHelperService
         return commands;
     }
 
+    // Req. Nr.: 17
     public static Properties loadProperties() throws IOException
     {
         Properties properties;

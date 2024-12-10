@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
+// Req. Nr.: 1
 public class Customer implements ICustomer
 {
     @JsonProperty("id")
@@ -144,8 +145,13 @@ public class Customer implements ICustomer
     @Override
     public IDbItem dbObjectFactory(Object... args)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse((String) args[3], formatter);
+
+        LocalDate date = null;
+        if (args[3] != null)
+        {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            date = LocalDate.parse((String) args[3], formatter);
+        }
 
         this._id = UUID.fromString((String) args[0]);
         this._firstName = (String) args[1];
@@ -163,7 +169,7 @@ public class Customer implements ICustomer
         strBuilder.append("id UUID PRIMARY KEY NOT NULL,");
         strBuilder.append("firstName VARCHAR(120) NOT NULL,");
         strBuilder.append("lastName VARCHAR(120) NOT NULL,");
-        strBuilder.append("birthDate DATE NOT NULL,");
+        strBuilder.append("birthDate DATE,");
         strBuilder.append("gender int NOT NULL");
         return strBuilder.toString();
     }
