@@ -25,6 +25,7 @@ public class CustomerService extends AbstractBaseService<Customer>
 
 
     @Override
+    // Req. Nr.: 3
     public Customer add(Customer item) throws IllegalArgumentException, SQLException
     {
         if (item == null)
@@ -47,6 +48,7 @@ public class CustomerService extends AbstractBaseService<Customer>
     }
 
     @Override
+    // Req. Nr.: 4
     public Customer getById(UUID id) throws ReflectiveOperationException, SQLException, RuntimeException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Customer(), String.format("WHERE id = '%s'", id));
@@ -61,12 +63,14 @@ public class CustomerService extends AbstractBaseService<Customer>
 
     @SuppressWarnings("unchecked")
     @Override
+    // Req. Nr.: 7
     public List<Customer> getAll() throws ReflectiveOperationException, SQLException
     {
         return (List<Customer>) this._dbConnection.getAllObjectsFromDbTable(new Customer());
     }
 
     @Override
+    // Req. Nr.: 5
     public Customer update(Customer item) throws IllegalArgumentException, SQLException
     {
         if (item.getId() == null)
@@ -86,6 +90,7 @@ public class CustomerService extends AbstractBaseService<Customer>
     }
 
     @Override
+    // Req. Nr.: 6
     public void remove(Customer item) throws IllegalArgumentException, SQLException
     {
         String delStatement = new StringBuilder("DELETE FROM ").append(item.getSerializedTableName())
@@ -101,6 +106,7 @@ public class CustomerService extends AbstractBaseService<Customer>
         cleanUpAfterCustomerRemove(item.getId());
     }
 
+    // Req. Nr.: 14
     private void cleanUpAfterCustomerRemove(UUID customerId) throws SQLException
     {
         String updateStatement = new StringBuilder("UPDATE ").append(new Reading().getSerializedTableName())
