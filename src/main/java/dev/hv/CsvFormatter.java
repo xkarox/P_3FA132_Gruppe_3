@@ -3,14 +3,12 @@ package dev.hv;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class CsvFormatter
 {
-    private File _csvFile;
 
-    private File removeEmptyLines(File csvFile, char separator)
+    public File formatFile(File csvFile, char separator)
     {
         File tempFile = new File(csvFile.getParent(), "temp.csv");
 
@@ -45,12 +43,5 @@ public class CsvFormatter
             throw new RuntimeException("Error at deleting old file");
         }
         return csvFile;
-    }
-
-    public File formatFile(File csvFile, char separator)
-    {
-        this._csvFile = csvFile;
-        this._csvFile = this.removeEmptyLines(csvFile, separator);
-        return this._csvFile;
     }
 }
