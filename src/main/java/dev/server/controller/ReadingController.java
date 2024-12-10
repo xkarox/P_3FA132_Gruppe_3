@@ -39,11 +39,10 @@ public class ReadingController
     public String addReading(@RequestBody String readingJson)
     {
         this.validateRequestData(readingJson);
-        try
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
-            ReadingService rs = ServiceProvider.Services.getReadingService();
             if (reading.getId() == null)
             {
                 reading.setId(UUID.randomUUID());
@@ -66,11 +65,10 @@ public class ReadingController
     public ResponseEntity<String> updateReading(@RequestBody String readingJson)
     {
         this.validateRequestData(readingJson);
-        try
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
-            ReadingService rs = ServiceProvider.Services.getReadingService();
             Reading dbCustomer = rs.getById(reading.getId());
             if (dbCustomer == null)
             {

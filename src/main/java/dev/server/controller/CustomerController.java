@@ -35,11 +35,11 @@ public class CustomerController {
     public String addCustomer(@RequestBody String customerJson)
     {
         this.validateRequestData(customerJson);
-        try
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
             Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
-            CustomerService cs = ServiceProvider.Services.getCustomerService();
+
             if (customer.getId() == null)
             {
                 customer.setId(UUID.randomUUID());
@@ -63,11 +63,10 @@ public class CustomerController {
     public ResponseEntity<String> updateCustomer(@RequestBody String customerJson)
     {
         this.validateRequestData(customerJson);
-        try
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
             Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
-            CustomerService cs = ServiceProvider.Services.getCustomerService();
             Customer dbCustomer = cs.getById(customer.getId());
             if (dbCustomer == null)
             {
