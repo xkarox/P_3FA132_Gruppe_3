@@ -229,7 +229,7 @@ public class DatabaseConnectionTest
             this._dbConnection.executePreparedStatementCommand(statement);
         }
 
-        var result = this._dbConnection.getAllObjectsFromDbTable(new MockTableObject());
+        var result = this._dbConnection.getAllObjectsFromDbTable(MockTableObject.class);
         assertEquals(1, result.size());
     }
 
@@ -244,14 +244,14 @@ public class DatabaseConnectionTest
         String createMockCommand = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 1, mockInstance.name, mockInstance.age);
         this._dbConnection.executeSqlUpdateCommand(createMockCommand);
 
-        var result = this._dbConnection.getAllObjectsFromDbTable(this.mockData);
+        var result = this._dbConnection.getAllObjectsFromDbTable(MockTableObject.class);
         assertEquals(1, result.size(), "Because there should be just one item in the table");
         assertEquals(mockInstance, result.getFirst(), "Because the objects should be equal");
 
         String createMockCommand2 = String.format("INSERT INTO %s VALUES (%d, '%s', %d)", this.mockData.getSerializedTableName(), 2, mockInstance2.name, mockInstance2.age);
         this._dbConnection.executeSqlUpdateCommand(createMockCommand2);
 
-        var result2 = this._dbConnection.getAllObjectsFromDbTable(this.mockData);
+        var result2 = this._dbConnection.getAllObjectsFromDbTable(MockTableObject.class);
         assertEquals(2, result2.size(), "Because there should be just one item in the table");
         assertEquals(mockInstance, result2.getFirst(), "Because the objects should be equal");
         assertEquals(mockInstance2, result2.getLast(), "Because the objects should be equal");
@@ -266,7 +266,7 @@ public class DatabaseConnectionTest
 
         Exception argumentException = new IllegalArgumentException("Field type not supported");
         var caughtException = assertThrows(IllegalArgumentException.class,
-                () -> this._dbConnection.getAllObjectsFromDbTable(new MockTableObject2()));
+                () -> this._dbConnection.getAllObjectsFromDbTable(MockTableObject2.class));
         assertEquals(argumentException.getMessage(), caughtException.getMessage());
     }
 
@@ -281,7 +281,7 @@ public class DatabaseConnectionTest
         DbTestHelper.InsertMockConnection(this._dbConnection, connection);
 
         var caughtException = assertThrows(SQLException.class,
-                () -> this._dbConnection.getAllObjectsFromDbTable(new MockTableObject()));
+                () -> this._dbConnection.getAllObjectsFromDbTable(MockTableObject.class));
         assertEquals(simFailedException.getMessage(), caughtException.getMessage());
     }
 
