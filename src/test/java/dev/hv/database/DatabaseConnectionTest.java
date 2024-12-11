@@ -264,10 +264,9 @@ public class DatabaseConnectionTest
         this._dbConnection.createAllTables();
         this.createTestData(this._dbConnection);
 
-        Exception argumentException = new IllegalArgumentException("Field type not supported");
         var caughtException = assertThrows(IllegalArgumentException.class,
                 () -> this._dbConnection.getAllObjectsFromDbTable(new MockTableObject2()));
-        assertEquals(argumentException.getMessage(), caughtException.getMessage());
+        assertEquals(ResponseMessages.DbFieldTypeNotSupported.toString(), caughtException.getMessage());
     }
 
     @Test
