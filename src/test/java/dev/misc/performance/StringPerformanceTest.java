@@ -1,6 +1,7 @@
 package dev.misc.performance;
 
 import java.security.SecureRandom;
+import java.sql.Time;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -48,25 +49,20 @@ public class StringPerformanceTest {
 
     private static void testStringConcatRandom(int iterations)
     {
-        SecureRandom secureRandom = new SecureRandom();
         String result = "";
         for (int i = 0; i < iterations; i++) {
-            int randomNumber = secureRandom.nextInt(10);
-            result += "a" + randomNumber;
+            result += "a" + System.currentTimeMillis();
         }
     }
 
     private static void testStringBuilderRandom(int iterations)
     {
-        SecureRandom secureRandom = new SecureRandom();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < iterations; i++)
         {
-            int randomNumber = secureRandom.nextInt(10);
             builder.append("a");
-            builder.append(randomNumber);
+            builder.append(System.currentTimeMillis());
         }
     }
-
 }
 
