@@ -181,4 +181,15 @@ public class CustomerTest
         }
         assertTrue(exceptionThrown, "Because the exception should have been triggert");
     }
+
+    @Test
+    void constructorNullTest2()
+    {
+        Customer customer = new Customer(null);
+        assertNotNull(customer.getId(), "Because the ID should not be null");
+
+        UUID id = UUID.randomUUID();
+        Customer customer2 = new Customer(id);
+        assertEquals(id, customer2.getId(), "Because the ID should be the same");
+    }
 }

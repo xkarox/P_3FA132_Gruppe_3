@@ -245,4 +245,15 @@ public class ReadingTest
         assertNotEquals(reading1, reading8, "Diff meterId");
         assertNotEquals(reading1, reading9, "Diff substitute");
     }
+
+    @Test
+    void constructorNullTest()
+    {
+        Reading reading = new Reading(null);
+        assertNotNull(reading.getId(), "Because the ID should not be null");
+
+        UUID id = UUID.randomUUID();
+        Reading reading2 = new Reading(id);
+        assertEquals(id, reading2.getId(), "Because the ID should be the same");
+    }
 }
