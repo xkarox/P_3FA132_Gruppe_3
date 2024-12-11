@@ -1,5 +1,6 @@
 package dev.hv;
 
+import ch.qos.logback.core.joran.sanity.Pair;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
@@ -41,20 +42,20 @@ public class CsvFormatterTest
                     "\n" +
                     ";;\n";
 
-    private static File _csvCustomerFileFlawless = new File(_csvCustomerFileNameFlawless);
-    private static File _csvCustomerFileWithEndingComma = new File(_csvCustomerFileNameWithEndingComma);
-    private static File _csvCustomerFileWithEmptyValues = new File(_csvCustomerFileNameWithEmptyValues);
-    private static File _csvCustomerFileWithEmptyLines = new File(_csvCustomerFileNameWithEmptyLines);
+    private static final File _csvCustomerFileFlawless = new File(_csvCustomerFileNameFlawless);
+    private static final File _csvCustomerFileWithEndingComma = new File(_csvCustomerFileNameWithEndingComma);
+    private static final File _csvCustomerFileWithEmptyValues = new File(_csvCustomerFileNameWithEmptyValues);
+    private static final File _csvCustomerFileWithEmptyLines = new File(_csvCustomerFileNameWithEmptyLines);
 
-    private static File _csvReadingFileFlawless = new File(_csvReadingFileNameFlawless);
-    private static File _csvReadingFileWithoutComments = new File(_csvReadingFileNameWithoutComments);
-    private static File _csvReadingFileWithEmptyLines = new File(_csvReadingFileNameWithEmptyLines);
-    private static File _csvReadingFileWithMixedValues = new File(_csvReadingFileNameWithMixedValues);
+    private static final File _csvReadingFileFlawless = new File(_csvReadingFileNameFlawless);
+    private static final File _csvReadingFileWithoutComments = new File(_csvReadingFileNameWithoutComments);
+    private static final File _csvReadingFileWithEmptyLines = new File(_csvReadingFileNameWithEmptyLines);
+    private static final File _csvReadingFileWithMixedValues = new File(_csvReadingFileNameWithMixedValues);
 
 
     //File, Map<MockedLinesCount, FormattedLinesCount>
-    private static Map<File, Map<Integer, Integer>> _mockedCustomerFiles = new HashMap<>();
-    private static Map<File, Map<Integer, Integer>> _mockedReadingFiles = new HashMap<>();
+    private static final Map<File, Map<String, Integer>> _mockedCustomerFiles = new HashMap<>();
+    private static final Map<File, Map<Integer, Integer>> _mockedReadingFiles = new HashMap<>();
 
     @BeforeAll
     static void beforeAll()
@@ -69,15 +70,16 @@ public class CsvFormatterTest
 
         try (FileWriter writer = new FileWriter(_csvCustomerFileNameFlawless))
         {
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _customerValuesFlawless =
                     "ec617965-88b4-4721-8158-ee36c38e4db3,Herr,Pumukel,Kobold,21.02.1962\n" +
                             "848c39a1-0cbb-427a-ac6f-a88941943dc8,Herr,André,Schöne,16.02.1928\n" +
                             "78dff413-7409-4313-90db-5ec95e969d6d,Frau,Antje,Kittler,12.09.1968\n";
             writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesFlawless);
-            lines.put(4, 4);
-            _mockedCustomerFiles.put(_csvCustomerFileFlawless, lines);
+            linesCount.put("Number of lines added", 4);
+            linesCount.put("Number of lines after format", 4);
+            _mockedCustomerFiles.put(_csvCustomerFileFlawless, linesCount);
 
         } catch (IOException e)
         {
@@ -86,14 +88,15 @@ public class CsvFormatterTest
 
         try (FileWriter writer = new FileWriter(_csvCustomerFileNameWithEndingComma))
         {
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _customerValuesWithEndingComma =
                     "f2683104-974d-44eb-a060-82ed72737cbe,Frau,Elgine,Karras,\n" +
                             "2a284519-4141-409c-a5d6-ad77bba13523,Frau,Karolina,Hamburger,\n";
             writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesWithEndingComma);
-            lines.put(3, 3);
-            _mockedCustomerFiles.put(_csvCustomerFileWithEndingComma, lines);
+            linesCount.put("Number of lines added", 3);
+            linesCount.put("Number of lines after format", 3);
+            _mockedCustomerFiles.put(_csvCustomerFileWithEndingComma, linesCount);
 
         } catch (IOException e)
         {
@@ -314,10 +317,14 @@ public class CsvFormatterTest
                 throw new RuntimeException("Error when trying to count lines in formatted file: " + formattedFile.getName(), e);
             }
 
-            Integer[] expectedLineCount = lineCountMap.values().toArray(new Integer[0]);
-            assertEquals(expectedLineCount[0], actualLineCount,
+            for (Map.Entry<Integer, Integer> integerEntry : lineCountMap.entrySet()) {
+                int value = integerEntry.getValue();
+            }
+
+            var expectedLineCount = lineCountMap.get(3);
+            assertEquals(expectedLineCount, actualLineCount,
                     "Line count mismatch for file: " + originalFile.getName() +
-                            " (Expected: " + expectedLineCount[0] + ", Actual: " + actualLineCount + ")");
+                            " (Expected: " + expectedLineCount + ", Actual: " + actualLineCount + ")");
         }
         for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedReadingFiles.entrySet())
         {
