@@ -70,10 +70,13 @@ public class ReadingController
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
-            Reading dbCustomer = rs.getById(reading.getId());
-            if (dbCustomer == null)
+            try(CustomerService cs = ServiceProvider.Services.getCustomerService())
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+                Customer customer = cs.getById(reading.getCustomerId());
+                if (customer == null)
+                {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+                }
             }
             rs.update(reading);
             return new ResponseEntity<String>("Customer successfully updated", HttpStatus.OK);
@@ -84,7 +87,7 @@ public class ReadingController
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server IOError");
 
         }
     }

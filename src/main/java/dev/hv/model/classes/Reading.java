@@ -91,6 +91,13 @@ public class Reading implements IReading
 
     @JsonIgnore
     @Nullable
+    public UUID getCustomerId()
+    {
+        return this._customerId;
+    }
+
+    @JsonIgnore
+    @Nullable
     @Override
     public LocalDate getDateOfReading()
     {
