@@ -20,14 +20,14 @@ public class UtilsTest
         int item3 = 2;
 
         String resultString = "Expected: " + item1 + ", but got: "
-                + item2 + " | " + ErrorMessages.SqlUpdate;
+                + item2 + " | " + ResponseMessages.SqlUpdate;
 
-        Utils.checkValueEquals(item2, item3, ErrorMessages.SqlUpdate);
+        Utils.checkValueEquals(item2, item3, ResponseMessages.SqlUpdate);
 
         boolean exceptionTriggert = false;
         try
         {
-            Utils.checkValueEquals(item1, item2, ErrorMessages.SqlUpdate);
+            Utils.checkValueEquals(item1, item2, ResponseMessages.SqlUpdate);
         } catch (RuntimeException e)
         {
             exceptionTriggert = true;

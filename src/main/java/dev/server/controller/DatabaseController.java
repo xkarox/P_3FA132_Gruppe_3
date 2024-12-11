@@ -1,5 +1,6 @@
 package dev.server.controller;
 
+import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.provider.ServiceProvider;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class DatabaseController
 
         } catch (SQLException | IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 }

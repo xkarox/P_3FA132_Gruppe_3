@@ -1,6 +1,6 @@
 package dev.hv.database.provider;
 
-import dev.hv.ErrorMessages;
+import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.DbTestHelper;
@@ -84,7 +84,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
 
@@ -95,7 +95,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
 
@@ -108,7 +108,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
 
@@ -119,7 +119,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
     }

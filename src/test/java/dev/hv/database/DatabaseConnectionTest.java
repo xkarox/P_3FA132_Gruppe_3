@@ -1,6 +1,6 @@
 package dev.hv.database;
 
-import dev.hv.ErrorMessages;
+import dev.hv.ResponseMessages;
 import dev.hv.database.mocks.MockTableObject;
 import dev.hv.database.mocks.MockTableObject2;
 import org.junit.jupiter.api.*;
@@ -207,7 +207,7 @@ public class DatabaseConnectionTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.SqlUpdate)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.SqlUpdate)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
     }
