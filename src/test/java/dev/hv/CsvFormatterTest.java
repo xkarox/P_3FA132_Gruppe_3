@@ -5,13 +5,12 @@ import org.junit.jupiter.api.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -20,19 +19,42 @@ public class CsvFormatterTest
     private static long _entriesInDirectory = 0;
 
     private static final String _directory = "src/test/resources/";
-    private static final String _csvFileNameFlawless = "csvTestFlawless.csv";
-    private static final String _csvFileNameWithEndingComma = "csvTestWithEndingComma.csv";
-    private static final String _csvFileNameWithEmptyValues = "csvTestWithEmptyValues.csv";
-    private static final String _csvFileNameWithEmptyLines = "csvTestWithEmptyLines.csv";
+    private static final String _csvCustomerFileNameFlawless = _directory + "csvCustomerTestFlawless.csv";
+    private static final String _csvCustomerFileNameWithEndingComma = _directory + "csvCustomerTestWithEndingComma.csv";
+    private static final String _csvCustomerFileNameWithEmptyValues = _directory + "csvCustomerTestWithEmptyValues.csv";
+    private static final String _csvCustomerFileNameWithEmptyLines = _directory + "csvCustomerTestWithEmptyLines.csv";
 
-    private static final String _csvFileHeader = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n";
+    private static final String _csvReadingFileNameFlawless = _directory + "csvReadingTestFlawless.csv";
+    private static final String _csvReadingFileNameWithoutComments = _directory + "csvReadingTestWithoutComments.csv";
+    private static final String _csvReadingFileNameWithEmptyLines = _directory + "csvReadingTestWithEmptyLines";
+    private static final String _csvReadingFileNameWithMixedValues = _directory + "csvReadingTestWithMixedValues";
 
-    private static File _csvFileFlawless = new File(_csvFileNameFlawless);
-    private static File _csvFileWithEndingComma = new File(_csvFileNameWithEndingComma);
-    private static File _csvFileWithEmptyValues = new File(_csvFileNameWithEmptyValues);
-    private static File _csvFileWithEmptyLines = new File(_csvFileNameWithEmptyLines);
+    private static final String _csvCustomerFileHeader = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n";
+    private static final String _csvReadingFileHeader = "Datum;Zählerstand in m³;Kommentar\n";
+    private static final String _csvReadingMetaDataFlawless =
+            "\"Kunde\";\"ec617965-88b4-4721-8158-ee36c38e4db3\";\n" +
+                    "\"Zählernummer\";\"MST-af34569\";\n";
 
-    private static Map<File, Integer> _mockedFiles = new HashMap<>();
+    private static final String _csvReadingMetaDataWithEmptyLines =
+            "\"Kunde\";\"ec617965-88b4-4721-8158-ee36c38e4db3\";\n" +
+                    "\"Zählernummer\";\"MST-af34569\";\n" +
+                    "\n" +
+                    ";;\n";
+
+    private static File _csvCustomerFileFlawless = new File(_csvCustomerFileNameFlawless);
+    private static File _csvCustomerFileWithEndingComma = new File(_csvCustomerFileNameWithEndingComma);
+    private static File _csvCustomerFileWithEmptyValues = new File(_csvCustomerFileNameWithEmptyValues);
+    private static File _csvCustomerFileWithEmptyLines = new File(_csvCustomerFileNameWithEmptyLines);
+
+    private static File _csvReadingFileFlawless = new File(_csvReadingFileNameFlawless);
+    private static File _csvReadingFileWithoutComments = new File(_csvReadingFileNameWithoutComments);
+    private static File _csvReadingFileWithEmptyLines = new File(_csvReadingFileNameWithEmptyLines);
+    private static File _csvReadingFileWithMixedValues = new File(_csvReadingFileNameWithMixedValues);
+
+
+    //File, Map<MockedLinesCount, FormattedLinesCount>
+    private static Map<File, Map<Integer, Integer>> _mockedCustomerFiles = new HashMap<>();
+    private static Map<File, Map<Integer, Integer>> _mockedReadingFiles = new HashMap<>();
 
     @BeforeAll
     static void beforeAll()
@@ -45,36 +67,42 @@ public class CsvFormatterTest
             throw new RuntimeException("Error when trying to count files in directory");
         }
 
-        try (FileWriter writer = new FileWriter(_directory + _csvFileNameFlawless))
+        try (FileWriter writer = new FileWriter(_csvCustomerFileNameFlawless))
         {
+            Map<Integer, Integer> lines = new HashMap<>();
             String _customerValuesFlawless =
                     "ec617965-88b4-4721-8158-ee36c38e4db3,Herr,Pumukel,Kobold,21.02.1962\n" +
                             "848c39a1-0cbb-427a-ac6f-a88941943dc8,Herr,André,Schöne,16.02.1928\n" +
-                            "78dff413-7409-4313-90db-5ec95e969d6d,Frau,Antje,Kittler,12.09.1968";
-            writer.write(_csvFileHeader);
+                            "78dff413-7409-4313-90db-5ec95e969d6d,Frau,Antje,Kittler,12.09.1968\n";
+            writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesFlawless);
-            _mockedFiles.put(_csvFileFlawless, 4);
+            lines.put(4, 4);
+            _mockedCustomerFiles.put(_csvCustomerFileFlawless, lines);
 
         } catch (IOException e)
         {
-            throw new RuntimeException("Error while creating flawless temporary file", e);
+            throw new RuntimeException("Error while creating customer flawless file", e);
         }
 
-        try (FileWriter writer = new FileWriter(_directory + _csvFileNameWithEndingComma))
+        try (FileWriter writer = new FileWriter(_csvCustomerFileNameWithEndingComma))
         {
+            Map<Integer, Integer> lines = new HashMap<>();
             String _customerValuesWithEndingComma =
                     "f2683104-974d-44eb-a060-82ed72737cbe,Frau,Elgine,Karras,\n" +
                             "2a284519-4141-409c-a5d6-ad77bba13523,Frau,Karolina,Hamburger,\n";
-            writer.write(_csvFileHeader);
+            writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesWithEndingComma);
-            _mockedFiles.put(_csvFileWithEndingComma, 3);
+            lines.put(3, 3);
+            _mockedCustomerFiles.put(_csvCustomerFileWithEndingComma, lines);
 
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Error while creating temporary file with ending comma");
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Error while creating customer file with ending comma");
         }
 
-        try (FileWriter writer = new FileWriter(_directory + _csvFileNameWithEmptyValues)) {
+        try (FileWriter writer = new FileWriter(_csvCustomerFileNameWithEmptyValues))
+        {
+            Map<Integer, Integer> lines = new HashMap<>();
             String _customerValuesWithEmptyValues =
                     ",Frau,Annedorle,Luber,\n" +
                             "51a57f7c-2080-4fcc-8107-17b613b2b948,,Anastasia,Weißmann,\n" +
@@ -82,16 +110,19 @@ public class CsvFormatterTest
                             "4e7726e2-3ca9-4d4c-904a-bff033688162,Frau,Heide,Gierl,\n" +
                             "c8d83f41-e84e-49b2-bf36-42544266e46e,Frau,Friedlies,Mertins,\n" +
                             "1d9ad1bb-f4eb-4e3f-bc87-65d5e8ffb0c9,Frau,,Stark,\n" +
-                            "1152b31d-50ad-40fb-ae96-d06d5517b7d8,Herr,Heiner,Strohm,05.02.1997";
-            writer.write(_csvFileHeader);
+                            "1152b31d-50ad-40fb-ae96-d06d5517b7d8,Herr,Heiner,Strohm,05.02.1997\n";
+            writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesWithEmptyValues);
-            _mockedFiles.put(_csvFileWithEmptyValues, 8);
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Error while creating temporary file with emptyValues");
+            lines.put(8, 8);
+            _mockedCustomerFiles.put(_csvCustomerFileWithEmptyValues, lines);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Error while creating customer file with empty Values");
         }
 
-        try (FileWriter writer = new FileWriter(_directory + _csvFileNameWithEmptyLines)) {
+        try (FileWriter writer = new FileWriter(_csvCustomerFileNameWithEmptyLines))
+        {
+            Map<Integer, Integer> lines = new HashMap<>();
             String _customerValuesWithEmptyLines =
                     "ec617965-88b4-4721-8158-ee36c38e4db3,Herr,Pumukel,Kobold,21.02.1962\n" +
                             "848c39a1-0cbb-427a-ac6f-a88941943dc8,Herr,André,Schöne,16.02.1928\n" +
@@ -99,14 +130,89 @@ public class CsvFormatterTest
                             ",\n" +
                             "\n" +
                             ",,,,,,,,,\n" +
-                            "78dff413-7409-4313-90db-5ec95e969d6d,Frau,Antje,Kittler,12.09.1968";
+                            "78dff413-7409-4313-90db-5ec95e969d6d,Frau,Antje,Kittler,12.09.1968\n";
 
-            writer.write(_csvFileHeader);
+            writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesWithEmptyLines);
-            _mockedFiles.put(_csvFileWithEmptyLines, 8);
+            lines.put(8, 4);
+            _mockedCustomerFiles.put(_csvCustomerFileWithEmptyLines, lines);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Error while creating customer file with empty lines");
         }
-        catch (IOException e) {
-            throw new RuntimeException("Error while creating temporary customer file empty lines");
+
+        try (FileWriter writer = new FileWriter(_csvReadingFileNameFlawless))
+        {
+
+            Map<Integer, Integer> lines = new HashMap<>();
+            String _readingValuesFlawless =
+                    "03.03.2020;0;\"Zählertausch: neue Nummer 786523123\"\n" +
+                            "22.06.2021;0;\"Zählertausch: neue Nummer Xr-2021-2312434xz\"\n";
+
+            writer.write(_csvReadingMetaDataFlawless);
+            writer.write(_csvReadingFileHeader);
+            writer.write(_readingValuesFlawless);
+            lines.put(5, 5);
+            _mockedReadingFiles.put(_csvReadingFileFlawless, lines);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Error while creating reading flawless file");
+        }
+
+        try (FileWriter writer = new FileWriter(_csvReadingFileNameWithoutComments))
+        {
+            Map<Integer, Integer> lines = new HashMap<>();
+            String _readingValuesWithoutComments =
+                    "01.10.2018;565;\n" +
+                            "01.11.2018;574;\n" +
+                            "01.12.2018;584;\n" +
+                            "31.12.2018;594;\n" +
+                            "31.12.2018;596;\n" +
+                            "01.02.2019;604;\n";
+            writer.write(_csvReadingMetaDataFlawless);
+            writer.write(_csvReadingFileHeader);
+            writer.write(_readingValuesWithoutComments);
+            lines.put(9, 9);
+            _mockedReadingFiles.put(_csvReadingFileWithoutComments, lines);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Error when creating reading file without comments");
+        }
+        try (FileWriter writer = new FileWriter(_csvReadingFileNameWithEmptyLines))
+        {
+            Map<Integer, Integer> lines = new HashMap<>();
+            String _readingValuesWithEmptyLines =
+                    "01.10.2018;565;\n" +
+                            "01.11.2018;574;\n" +
+                            "01.12.2018;584;\n" +
+                            "\n" +
+                            ";\n" +
+                            ";;\n";
+            writer.write(_csvReadingMetaDataWithEmptyLines);
+            writer.write(_csvReadingFileHeader);
+            writer.write(_readingValuesWithEmptyLines);
+            lines.put(11, 6);
+            _mockedReadingFiles.put(_csvReadingFileWithEmptyLines, lines);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Error when creating reading file with empty lines");
+        }
+        try (FileWriter writer = new FileWriter(_csvReadingFileNameWithMixedValues))
+        {
+            Map<Integer, Integer> lines = new HashMap<>();
+            String _readingValuesWithMixedValues =
+                    "01.02.2020;728;\n" +
+                            "01.03.2020;;\n" +
+                            ";737;\n" +
+                            "03.03.2020;0;\"Zählertausch: neue Nummer 786523123\"\n";
+            writer.write(_csvReadingMetaDataWithEmptyLines);
+            writer.write(_csvReadingFileHeader);
+            writer.write(_readingValuesWithMixedValues);
+            lines.put(9, 7);
+            _mockedReadingFiles.put(_csvReadingFileWithMixedValues, lines);
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Error when creating reading file with nixed values");
         }
     }
 
@@ -119,7 +225,7 @@ public class CsvFormatterTest
             long actualFileCount = Files.list(Paths.get(_directory))
                     .filter(Files::isRegularFile)
                     .count();
-            assertEquals(_entriesInDirectory + _mockedFiles.size(), actualFileCount, "It should be the same amount of files counted");
+            assertEquals(_entriesInDirectory + _mockedCustomerFiles.size() + _mockedReadingFiles.size(), actualFileCount, "It should be the same amount of files counted");
 
         } catch (IOException e)
         {
@@ -129,95 +235,144 @@ public class CsvFormatterTest
 
     @Test
     @Order(2)
-    void numberOfLinesInEachFileTest() {
-        for (Map.Entry<File, Integer> entry : _mockedFiles.entrySet()) {
+    void verifyLineCountMatchesFirstInteger()
+    {
+        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedCustomerFiles.entrySet())
+        {
             File file = entry.getKey();
-            int expectedLineCount = entry.getValue();
+            Map<Integer, Integer> lineCountMap = entry.getValue();
 
-            try (Scanner scanner = new Scanner(file, StandardCharsets.UTF_8)) {
-                int actualLineCount = 0;
+            int firstInteger = lineCountMap.keySet().iterator().next();
+            int actualLineCount = 0;
 
-                while (scanner.hasNextLine()) {
+            try (Scanner scanner = new Scanner(file))
+            {
+                while (scanner.hasNextLine())
+                {
                     scanner.nextLine();
                     actualLineCount++;
                 }
-
-                if (actualLineCount == expectedLineCount) {
-                    System.out.println("Test bestanden für Datei: " + file.getName());
-                } else {
-                    System.out.println("Test fehlgeschlagen für Datei: " + file.getName() +
-                            " (Erwartet: " + expectedLineCount + ", Tatsächlich: " + actualLineCount + ")");
-                }
-
-            } catch (IOException e) {
-                throw new RuntimeException("Error when trying to count lines of each mocked file", e);
+            } catch (IOException e)
+            {
+                throw new RuntimeException("Error when trying to count lines in file: " + file.getName(), e);
             }
+
+            assertEquals(firstInteger, actualLineCount,
+                    "Line count mismatch for file: " + file.getName() +
+                            " (Expected: " + firstInteger + ", Actual: " + actualLineCount + ")");
+        }
+        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedReadingFiles.entrySet())
+        {
+            File file = entry.getKey();
+            Map<Integer, Integer> lineCountMap = entry.getValue();
+
+            int firstInteger = lineCountMap.keySet().iterator().next();
+            int actualLineCount = 0;
+
+            try (Scanner scanner = new Scanner(file))
+            {
+                while (scanner.hasNextLine())
+                {
+                    scanner.nextLine();
+                    actualLineCount++;
+                }
+            } catch (IOException e)
+            {
+                throw new RuntimeException("Error when trying to count lines in file: " + file.getName(), e);
+            }
+            assertEquals(firstInteger, actualLineCount,
+                    "line count mismatch for file: " + file.getName() +
+                            " (Expected: " + firstInteger + ", Actual: " + actualLineCount + ")");
         }
 
     }
 
+
     @Test
+    @Order(3)
     void removeEmptyLinesTest()
     {
         CsvFormatter formatter = new CsvFormatter();
 
-        // Erstelle ein temporäres CSV mit leeren Zeilen für den Test
-        File formattedFile = formatter.formatFile(_csvFileFlawless, ',');
-
-        // Die erwarteten Zeilen im formatierte CSV
-        List<String> expectedLines = new ArrayList<>();
-        try (Scanner scanner = new Scanner(_csvFileFlawless))
+        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedCustomerFiles.entrySet())
         {
-            while (scanner.hasNextLine())
+            File originalFile = entry.getKey();
+            Map<Integer, Integer> lineCountMap = entry.getValue();
+
+            File formattedFile = formatter.formatFile(originalFile, ',');
+
+            int actualLineCount = 0;
+            try (Scanner scanner = new Scanner(formattedFile))
             {
-                String line = scanner.nextLine();
-                if (!line.trim().isEmpty())
+                while (scanner.hasNextLine())
                 {
-                    expectedLines.add(line);  // Leere Zeilen überspringen
+                    scanner.nextLine();
+                    actualLineCount++;
                 }
-            }
-        } catch (IOException e)
-        {
-            throw new RuntimeException("Error when trying to safe each line");
-        }
-
-        // Jetzt die Zeilen aus der formatierten Datei sammeln
-        List<String> formattedFileLines = new ArrayList<>();
-        try (Scanner scanner = new Scanner(formattedFile))
-        {
-            while (scanner.hasNextLine())
+            } catch (IOException e)
             {
-                formattedFileLines.add(scanner.nextLine());
+                throw new RuntimeException("Error when trying to count lines in formatted file: " + formattedFile.getName(), e);
             }
-        } catch (IOException e)
-        {
-            throw new RuntimeException("Error when trying to safe each line");
+
+            Integer[] expectedLineCount = lineCountMap.values().toArray(new Integer[0]);
+            assertEquals(expectedLineCount[0], actualLineCount,
+                    "Line count mismatch for file: " + originalFile.getName() +
+                            " (Expected: " + expectedLineCount[0] + ", Actual: " + actualLineCount + ")");
         }
+        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedReadingFiles.entrySet())
+        {
+            File originalFile = entry.getKey();
+            Map<Integer, Integer> lineCountMap = entry.getValue();
 
-        // Überprüfen, dass beide Listen gleich sind (leere Zeilen entfernt)
-        assertEquals(expectedLines, formattedFileLines, "Formatted CSV-File should have no empty lines");
+            File formattedFile = formatter.formatFile(originalFile, ';');
+
+            int actualLineCount = 0;
+            try (Scanner scanner = new Scanner(formattedFile))
+            {
+                while (scanner.hasNextLine())
+                {
+                    scanner.nextLine();
+                    actualLineCount++;
+                }
+            } catch (IOException e)
+            {
+                throw new RuntimeException("Error whn trying to count lines in formatted file: " + formattedFile.getName(), e);
+            }
+
+            Integer[] expectedLineCount = lineCountMap.values().toArray(new Integer[0]);
+            assertEquals(expectedLineCount[0], actualLineCount, "Line count mismatch for file: " + originalFile.getName() +
+                    " (Expected: " + expectedLineCount[0] + ", Actual: " + actualLineCount + ")");
+        }
     }
 
-    @Test
-    void formatFileTest()
-    {
-
-    }
 
     @AfterAll
     static void afterAll()
     {
-        if (_csvFileFlawless.exists())
+        for (File file : _mockedCustomerFiles.keySet())
         {
-            boolean deleted = _csvFileFlawless.delete();
-            if (deleted)
+            if (file.exists())
             {
-                System.out.println("CSV-File deleted: " + _csvFileFlawless.getAbsolutePath());
-            } else
-            {
-                System.out.println("Error when trying to delete CSV-File: " + _csvFileFlawless.getAbsolutePath());
+                boolean deleted = file.delete();
+                if (!deleted)
+                {
+                    System.err.println("Failed to delete file: " + file.getAbsolutePath());
+                }
             }
         }
+        _mockedCustomerFiles.clear();
 
+        for (File file : _mockedReadingFiles.keySet())
+        {
+            if (file.exists())
+            {
+                boolean deleted = file.delete();
+                if (!deleted)
+                {
+                    System.err.println("Failed to delete file: " + file.getAbsolutePath());
+                }
+            }
+        }
+        _mockedCustomerFiles.clear();
     }
 }

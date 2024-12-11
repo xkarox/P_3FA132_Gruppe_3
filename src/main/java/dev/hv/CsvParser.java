@@ -65,7 +65,7 @@ public class CsvParser
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return valuesList; // Gibt ein Iterable zurück, da List das Interface Iterable implementiert
+        return valuesList;
     }
 
 
