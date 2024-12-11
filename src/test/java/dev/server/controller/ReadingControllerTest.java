@@ -1,5 +1,6 @@
 package dev.server.controller;
 
+import dev.hv.database.services.ReadingService;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
@@ -30,12 +31,11 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class ReadingControllerTest
 {
@@ -289,7 +289,120 @@ public class ReadingControllerTest
     void updateReading() throws IOException, InterruptedException
     {
         this.addReading();
+    }
+
+    @Test
+    void getReadingById() throws IOException, SQLException, InterruptedException, ReflectiveOperationException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
+        when(mockReadingService.getById(any())).thenReturn(this._reading);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
 
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+
+        String readingJson = Utils.unpackFromJsonString(response.body(), Reading.class);
+        Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
+        assertEquals(this._reading.getId(), reading.getId(), "Should return the same object");
+    }
+
+    @Test
+    void getReadingByIdThrowsExceptions() throws SQLException, IOException, ReflectiveOperationException, InterruptedException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST.value());
+
+        // ReflectionException
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
+        when(mockReadingService.getById(any())).thenThrow(ReflectiveOperationException.class);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+
+        HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
+    }
+
+    @Test
+    void deleteReadingById() throws SQLException, IOException, InterruptedException, ReflectiveOperationException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
+
+        when(mockReadingService.getById(any())).thenReturn(this._reading);
+        doNothing().when(mockReadingService).remove(any());
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+
+        String readingJson = Utils.unpackFromJsonString(response.body(), Reading.class);
+        Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
+        assertEquals(this._reading.getId(), reading.getId(), "Should return the same object");
+    }
+
+    @Test
+    void deleteReadingByIdThrowsExceptions() throws SQLException, IOException, ReflectiveOperationException, InterruptedException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST.value());
+
+        // ReflectionException
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
+        when(mockReadingService.getById(any())).thenThrow(ReflectiveOperationException.class);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+
+        HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
+    }
+
+    void testThrownReadingServiceException(HttpRequest request, Class<? extends Exception> exception, int expectedStatusCode) throws SQLException, IOException, InterruptedException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        when(ServiceProvider.Services.getReadingService()).thenThrow(exception);
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(expectedStatusCode, response.statusCode(), "Should return status code " + expectedStatusCode);
     }
 }

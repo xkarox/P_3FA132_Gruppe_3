@@ -10,6 +10,7 @@ import dev.hv.model.classes.Reading;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.server.validator.CustomerJsonSchemaValidatorService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -85,6 +86,50 @@ public class ReadingController
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
 
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public String getReading(@PathVariable("id") UUID id)
+    {
+        try
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Reading reading = rs.getById(id);
+                return Utils.packIntoJsonString(reading, Reading.class);
+            }
+        }
+        catch (SQLException | ReflectiveOperationException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+        }
+        catch (IOException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server IOError");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public String deleteReading(@PathVariable("id") UUID id){
+        try
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Reading reading = rs.getById(id);
+                ServiceProvider.Services.getReadingService().remove(reading);
+                return Utils.packIntoJsonString(reading, Reading.class);
+            }
+        }
+        catch (SQLException | ReflectiveOperationException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+        }
+        catch (IOException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server IOError");
         }
     }
 }
