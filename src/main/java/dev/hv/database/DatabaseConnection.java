@@ -169,8 +169,10 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return this.getConnection().prepareStatement(statement);
     }
 
-    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause) throws SQLException, ReflectiveOperationException
+    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws SQLException, ReflectiveOperationException
     {
+        IDbItem object = classInfo.getConstructor().newInstance();
+
         var tClass = object.getClass();
         List<FieldInfo> fieldInfos = FieldInfo.getFieldInformationFromClass(tClass);
         String queryCommand = String.format("SELECT * FROM %s %s;", object.getSerializedTableName(), sqlWhereClause);
@@ -209,9 +211,9 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return results;
     }
 
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTable(Class<? extends IDbItem> classInfo) throws ReflectiveOperationException, SQLException
     {
-        return getObjectsFromDbTable(object, "");
+        return getObjectsFromDbTable(classInfo, "");
     }
 
     /**
@@ -219,9 +221,9 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
      *
      * @param sqlWhereClause Sql where statement, starts with: Where ...
      */
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException
     {
-        return getObjectsFromDbTable(object, sqlWhereClause);
+        return getObjectsFromDbTable(classInfo, sqlWhereClause);
 
     }
 
