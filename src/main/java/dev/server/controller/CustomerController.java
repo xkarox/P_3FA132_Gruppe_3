@@ -15,16 +15,20 @@ import dev.server.validator.CustomerJsonSchemaValidatorService;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 
 @RestController
 @RequestMapping(value = "/customers")
-public class CustomerController {
+public class CustomerController
+{
     private void validateRequestData(String jsonString)
     {
         boolean invalidCustomer = CustomerJsonSchemaValidatorService.getInstance().validate(jsonString);
-        if ( invalidCustomer )
+        if (invalidCustomer)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
         }
@@ -47,12 +51,10 @@ public class CustomerController {
             customer = cs.add(customer);
             return Utils.packIntoJsonString(customer, Customer.class);
 
-        }
-        catch (JsonProcessingException | SQLException | RuntimeException e)
+        } catch (JsonProcessingException | SQLException | RuntimeException e)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
         }
@@ -74,15 +76,77 @@ public class CustomerController {
             }
             cs.update(customer);
             return new ResponseEntity<String>("Customer successfully updated", HttpStatus.OK);
-        }
-        catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
+        } catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
 
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.GET)
+    public Iterable<String> getCustomers()
+    {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            Iterable<Customer> customers = cs.getAll();
+            List<String> customerStrings = new ArrayList<>();
+            for (Customer customer : customers)
+            {
+                customerStrings.add(Utils.packIntoJsonString(customer, Customer.class));
+            }
+
+            return customerStrings;
+
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public String getCustomer(@PathVariable("id") UUID id)
+    {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            Customer customer = cs.getById(id);
+
+            if (customer == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+            }
+
+            return Utils.packIntoJsonString(customer, Customer.class);
+
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public String deleteCustomer(@PathVariable("id") UUID id)
+    {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            Customer customer = cs.getById(id);
+            cs.remove(customer);
+
+            if (customer == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+            }
+
+            return Utils.packIntoJsonString(customer, Customer.class);
+
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }
 }
