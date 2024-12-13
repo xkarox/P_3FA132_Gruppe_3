@@ -1,12 +1,16 @@
 package dev.hv;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import dev.hv.model.IId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dev.hv.model.classes.Customer;
+import dev.hv.model.classes.Reading;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +59,20 @@ public class Utils
         return _objMapper.writeValueAsString(customer);
     }
 
+    public static Collection<? extends IId> unpackCollectionFromJsonString(String objectJson, Class classType) throws JsonProcessingException
+    {
+        String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase()) + "s";
+        ObjectMapper _objMapper = Utils.getObjectMapper();
+        if (classType == Reading.class)
+        {
+            Map<String, Collection<Reading>> collection = _objMapper.readValue(objectJson, new TypeReference<Map<String, Collection<Reading>>>() {});
+            return collection.get("readings");
+        } else {
+            Map<String, Collection<Customer>> collection = _objMapper.readValue(objectJson, new TypeReference<Map<String, Collection<Customer>>>() {});
+            return collection.get("customers");
+        }
+    }
+
     public static String packIntoJsonString(IId object, Class classType) throws JsonProcessingException
     {
         String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase());
@@ -63,4 +81,16 @@ public class Utils
         responseCustomer.put(key, object);
         return _objMapper.writeValueAsString(responseCustomer);
     }
+
+    public static String packIntoJsonString(Collection<? extends IId> objects, Class classType) throws JsonProcessingException
+    {
+        String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase()) + "s";
+        ObjectMapper _objMapper = Utils.getObjectMapper();
+
+        Map<String, Collection<? extends  IId>> responseArray = new HashMap<>();
+        responseArray.put(key, objects);
+
+        return _objMapper.writeValueAsString(responseArray);
+    }
+
 }

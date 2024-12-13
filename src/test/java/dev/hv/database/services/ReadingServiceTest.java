@@ -16,10 +16,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,8 +56,8 @@ public class ReadingServiceTest
         _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         _databaseConnection.removeAllTables();
         _databaseConnection.createAllTables();
-        this._customerService = new CustomerService(_databaseConnection);
-        this._readingService = new ReadingService(_databaseConnection);
+        this._customerService = ServiceProvider.Services.getCustomerService();
+        this._readingService = ServiceProvider.Services.getReadingService();
     }
 
     @Test
@@ -170,18 +167,36 @@ public class ReadingServiceTest
         assertEquals(prepeared, result);
     }
 
+    @Test
+    void queryReadings() throws SQLException, IOException, ReflectiveOperationException
+    {
+        KindOfMeter meterType = this._testReading.getKindOfMeter();
+        UUID customerId = this._testReading.getCustomerId();
+
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            rs.add(this._testReading);
+
+            Collection<Reading> readings =  rs.queryReadings(Optional.ofNullable(customerId), Optional.empty(), Optional.empty(), Optional.ofNullable(meterType));
+            assertEquals(1, readings.size());
+            assertTrue(readings.contains(this._testReading));
+        }
+    }
+
 
     @Test
     void removeTest() throws ReflectiveOperationException, SQLException, IOException
     {
-//        add Customer and Reading
         this._customerService.add(this._testCustomer);
         this._readingService.add(this._testReading);
-//        remove reading
         this._readingService.remove(this._testReading);
-//        try to get reading
-        assertNull(this._readingService.getById(this._testReading.getId()), "Should return null because the " +
-                "reading was deleted before");
+
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            Reading nullReading = rs.getById(this._testReading.getId());
+            assertNull( nullReading, "Should return null because the " +
+                    "reading was deleted before");
+        }
     }
 
     @Test

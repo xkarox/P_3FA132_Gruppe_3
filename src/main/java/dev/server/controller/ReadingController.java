@@ -1,23 +1,23 @@
 package dev.server.controller;
 
 import dev.hv.Utils;
-import dev.hv.database.services.CustomerService;
-import dev.hv.model.classes.Customer;
+import dev.hv.model.IReading;
 import dev.provider.ServiceProvider;
-import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.server.validator.CustomerJsonSchemaValidatorService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import dev.server.validator.ReadingJsonSchemaValidationService;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -62,7 +62,7 @@ public class ReadingController
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<String> updateReading(@RequestBody String readingJson)
+    public String updateReading(@RequestBody String readingJson)
     {
         this.validateRequestData(readingJson);
         try (ReadingService rs = ServiceProvider.Services.getReadingService())
@@ -75,7 +75,7 @@ public class ReadingController
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
             }
             rs.update(reading);
-            return new ResponseEntity<String>("Customer successfully updated", HttpStatus.OK);
+            return "Customer successfully updated";
         }
         catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
@@ -85,6 +85,60 @@ public class ReadingController
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
 
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.GET)
+    public String getReadings(@RequestParam(name = "customer", required = false) String customerId,
+                              @RequestParam(name = "start", required = false) String startDate,
+                              @RequestParam(name = "end", required = false) String endDate,
+                              @RequestParam(name = "kindOfMeter", required = false)Integer kindOfMeter)
+    {
+        try {
+            UUID id = customerId != null ? UUID.fromString(customerId) : null;
+
+            LocalDate start = null;
+            if (startDate != null)
+            {
+                if (!startDate.matches("\\d{4}-\\d{2}-\\d{2}"))
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid start date format, expected yyyy-mm-dd");
+                }
+                start = LocalDate.parse(startDate);
+            }
+            LocalDate end = null;
+            if (endDate != null)
+            {
+                if (!endDate.matches("\\d{4}-\\d{2}-\\d{2}"))
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid end date format, expected yyyy-mm-dd");
+                }
+                end = LocalDate.parse(endDate);
+            }
+            IReading.KindOfMeter meterType = null;
+            if (kindOfMeter != null)
+            {
+                if (kindOfMeter >= 0 && kindOfMeter < IReading.KindOfMeter.values().length)
+                {
+                    meterType = IReading.KindOfMeter.values()[kindOfMeter];
+                } else
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid kindOfMeter value provided");
+                }
+            }
+            String returnString = null;
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Collection<Reading> queryResults = rs.queryReadings(Optional.ofNullable(id), Optional.ofNullable(start),
+                        Optional.ofNullable(end), Optional.ofNullable(meterType));
+                returnString = Utils.packIntoJsonString(queryResults, Reading.class);
+            }
+
+            return returnString;
+        } catch (SQLException | IOException | ReflectiveOperationException e )
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }
 }
