@@ -12,10 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import dev.server.validator.ReadingJsonSchemaValidationService;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,6 +83,50 @@ public class ReadingController
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
 
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public String getReading(@PathVariable("id") UUID id)
+    {
+        try
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Reading reading = rs.getById(id);
+                return Utils.packIntoJsonString(reading, Reading.class);
+            }
+        }
+        catch (SQLException | ReflectiveOperationException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+        }
+        catch (IOException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server IOError");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public String deleteReading(@PathVariable("id") UUID id){
+        try
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Reading reading = rs.getById(id);
+                ServiceProvider.Services.getReadingService().remove(reading);
+                return Utils.packIntoJsonString(reading, Reading.class);
+            }
+        }
+        catch (SQLException | ReflectiveOperationException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+        }
+        catch (IOException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server IOError");
         }
     }
 
