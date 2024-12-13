@@ -85,9 +85,9 @@ public class ReadingService extends AbstractBaseService<Reading>
     {
         StringBuilder whereClauseBuilder = new StringBuilder("WHERE");
         customerId.ifPresentOrElse(
-                id -> whereClauseBuilder.append(" customerId = \"")
+                id -> whereClauseBuilder.append(" customerId = '")
                         .append(id)
-                        .append("\""),
+                        .append("'"),
                 () -> whereClauseBuilder.append(" customerId IS NULL"));
 
         startDate.ifPresentOrElse(
