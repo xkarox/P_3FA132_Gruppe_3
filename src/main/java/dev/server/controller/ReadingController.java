@@ -67,13 +67,12 @@ public class ReadingController
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
-            Reading dbCustomer = rs.getById(reading.getId());
-            if (dbCustomer == null)
+            if (rs.getById(reading.getId()) == null)
             {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
             }
             rs.update(reading);
-            return "Customer successfully updated";
+            return Utils.packIntoJsonString(reading, Reading.class);
         }
         catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
