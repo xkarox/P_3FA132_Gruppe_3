@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/readings")
 public class ReadingController
