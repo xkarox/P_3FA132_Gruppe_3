@@ -3,6 +3,7 @@ package dev.hv;
 import ch.qos.logback.core.joran.sanity.Pair;
 import org.junit.jupiter.api.*;
 
+import javax.sound.sampled.Line;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,10 +14,25 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CsvFormatterTest
 {
+    enum LineType {
+        LINES_ADDED("Lines added"),
+        LINES_AFTER_FORMAT("Lines after format");
+
+        private final String description;
+
+        LineType(String description) {
+            this.description = description;
+        }
+        @Override
+        public String toString()
+        {
+            return description;
+        }
+    }
+
     private static long _entriesInDirectory = 0;
 
     private static final String _directory = "src/test/resources/";
@@ -55,7 +71,7 @@ public class CsvFormatterTest
 
     //File, Map<MockedLinesCount, FormattedLinesCount>
     private static final Map<File, Map<String, Integer>> _mockedCustomerFiles = new HashMap<>();
-    private static final Map<File, Map<Integer, Integer>> _mockedReadingFiles = new HashMap<>();
+    private static final Map<File, Map<String, Integer>> _mockedReadingFiles = new HashMap<>();
 
     @BeforeAll
     static void beforeAll()
@@ -77,8 +93,8 @@ public class CsvFormatterTest
                             "78dff413-7409-4313-90db-5ec95e969d6d,Frau,Antje,Kittler,12.09.1968\n";
             writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesFlawless);
-            linesCount.put("Number of lines added", 4);
-            linesCount.put("Number of lines after format", 4);
+            linesCount.put(LineType.LINES_ADDED.toString(), 4);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 4);
             _mockedCustomerFiles.put(_csvCustomerFileFlawless, linesCount);
 
         } catch (IOException e)
@@ -94,8 +110,8 @@ public class CsvFormatterTest
                             "2a284519-4141-409c-a5d6-ad77bba13523,Frau,Karolina,Hamburger,\n";
             writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesWithEndingComma);
-            linesCount.put("Number of lines added", 3);
-            linesCount.put("Number of lines after format", 3);
+            linesCount.put(LineType.LINES_ADDED.toString(), 3);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 3);
             _mockedCustomerFiles.put(_csvCustomerFileWithEndingComma, linesCount);
 
         } catch (IOException e)
@@ -105,7 +121,7 @@ public class CsvFormatterTest
 
         try (FileWriter writer = new FileWriter(_csvCustomerFileNameWithEmptyValues))
         {
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _customerValuesWithEmptyValues =
                     ",Frau,Annedorle,Luber,\n" +
                             "51a57f7c-2080-4fcc-8107-17b613b2b948,,Anastasia,Weißmann,\n" +
@@ -116,8 +132,9 @@ public class CsvFormatterTest
                             "1152b31d-50ad-40fb-ae96-d06d5517b7d8,Herr,Heiner,Strohm,05.02.1997\n";
             writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesWithEmptyValues);
-            lines.put(8, 8);
-            _mockedCustomerFiles.put(_csvCustomerFileWithEmptyValues, lines);
+            linesCount.put(LineType.LINES_ADDED.toString(), 8);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 8);
+            _mockedCustomerFiles.put(_csvCustomerFileWithEmptyValues, linesCount);
         } catch (IOException e)
         {
             throw new RuntimeException("Error while creating customer file with empty Values");
@@ -125,7 +142,7 @@ public class CsvFormatterTest
 
         try (FileWriter writer = new FileWriter(_csvCustomerFileNameWithEmptyLines))
         {
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _customerValuesWithEmptyLines =
                     "ec617965-88b4-4721-8158-ee36c38e4db3,Herr,Pumukel,Kobold,21.02.1962\n" +
                             "848c39a1-0cbb-427a-ac6f-a88941943dc8,Herr,André,Schöne,16.02.1928\n" +
@@ -137,8 +154,9 @@ public class CsvFormatterTest
 
             writer.write(_csvCustomerFileHeader);
             writer.write(_customerValuesWithEmptyLines);
-            lines.put(8, 4);
-            _mockedCustomerFiles.put(_csvCustomerFileWithEmptyLines, lines);
+            linesCount.put(LineType.LINES_ADDED.toString(), 8);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 4);
+            _mockedCustomerFiles.put(_csvCustomerFileWithEmptyLines, linesCount);
         } catch (IOException e)
         {
             throw new RuntimeException("Error while creating customer file with empty lines");
@@ -147,7 +165,7 @@ public class CsvFormatterTest
         try (FileWriter writer = new FileWriter(_csvReadingFileNameFlawless))
         {
 
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _readingValuesFlawless =
                     "03.03.2020;0;\"Zählertausch: neue Nummer 786523123\"\n" +
                             "22.06.2021;0;\"Zählertausch: neue Nummer Xr-2021-2312434xz\"\n";
@@ -155,8 +173,9 @@ public class CsvFormatterTest
             writer.write(_csvReadingMetaDataFlawless);
             writer.write(_csvReadingFileHeader);
             writer.write(_readingValuesFlawless);
-            lines.put(5, 5);
-            _mockedReadingFiles.put(_csvReadingFileFlawless, lines);
+            linesCount.put(LineType.LINES_ADDED.toString(), 5);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 5);
+            _mockedReadingFiles.put(_csvReadingFileFlawless, linesCount);
         } catch (IOException e)
         {
             throw new RuntimeException("Error while creating reading flawless file");
@@ -164,7 +183,7 @@ public class CsvFormatterTest
 
         try (FileWriter writer = new FileWriter(_csvReadingFileNameWithoutComments))
         {
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _readingValuesWithoutComments =
                     "01.10.2018;565;\n" +
                             "01.11.2018;574;\n" +
@@ -175,15 +194,16 @@ public class CsvFormatterTest
             writer.write(_csvReadingMetaDataFlawless);
             writer.write(_csvReadingFileHeader);
             writer.write(_readingValuesWithoutComments);
-            lines.put(9, 9);
-            _mockedReadingFiles.put(_csvReadingFileWithoutComments, lines);
+            linesCount.put(LineType.LINES_ADDED.toString(), 9);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 9);
+            _mockedReadingFiles.put(_csvReadingFileWithoutComments, linesCount);
         } catch (IOException e)
         {
             throw new RuntimeException("Error when creating reading file without comments");
         }
         try (FileWriter writer = new FileWriter(_csvReadingFileNameWithEmptyLines))
         {
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _readingValuesWithEmptyLines =
                     "01.10.2018;565;\n" +
                             "01.11.2018;574;\n" +
@@ -194,15 +214,16 @@ public class CsvFormatterTest
             writer.write(_csvReadingMetaDataWithEmptyLines);
             writer.write(_csvReadingFileHeader);
             writer.write(_readingValuesWithEmptyLines);
-            lines.put(11, 6);
-            _mockedReadingFiles.put(_csvReadingFileWithEmptyLines, lines);
+            linesCount.put(LineType.LINES_ADDED.toString(), 11);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 6);
+            _mockedReadingFiles.put(_csvReadingFileWithEmptyLines, linesCount);
         } catch (IOException e)
         {
             throw new RuntimeException("Error when creating reading file with empty lines");
         }
         try (FileWriter writer = new FileWriter(_csvReadingFileNameWithMixedValues))
         {
-            Map<Integer, Integer> lines = new HashMap<>();
+            Map<String, Integer> linesCount = new HashMap<>();
             String _readingValuesWithMixedValues =
                     "01.02.2020;728;\n" +
                             "01.03.2020;;\n" +
@@ -211,8 +232,9 @@ public class CsvFormatterTest
             writer.write(_csvReadingMetaDataWithEmptyLines);
             writer.write(_csvReadingFileHeader);
             writer.write(_readingValuesWithMixedValues);
-            lines.put(9, 7);
-            _mockedReadingFiles.put(_csvReadingFileWithMixedValues, lines);
+            linesCount.put(LineType.LINES_ADDED.toString(), 9);
+            linesCount.put(LineType.LINES_AFTER_FORMAT.toString(), 7);
+            _mockedReadingFiles.put(_csvReadingFileWithMixedValues, linesCount);
         } catch (IOException e)
         {
             throw new RuntimeException("Error when creating reading file with nixed values");
@@ -240,12 +262,12 @@ public class CsvFormatterTest
     @Order(2)
     void verifyLineCountMatchesFirstInteger()
     {
-        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedCustomerFiles.entrySet())
+        for (Map.Entry<File, Map<String, Integer>> entry : _mockedCustomerFiles.entrySet())
         {
             File file = entry.getKey();
-            Map<Integer, Integer> lineCountMap = entry.getValue();
+            Map<String, Integer> lineCountMap = entry.getValue();
 
-            int firstInteger = lineCountMap.keySet().iterator().next();
+            int linesAdded = lineCountMap.get(LineType.LINES_ADDED.toString());
             int actualLineCount = 0;
 
             try (Scanner scanner = new Scanner(file))
@@ -260,16 +282,16 @@ public class CsvFormatterTest
                 throw new RuntimeException("Error when trying to count lines in file: " + file.getName(), e);
             }
 
-            assertEquals(firstInteger, actualLineCount,
+            assertEquals(linesAdded, actualLineCount,
                     "Line count mismatch for file: " + file.getName() +
-                            " (Expected: " + firstInteger + ", Actual: " + actualLineCount + ")");
+                            " (Expected: " + linesAdded + ", Actual: " + actualLineCount + ")");
         }
-        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedReadingFiles.entrySet())
+        for (Map.Entry<File, Map<String, Integer>> entry : _mockedReadingFiles.entrySet())
         {
             File file = entry.getKey();
-            Map<Integer, Integer> lineCountMap = entry.getValue();
+            Map<String, Integer> lineCountMap = entry.getValue();
 
-            int firstInteger = lineCountMap.keySet().iterator().next();
+            int linesAdded = lineCountMap.get(LineType.LINES_ADDED.toString());
             int actualLineCount = 0;
 
             try (Scanner scanner = new Scanner(file))
@@ -283,13 +305,11 @@ public class CsvFormatterTest
             {
                 throw new RuntimeException("Error when trying to count lines in file: " + file.getName(), e);
             }
-            assertEquals(firstInteger, actualLineCount,
+            assertEquals(linesAdded, actualLineCount,
                     "line count mismatch for file: " + file.getName() +
-                            " (Expected: " + firstInteger + ", Actual: " + actualLineCount + ")");
+                            " (Expected: " + linesAdded + ", Actual: " + actualLineCount + ")");
         }
-
     }
-
 
     @Test
     @Order(3)
@@ -297,10 +317,10 @@ public class CsvFormatterTest
     {
         CsvFormatter formatter = new CsvFormatter();
 
-        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedCustomerFiles.entrySet())
+        for (Map.Entry<File, Map<String, Integer>> entry : _mockedCustomerFiles.entrySet())
         {
             File originalFile = entry.getKey();
-            Map<Integer, Integer> lineCountMap = entry.getValue();
+            Map<String, Integer> lineCountMap = entry.getValue();
 
             File formattedFile = formatter.formatFile(originalFile, ',');
 
@@ -317,19 +337,19 @@ public class CsvFormatterTest
                 throw new RuntimeException("Error when trying to count lines in formatted file: " + formattedFile.getName(), e);
             }
 
-            for (Map.Entry<Integer, Integer> integerEntry : lineCountMap.entrySet()) {
+            for (Map.Entry<String, Integer> integerEntry : lineCountMap.entrySet()) {
                 int value = integerEntry.getValue();
             }
 
-            var expectedLineCount = lineCountMap.get(3);
+            int expectedLineCount = lineCountMap.get(LineType.LINES_AFTER_FORMAT.toString());
             assertEquals(expectedLineCount, actualLineCount,
                     "Line count mismatch for file: " + originalFile.getName() +
                             " (Expected: " + expectedLineCount + ", Actual: " + actualLineCount + ")");
         }
-        for (Map.Entry<File, Map<Integer, Integer>> entry : _mockedReadingFiles.entrySet())
+        for (Map.Entry<File, Map<String , Integer>> entry : _mockedReadingFiles.entrySet())
         {
             File originalFile = entry.getKey();
-            Map<Integer, Integer> lineCountMap = entry.getValue();
+            Map<String, Integer> lineCountMap = entry.getValue();
 
             File formattedFile = formatter.formatFile(originalFile, ';');
 
@@ -346,9 +366,9 @@ public class CsvFormatterTest
                 throw new RuntimeException("Error whn trying to count lines in formatted file: " + formattedFile.getName(), e);
             }
 
-            Integer[] expectedLineCount = lineCountMap.values().toArray(new Integer[0]);
-            assertEquals(expectedLineCount[0], actualLineCount, "Line count mismatch for file: " + originalFile.getName() +
-                    " (Expected: " + expectedLineCount[0] + ", Actual: " + actualLineCount + ")");
+            int expectedLineCount = lineCountMap.get(LineType.LINES_AFTER_FORMAT.toString());
+            assertEquals(expectedLineCount, actualLineCount, "Line count mismatch for file: " + originalFile.getName() +
+                    " (Expected: " + expectedLineCount + ", Actual: " + actualLineCount + ")");
         }
     }
 
