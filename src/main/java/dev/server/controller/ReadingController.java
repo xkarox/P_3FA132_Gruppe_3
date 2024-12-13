@@ -69,14 +69,14 @@ public class ReadingController
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
             if (rs.getById(reading.getId()) == null)
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reading not found in database");
             }
             rs.update(reading);
             return Utils.packIntoJsonString(reading, Reading.class);
         }
         catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
         }
         catch (IOException e)
         {
