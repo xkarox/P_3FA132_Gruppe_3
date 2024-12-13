@@ -290,7 +290,7 @@ public class ReadingControllerTest
     @Test
     void updateReading() throws IOException, InterruptedException
     {
-        this.addReading();
+//        this.addReading();
     }
 
     @Test

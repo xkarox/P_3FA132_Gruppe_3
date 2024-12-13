@@ -109,7 +109,7 @@ public class ReadingService extends AbstractBaseService<Reading>
                 ofMeter -> whereClauseBuilder.append(" AND kindOfMeter = ")
                         .append(ofMeter.ordinal()));
 
-        return (Collection<Reading>) this._dbConnection.getAllObjectsFromDbTableWithFilter(new Reading(), whereClauseBuilder.toString());
+        return (Collection<Reading>) this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, whereClauseBuilder.toString());
     }
 
     @SuppressWarnings("unchecked")
