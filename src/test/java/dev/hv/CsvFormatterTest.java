@@ -1,9 +1,6 @@
 package dev.hv;
 
-import ch.qos.logback.core.joran.sanity.Pair;
 import org.junit.jupiter.api.*;
-
-import javax.sound.sampled.Line;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CsvFormatterTest
@@ -68,8 +64,6 @@ public class CsvFormatterTest
     private static final File _csvReadingFileWithEmptyLines = new File(_csvReadingFileNameWithEmptyLines);
     private static final File _csvReadingFileWithMixedValues = new File(_csvReadingFileNameWithMixedValues);
 
-
-    //File, Map<MockedLinesCount, FormattedLinesCount>
     private static final Map<File, Map<String, Integer>> _mockedCustomerFiles = new HashMap<>();
     private static final Map<File, Map<String, Integer>> _mockedReadingFiles = new HashMap<>();
 
