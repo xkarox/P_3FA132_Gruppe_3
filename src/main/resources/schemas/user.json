@@ -1,0 +1,36 @@
+{
+  "title": "User-JSON-Schema",
+  "type": "object",
+  "required": [
+    "user"
+  ],
+  "properties": {
+    "user": {
+      "type": "object",
+      "required": [
+        "username",
+        "passwordHash"
+      ],
+      "properties": {
+        "id": {
+          "type": ["string", "null"],
+          "format": "uuid"
+        },
+        "username": {
+          "type": "string"
+        },
+        "passwordHash": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "updatedAt": {
+          "type": ["string", "null"],
+          "format": "date"
+        }
+      }
+    }
+  }
+}

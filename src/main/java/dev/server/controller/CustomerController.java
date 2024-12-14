@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
 
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/customers")
 public class CustomerController {
@@ -59,7 +59,7 @@ public class CustomerController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.PUT)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<String> updateCustomer(@RequestBody String customerJson)
     {
         this.validateRequestData(customerJson);

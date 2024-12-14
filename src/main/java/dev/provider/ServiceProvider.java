@@ -8,6 +8,6 @@ public class ServiceProvider
     public static InternalServiceProvider Services;
 
     static {
-        Services = new InternalServiceProvider(100, 10, 10);
+        Services = new InternalServiceProvider(100, 10, 10, 10, 10);
     }
 }

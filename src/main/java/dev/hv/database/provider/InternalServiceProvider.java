@@ -3,6 +3,9 @@ package dev.hv.database.provider;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
+import dev.hv.database.services.UserService;
+import dev.hv.model.classes.User;
+import dev.server.services.JwtService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -27,18 +30,31 @@ public class InternalServiceProvider
     private final Map<Integer, ReadingService> _possibleReadingServices = new HashMap<>();
     private final List<Integer> _usedReadingConnections = new ArrayList<>();
 
-    public InternalServiceProvider(int maxDbConnections, int maxCustomerConnections, int maxReadingConnections)
+    private int _maxUserConnections;
+    private final Map<Integer, UserService> _possibleUserServices = new HashMap<>();
+    private final List<Integer> _usedUserConnections = new ArrayList<>();
+
+    private int _maxJwtConnections;
+    private final Map<Integer, JwtService> _possibleJwtServices = new HashMap<>();
+    private final List<Integer> _usedJwtConnections = new ArrayList<>();
+
+    public InternalServiceProvider(int maxDbConnections, int maxCustomerConnections, int maxReadingConnections,
+                                   int maxUserConnections, int maxJwtConnections)
     {
         this._maxDbConnections = maxDbConnections;
         this._maxCustomerConnections = maxCustomerConnections;
         this._maxReadingConnections = maxReadingConnections;
+        this._maxUserConnections = maxUserConnections;
+        this._maxJwtConnections = maxJwtConnections;
     }
 
     private synchronized <T> T getService(Class<T> serviceClass) throws IOException, SQLException
     {
         while (this._usedDbConnections.size() >= _maxDbConnections ||
-               (serviceClass == CustomerService.class && this._usedCustomerConnections.size() >= _maxCustomerConnections) ||
-               (serviceClass == ReadingService.class && this._usedReadingConnections.size() >= _maxReadingConnections)) {
+                (serviceClass == CustomerService.class && this._usedCustomerConnections.size() >= _maxCustomerConnections) ||
+                (serviceClass == ReadingService.class && this._usedReadingConnections.size() >= _maxReadingConnections) ||
+                (serviceClass == UserService.class && this._usedUserConnections.size() >= _maxUserConnections) ||
+                (serviceClass == JwtService.class && this._usedJwtConnections.size() >= _maxJwtConnections)) {
             try {
                 if (!_useMultiThreading)
                     throw new IllegalArgumentException(String.valueOf(ServicesNotAvailable));
@@ -66,6 +82,16 @@ public class InternalServiceProvider
             connectionKey = searchFreeReadingService(dbConnection);
             this._usedReadingConnections.add(connectionKey);
             return serviceClass.cast(this._possibleReadingServices.get(connectionKey));
+        } else if (serviceClass == UserService.class)  {
+            dbConnection = getDatabaseConnection();
+            connectionKey = searchFreeUserService(dbConnection);
+            this._usedUserConnections.add(connectionKey);
+            return serviceClass.cast(this._possibleUserServices.get(connectionKey));
+        } else if (serviceClass == JwtService.class) {
+            dbConnection = getDatabaseConnection();
+            connectionKey = searchFreeJwtService(dbConnection);
+            this._usedJwtConnections.add(connectionKey);
+            return serviceClass.cast(this._possibleJwtServices.get(connectionKey));
         } else {
             connectionKey = searchFreeDbConnection();
             this._usedDbConnections.add(connectionKey);
@@ -108,6 +134,16 @@ public class InternalServiceProvider
         return searchFreeService(_possibleReadingServices, _usedReadingConnections, _maxReadingConnections, new ReadingService(dbConnection, this));
     }
 
+    private synchronized Integer searchFreeUserService(DatabaseConnection dbConnection)
+    {
+        return searchFreeService(_possibleUserServices, _usedUserConnections, _maxUserConnections, new UserService(dbConnection, this));
+    }
+
+    private synchronized Integer searchFreeJwtService(DatabaseConnection dbConnection)
+    {
+        return searchFreeService(_possibleJwtServices, _usedJwtConnections, _maxJwtConnections, new JwtService(this));
+    }
+
     public synchronized DatabaseConnection getDatabaseConnection() throws IOException, SQLException
     {
         return getService(DatabaseConnection.class);
@@ -121,6 +157,16 @@ public class InternalServiceProvider
     public synchronized ReadingService getReadingService() throws IOException, SQLException
     {
         return getService(ReadingService.class);
+    }
+
+    public synchronized UserService getUserService() throws IOException, SQLException
+    {
+        return getService(UserService.class);
+    }
+
+    public synchronized JwtService getJwtService() throws IOException, SQLException
+    {
+        return getService(JwtService.class);
     }
 
     private synchronized <T> void releaseService(T service, Map<Integer, T> possibleServices, List<Integer> usedConnections) throws SQLException
@@ -153,6 +199,16 @@ public class InternalServiceProvider
         releaseService(connection, _possibleReadingServices, _usedReadingConnections);
     }
 
+    public void releaseUserService(UserService connection) throws SQLException
+    {
+        releaseService(connection, _possibleUserServices, _usedReadingConnections);
+    }
+
+    public void releaseJwtService(JwtService connection) throws SQLException
+    {
+        releaseService(connection, _possibleJwtServices, _usedJwtConnections);
+    }
+
     private int getObjectId(Object object)
     {
         return System.identityHashCode(object);
@@ -163,11 +219,14 @@ public class InternalServiceProvider
         this._properties = properties;
     }
 
-    public void configureMaxConnections(int maxDbConnections, int maxCustomerConnections, int maxReadingConnections)
+    public void configureMaxConnections(int maxDbConnections, int maxCustomerConnections, int maxReadingConnections,
+                                        int maxUserConnections, int maxJwtConnections)
     {
         this._maxDbConnections = maxDbConnections;
         this._maxCustomerConnections = maxCustomerConnections;
         this._maxReadingConnections = maxReadingConnections;
+        this._maxUserConnections = maxUserConnections;
+        this._maxJwtConnections = maxJwtConnections;
     }
 
     public int getOpenDbConnectionsCount()
@@ -181,6 +240,11 @@ public class InternalServiceProvider
     }
 
     public int getOpenReadingServicesCount()
+    {
+        return _usedReadingConnections.size();
+    }
+
+    public int getOpenUserServicesCount()
     {
         return _usedReadingConnections.size();
     }

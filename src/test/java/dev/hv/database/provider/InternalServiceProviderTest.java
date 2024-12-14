@@ -31,7 +31,7 @@ class InternalServiceProviderTest
     @BeforeAll
     static void OneTimeSetup() throws IOException
     {
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10, 10, 10);
         ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
     }
 
@@ -39,13 +39,13 @@ class InternalServiceProviderTest
     void beforeEach()
     {
         ServiceProvider.Services.setMultithreading(false);
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10, 10, 10);
     }
 
     @AfterAll
     static void afterAll()
     {
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10, 10, 10);
     }
 
     @Test
@@ -74,7 +74,7 @@ class InternalServiceProviderTest
     @Test
     void OverloadTest() throws SQLException, IOException
     {
-        ServiceProvider.Services.configureMaxConnections(1, 0, 0);
+        ServiceProvider.Services.configureMaxConnections(1, 0, 0, 0, 0);
 
         DatabaseConnection dbCon = ServiceProvider.Services.getDatabaseConnection();
         boolean exceptionTriggert = false;
@@ -100,7 +100,7 @@ class InternalServiceProviderTest
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
 
         // Trigger other part of the if statement
-        ServiceProvider.Services.configureMaxConnections(2, 0, 0);
+        ServiceProvider.Services.configureMaxConnections(2, 0, 0, 0, 0);
         exceptionTriggert = false;
         try
         {
@@ -127,7 +127,7 @@ class InternalServiceProviderTest
     @Test
     void ReleaseUnregisteredConnectionTest() throws SQLException, IOException
     {
-        InternalServiceProvider provider = new InternalServiceProvider(100, 10, 10);
+        InternalServiceProvider provider = new InternalServiceProvider(100, 10, 10, 10, 10);
         DatabaseConnection dbCon = ServiceProvider.Services.getDatabaseConnection();
 
         boolean exceptionTriggert = false;
@@ -145,7 +145,7 @@ class InternalServiceProviderTest
     @Test
     void FindUnusedService() throws NoSuchFieldException, IllegalAccessException, SQLException, IOException
     {
-        InternalServiceProvider services = new InternalServiceProvider(2, 0, 0);
+        InternalServiceProvider services = new InternalServiceProvider(2, 0, 0, 0, 0);
 
         // Configure new unused connection
         DatabaseConnection testCon = new DatabaseConnection();
@@ -181,7 +181,7 @@ class InternalServiceProviderTest
 
         int waitTime = 250;
         int drift = 25;
-        ServiceProvider.Services.configureMaxConnections(1, 0, 0);
+        ServiceProvider.Services.configureMaxConnections(1, 0, 0, 0, 0);
         Thread[] threads = new Thread[4];
         threads[0] = createNewConnectionThread(waitTime);
         threads[1] = createNewConnectionThread(waitTime);
@@ -221,7 +221,7 @@ class InternalServiceProviderTest
     void ThreadInterruptTest() throws InterruptedException
     {
         ServiceProvider.Services.setMultithreading(true);
-        ServiceProvider.Services.configureMaxConnections(1, 0, 0);
+        ServiceProvider.Services.configureMaxConnections(1, 0, 0, 0, 0);
         Thread[] threads = new Thread[2];
         threads[0] = createNewConnectionThread(200);
         threads[1] = createNewConnectionThread(200);
