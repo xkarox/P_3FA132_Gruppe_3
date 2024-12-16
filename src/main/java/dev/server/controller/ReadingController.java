@@ -2,6 +2,8 @@ package dev.server.controller;
 
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
+import dev.hv.database.services.CustomerService;
+import dev.hv.model.classes.Customer;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;

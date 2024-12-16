@@ -338,9 +338,9 @@ public class ReadingControllerTest
                 .PUT(HttpRequest.BodyPublishers.ofString(Utils.packIntoJsonString(this._reading, Reading.class)))
                 .build();
 
-        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
-        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST.value());
-        testThrownReadingServiceException(request, JsonProcessingException.class, HttpStatus.BAD_REQUEST.value());
+        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
+        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
+        testThrownReadingServiceException(request, JsonProcessingException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
 
         // ReflectionException
         ServiceProvider.Services = mock(InternalServiceProvider.class);
