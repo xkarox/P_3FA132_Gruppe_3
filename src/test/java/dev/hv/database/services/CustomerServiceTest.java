@@ -8,6 +8,7 @@ import dev.hv.model.ICustomer.Gender;
 import dev.hv.model.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
+import dev.provider.ServiceProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,67 +59,80 @@ public class CustomerServiceTest
         _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         _databaseConnection.removeAllTables();
         _databaseConnection.createAllTables();
-        this._customerService = new CustomerService(_databaseConnection);
-        this._readingService = new ReadingService(_databaseConnection);
     }
 
     @Test
-    void testAdd() throws ReflectiveOperationException, SQLException
+    void testAdd() throws ReflectiveOperationException, SQLException, IOException
     {
-        this._customerService.add(this._testCustomer);
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                cs.add(this._testCustomer);
 
-        Customer customerFromDb = this._customerService.getById(this._testCustomer.getId());
+                Customer customerFromDb = cs.getById(this._testCustomer.getId());
 
-        assertNotNull(customerFromDb, "Customer should not be null after being added to the database.");
-        assertEquals(this._testCustomer, customerFromDb, "Customer are not equal");
+                assertNotNull(customerFromDb, "Customer should not be null after being added to the database.");
+                assertEquals(this._testCustomer, customerFromDb, "Customer are not equal");
+            }
+        }
     }
 
     @Test
-    void updateTest() throws ReflectiveOperationException, SQLException
+    void updateTest() throws ReflectiveOperationException, SQLException, IOException
     {
-//        add origin customer
-        this._customerService.add(this._testCustomer);
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                cs.add(this._testCustomer);
 
-//        modify customer
-        this._testCustomer.setFirstName("Peter");
-        this._testCustomer.setLastName("Griffin");
-        this._testCustomer.setBirthDate(LocalDate.of(2000, 11, 2));
-        this._testCustomer.setGender(ICustomer.Gender.W);
-//        update customer
-        this._customerService.update(this._testCustomer);
-//        get customer
-        Customer updatedCustomer = this._customerService.getById(this._testCustomer.getId());
-//        check if customer is updated correctly
-        assertEquals(this._testCustomer, updatedCustomer, "Customer should be changed");
+                this._testCustomer.setFirstName("Peter");
+                this._testCustomer.setLastName("Griffin");
+                this._testCustomer.setBirthDate(LocalDate.of(2000, 11, 2));
+                this._testCustomer.setGender(ICustomer.Gender.W);
+                cs.update(this._testCustomer);
+                Customer updatedCustomer = cs.getById(this._testCustomer.getId());
+                assertEquals(this._testCustomer, updatedCustomer, "Customer should be changed");
+            }
+        }
     }
 
     @Test
     void removeTest() throws ReflectiveOperationException, SQLException, IOException
     {
-//        add customer and reading
-        this._customerService.add(this._testCustomer);
-        this._testReading.setCustomer(this._testCustomer);
-        this._readingService.add(this._testReading);
-//        remove customer
-        this._customerService.remove(this._testCustomer);
-//        try to get customer -> check if null
-        assertNull(this._customerService.getById(this._testCustomer.getId()), "Should return null because the " +
-                "customer was deleted before");
-//         get reading -> check if customer id is null
-        Reading reading = this._readingService.getById(this._testReading.getId());
-        assertNull(reading.getCustomer(), "Should return null because customer is already deleted");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                cs.add(this._testCustomer);
+                this._testReading.setCustomer(this._testCustomer);
+                rs.add(this._testReading);
+                cs.remove(this._testCustomer);
+                assertNull(cs.getById(this._testCustomer.getId()), "Should return null because the " +
+                        "customer was deleted before");
+                Reading reading = rs.getById(this._testReading.getId());
+                assertNull(reading.getCustomer(), "Should return null because customer is already deleted");
+            }
+        }
     }
 
     @Test
-    void getByIdTest() throws ReflectiveOperationException, SQLException
+    void getByIdTest() throws ReflectiveOperationException, SQLException, IOException
     {
-        var nullResult = this._customerService.getById(UUID.randomUUID());
-        assertNull(nullResult, "Because there are no items in the db");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                var nullResult = cs.getById(UUID.randomUUID());
+                assertNull(nullResult, "Because there are no items in the db");
 
-        List<Customer> customers = createTestData();
-        Customer customer = customers.getFirst();
-        var result = this._customerService.getById(customer.getId());
-        assertEquals(customer, result, "Because the customer should exist");
+                List<Customer> customers = createTestData();
+                Customer customer = customers.getFirst();
+                var result = cs.getById(customer.getId());
+                assertEquals(customer, result, "Because the customer should exist");
+            }
+        }
     }
 
     @Test
@@ -140,31 +154,43 @@ public class CustomerServiceTest
     }
 
     @Test
-    void getAllTest() throws ReflectiveOperationException, SQLException
+    void getAllTest() throws ReflectiveOperationException, SQLException, IOException
     {
-        var nullResult = this._customerService.getAll();
-        assertTrue(nullResult.isEmpty(), "Because there are no items in the db");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                var nullResult = cs.getAll();
+                assertTrue(nullResult.isEmpty(), "Because there are no items in the db");
 
-        List<Customer> customers = createTestData();
-        customers.sort(Comparator.comparing(Customer::getId));
+                List<Customer> customers = createTestData();
+                customers.sort(Comparator.comparing(Customer::getId));
 
-        var result = this._customerService.getAll();
+                var result = cs.getAll();
 
-        result.sort(Comparator.comparing(Customer::getId));
-        assertEquals(customers, result, "Because all customers should exist");
+                result.sort(Comparator.comparing(Customer::getId));
+                assertEquals(customers, result, "Because all customers should exist");
+            }
+        }
     }
 
     @Test
-    void crudNullCheck() throws NoSuchFieldException, IllegalAccessException
+    void crudNullCheck() throws NoSuchFieldException, IllegalAccessException, SQLException, IOException
     {
-        Customer customer = _testCustomer;
-        Field secretField = Customer.class.getDeclaredField("_id");
-        secretField.setAccessible(true);
-        secretField.set(customer, null);
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Customer customer = _testCustomer;
+                Field secretField = Customer.class.getDeclaredField("_id");
+                secretField.setAccessible(true);
+                secretField.set(customer, null);
 
-        assertThrows(IllegalArgumentException.class, () -> this._customerService.add(null));
-        assertThrows(IllegalArgumentException.class, () -> this._customerService.update(customer));
-        assertThrows(IllegalArgumentException.class, () -> this._customerService.remove(customer));
+                assertThrows(IllegalArgumentException.class, () -> cs.add(null));
+                assertThrows(IllegalArgumentException.class, () -> cs.update(customer));
+                assertThrows(IllegalArgumentException.class, () -> cs.remove(customer));
+            }
+        }
     }
 
     @Test
@@ -182,30 +208,42 @@ public class CustomerServiceTest
     @Test
     void DateNullTest() throws ReflectiveOperationException, SQLException, IOException
     {
-        this._testCustomer.setBirthDate(null);
-        this._customerService.add(this._testCustomer);
-        assertNull(this._customerService.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should be null");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                this._testCustomer.setBirthDate(null);
+                cs.add(this._testCustomer);
+                assertNull(cs.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should be null");
 
-        this._testCustomer.setBirthDate(LocalDate.now());
-        this._customerService.update(this._testCustomer);
-        assertNotNull(this._customerService.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should not be null");
+                this._testCustomer.setBirthDate(LocalDate.now());
+                cs.update(this._testCustomer);
+                assertNotNull(cs.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should not be null");
 
-        this._testCustomer.setBirthDate(null);
-        this._customerService.update(this._testCustomer);
-        assertNull(this._customerService.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should be null");
+                this._testCustomer.setBirthDate(null);
+                cs.update(this._testCustomer);
+                assertNull(cs.getById(this._testCustomer.getId()).getBirthDate(), "Because the date should be null");
+            }
+        }
     }
 
-    private List<Customer> createTestData() throws SQLException
+    private List<Customer> createTestData() throws SQLException, IOException
     {
         List<Customer> items = new ArrayList<>();
-        items.add(new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
-        items.add(new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), Gender.W));
-        items.add(new Customer(UUID.randomUUID(), "James", "Doe", LocalDate.now().plusYears(2), Gender.M));
-        items.add(new Customer(UUID.randomUUID(), "Juno", "Doe", LocalDate.now().minusWeeks(20), Gender.D));
-
-        for (Customer item : items)
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
-            this._customerService.add(item);
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                items.add(new Customer(UUID.randomUUID(), "John", "Doe", LocalDate.now(), Gender.M));
+                items.add(new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now().plusMonths(1), Gender.W));
+                items.add(new Customer(UUID.randomUUID(), "James", "Doe", LocalDate.now().plusYears(2), Gender.M));
+                items.add(new Customer(UUID.randomUUID(), "Juno", "Doe", LocalDate.now().minusWeeks(20), Gender.D));
+
+                for (Customer item : items)
+                {
+                    cs.add(item);
+                }
+            }
         }
         return items;
     }

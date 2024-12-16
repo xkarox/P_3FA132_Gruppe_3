@@ -2,6 +2,7 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
+import dev.hv.model.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
@@ -10,9 +11,8 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 
 public class ReadingService extends AbstractBaseService<Reading>
 {
@@ -76,6 +76,40 @@ public class ReadingService extends AbstractBaseService<Reading>
         if (result.isEmpty())
             return null;
         return (Reading) result.getFirst();
+    }
+
+    public Collection<Reading> queryReadings(Optional<UUID> customerId,
+                                 Optional<LocalDate> startDate,
+                                 Optional<LocalDate> endDate,
+                                 Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException
+    {
+        StringBuilder whereClauseBuilder = new StringBuilder("WHERE");
+        customerId.ifPresentOrElse(
+                id -> whereClauseBuilder.append(" customerId = '")
+                        .append(id)
+                        .append("'"),
+                () -> whereClauseBuilder.append(" customerId IS NULL"));
+
+        startDate.ifPresentOrElse(
+                date -> whereClauseBuilder.append(" AND dateOfReading BETWEEN '")
+                        .append(date)
+                        .append("'"),
+                () -> whereClauseBuilder.append(" AND dateOfReading BETWEEN '")
+                        .append(LocalDate.of(0, 1, 1))
+                        .append("'"));
+
+        endDate.ifPresentOrElse(
+                date -> whereClauseBuilder.append(" AND '")
+                        .append(date)
+                        .append("'"),
+                () -> whereClauseBuilder.append(" AND '")
+                        .append(LocalDate.now().plusDays(1))
+                        .append("'"));
+        kindOfMeter.ifPresent(
+                ofMeter -> whereClauseBuilder.append(" AND kindOfMeter = ")
+                        .append(ofMeter.ordinal()));
+
+        return (Collection<Reading>) this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, whereClauseBuilder.toString());
     }
 
     @SuppressWarnings("unchecked")
