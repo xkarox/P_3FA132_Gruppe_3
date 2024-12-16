@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/customers")
 public class CustomerController {

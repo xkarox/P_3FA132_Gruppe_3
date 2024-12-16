@@ -1,5 +1,8 @@
 # 3FA132_Gruppe_3
 
+# Linked projects
+https://github.com/Jddk1871/P_3FA132_Gruppe_3_Frontend
+
 # Conventions
 
 - Language: english
