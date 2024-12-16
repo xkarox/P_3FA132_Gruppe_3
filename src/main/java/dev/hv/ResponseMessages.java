@@ -23,7 +23,11 @@ public enum ResponseMessages
     ModelParameterNull("Parameter %s cannot be null"),
 
     // Json
-    JsonSchemaFileNotFound("Schema file not found")
+    JsonSchemaFileNotFound("Schema file not found"),
+
+    // Reading Query Endpoint
+    InvalidDateFormatProvided("Invalid Date format provided. yyyy-MM-dd expected."),
+    InvalidKindOfMeterProvided("Unknown Kind of Meter provided")
     ;
 
 

@@ -351,11 +351,8 @@ public class ReadingControllerTest
         // ReflectionException
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         ReadingService mockReadingService = mock(ReadingService.class);
+        when(mockReadingService.getById(any())).thenThrow(ReflectiveOperationException.class);
 
-        CustomerService mockCustomerService = mock(CustomerService.class);
-        when(mockCustomerService.getById(any())).thenThrow(ReflectiveOperationException.class);
-
-        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
         HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -369,10 +366,10 @@ public class ReadingControllerTest
         reading.setCustomer(null);
 
         ServiceProvider.Services = mock(InternalServiceProvider.class);
-        CustomerService mockCustomerService = mock(CustomerService.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
 
-        when(mockCustomerService.getById(any())).thenReturn(null);
-        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+        when(mockReadingService.getById(any())).thenReturn(null);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
@@ -561,7 +558,7 @@ public class ReadingControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode(), "Returned status code should be 400 Bad Request");
-        assertTrue(response.body().contains("expected yyyy-mm-dd"));
+        assertTrue(response.body().contains(ResponseMessages.InvalidDateFormatProvided.toString()));
     }
 
     @Test
@@ -581,7 +578,7 @@ public class ReadingControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode(), "Returned status code should be 400 Bad Request");
-        assertTrue(response.body().contains("expected yyyy-mm-dd"));
+        assertTrue(response.body().contains(ResponseMessages.InvalidDateFormatProvided.toString()));
     }
 
     @Test
@@ -599,7 +596,7 @@ public class ReadingControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(400, response.statusCode(), "Returned status code should be 400 Bad Request");
-        assertTrue(response.body().contains("Invalid kindOfMeter value provided"));
+        assertTrue(response.body().contains(ResponseMessages.InvalidKindOfMeterProvided.toString()));
     }
 
     @Test

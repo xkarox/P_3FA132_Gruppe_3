@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-
 @CrossOrigin(origins= "*")
 @RestController
 @RequestMapping(value = "/readings")
@@ -146,7 +145,7 @@ public class ReadingController
             {
                 if (!startDate.matches("\\d{4}-\\d{2}-\\d{2}"))
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid start date format, expected yyyy-mm-dd");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.InvalidDateFormatProvided.toString());
                 }
                 start = LocalDate.parse(startDate);
             }
@@ -155,7 +154,7 @@ public class ReadingController
             {
                 if (!endDate.matches("\\d{4}-\\d{2}-\\d{2}"))
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid end date format, expected yyyy-mm-dd");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.InvalidDateFormatProvided.toString());
                 }
                 end = LocalDate.parse(endDate);
             }
@@ -167,7 +166,7 @@ public class ReadingController
                     meterType = IReading.KindOfMeter.values()[kindOfMeter];
                 } else
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid kindOfMeter value provided");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.InvalidKindOfMeterProvided.toString());
                 }
             }
             String returnString = null;
@@ -181,7 +180,7 @@ public class ReadingController
             return returnString;
         } catch (SQLException | IOException | ReflectiveOperationException e )
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 }

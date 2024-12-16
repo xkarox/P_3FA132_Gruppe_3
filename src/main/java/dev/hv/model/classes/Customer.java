@@ -99,9 +99,9 @@ public class Customer implements ICustomer
 
     @JsonIgnore
     @Override
-    public void setBirthDate(LocalDate birtDate)
+    public void setBirthDate(LocalDate birthDate)
     {
-        this._birthDate = birtDate;
+        this._birthDate = birthDate;
     }
 
     @JsonIgnore
