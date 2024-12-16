@@ -2,6 +2,7 @@ package dev.hv.model.classes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.hv.ResponseMessages;
 import dev.hv.model.ICustomer;
 import dev.hv.model.IReading;
 import dev.hv.model.decorator.IFieldInfo;
@@ -10,6 +11,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -90,6 +92,13 @@ public class Reading implements IReading
     }
 
     public UUID getCustomerId() { return this._customerId; }
+
+    @JsonIgnore
+    @Nullable
+    public UUID getCustomerId()
+    {
+        return this._customerId;
+    }
 
     @JsonIgnore
     @Nullable
@@ -198,7 +207,7 @@ public class Reading implements IReading
     {
         if (id == null)
         {
-            throw new IllegalArgumentException("ID cannot be null");
+            throw new IllegalArgumentException(ResponseMessages.ModelParameterNull.toString(List.of("ID")));
         }
         this._id = id;
     }

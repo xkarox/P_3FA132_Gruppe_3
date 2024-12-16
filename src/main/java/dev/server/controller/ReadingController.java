@@ -1,5 +1,6 @@
 package dev.server.controller;
 
+import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.model.IReading;
 import dev.provider.ServiceProvider;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 
+@CrossOrigin(origins= "*")
 @RestController
 @RequestMapping(value = "/readings")
 public class ReadingController
@@ -28,7 +30,7 @@ public class ReadingController
         boolean invalidCustomer = ReadingJsonSchemaValidationService.getInstance().validate(jsonString);
         if ( invalidCustomer )
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
         }
     }
 
@@ -50,11 +52,11 @@ public class ReadingController
         }
         catch (JsonProcessingException | SQLException | ReflectiveOperationException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 
@@ -69,18 +71,18 @@ public class ReadingController
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
             if (rs.getById(reading.getId()) == null)
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reading not found in database");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
             rs.update(reading);
             return Utils.packIntoJsonString(reading, Reading.class);
         }
         catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
 
         }
     }
@@ -99,11 +101,11 @@ public class ReadingController
         }
         catch (SQLException | ReflectiveOperationException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server IOError");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 
@@ -121,11 +123,11 @@ public class ReadingController
         }
         catch (SQLException | ReflectiveOperationException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reading data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server IOError");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 

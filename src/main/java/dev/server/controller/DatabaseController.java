@@ -1,17 +1,16 @@
 package dev.server.controller;
 
+import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.provider.ServiceProvider;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/setupDB")
 public class DatabaseController
@@ -28,7 +27,7 @@ public class DatabaseController
 
         } catch (SQLException | IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 }
