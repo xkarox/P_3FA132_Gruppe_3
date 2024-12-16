@@ -15,10 +15,7 @@ import dev.server.validator.CustomerJsonSchemaValidatorService;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @RestController
@@ -88,18 +85,12 @@ public class CustomerController
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
-    public Iterable<String> getCustomers()
+    public String getCustomers()
     {
         try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
-            Iterable<Customer> customers = cs.getAll();
-            List<String> customerStrings = new ArrayList<>();
-            for (Customer customer : customers)
-            {
-                customerStrings.add(Utils.packIntoJsonString(customer, Customer.class));
-            }
-
-            return customerStrings;
+            Collection<Customer> customer = cs.getAll();
+            return Utils.packIntoJsonString(customer, Customer.class);
 
         } catch (IOException | ReflectiveOperationException | SQLException e)
         {
