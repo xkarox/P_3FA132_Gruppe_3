@@ -2,6 +2,8 @@ package dev.server.controller;
 
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
+import dev.hv.database.services.CustomerService;
+import dev.hv.model.classes.Customer;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
@@ -65,10 +67,13 @@ public class ReadingController
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
-            Reading dbCustomer = rs.getById(reading.getId());
-            if (dbCustomer == null)
+            try(CustomerService cs = ServiceProvider.Services.getCustomerService())
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
+                Customer customer = cs.getById(reading.getCustomerId());
+                if (customer == null)
+                {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
+                }
             }
             rs.update(reading);
             return new ResponseEntity<String>(ResponseMessages.ControllerUpdateSuccess.toString(), HttpStatus.OK);

@@ -1,6 +1,7 @@
 package dev.server.controller;
 
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
@@ -302,9 +303,79 @@ public class ReadingControllerTest
     }
 
     @Test
-    void updateReading() throws IOException, InterruptedException
+    void updateReading() throws IOException, InterruptedException, ReflectiveOperationException, SQLException
     {
-        this.addReading();
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
+
+        when(mockReadingService.getById(any())).thenReturn(this._reading);
+        when(mockReadingService.update(any())).thenReturn(this._reading);
+
+        CustomerService mockCustomerService = mock(CustomerService.class);
+        when(mockCustomerService.getById(any())).thenReturn(this._customer);
+
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(Utils.packIntoJsonString(this._reading, Reading.class)))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+    }
+
+    @Test
+    void updateReadingThrowsExceptions() throws SQLException, IOException, ReflectiveOperationException, InterruptedException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(Utils.packIntoJsonString(this._reading, Reading.class)))
+                .build();
+
+        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
+        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
+        testThrownReadingServiceException(request, JsonProcessingException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
+
+        // ReflectionException
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
+
+        CustomerService mockCustomerService = mock(CustomerService.class);
+        when(mockCustomerService.getById(any())).thenThrow(ReflectiveOperationException.class);
+
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+
+        HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
+    }
+
+    @Test
+    void updateReadingThrowsExceptionsOnNUll() throws SQLException, IOException, ReflectiveOperationException, InterruptedException
+    {
+        Reading reading = getTestReading();
+        reading.setCustomer(null);
+
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        CustomerService mockCustomerService = mock(CustomerService.class);
+
+        when(mockCustomerService.getById(any())).thenReturn(null);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(Utils.packIntoJsonString(reading, Reading.class)))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Should return status code 28 Not found");
     }
 
     @Test
