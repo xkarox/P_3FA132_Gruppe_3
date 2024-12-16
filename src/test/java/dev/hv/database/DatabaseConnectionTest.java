@@ -1,6 +1,6 @@
 package dev.hv.database;
 
-import dev.hv.ErrorMessages;
+import dev.hv.ResponseMessages;
 import dev.hv.database.mocks.MockTableObject;
 import dev.hv.database.mocks.MockTableObject2;
 import org.junit.jupiter.api.*;
@@ -207,7 +207,7 @@ public class DatabaseConnectionTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.SqlUpdate)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.SqlUpdate)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
     }
@@ -264,10 +264,9 @@ public class DatabaseConnectionTest
         this._dbConnection.createAllTables();
         this.createTestData(this._dbConnection);
 
-        Exception argumentException = new IllegalArgumentException("Field type not supported");
         var caughtException = assertThrows(IllegalArgumentException.class,
                 () -> this._dbConnection.getAllObjectsFromDbTable(MockTableObject2.class));
-        assertEquals(argumentException.getMessage(), caughtException.getMessage());
+        assertEquals(ResponseMessages.DbFieldTypeNotSupported.toString(), caughtException.getMessage());
     }
 
     @Test

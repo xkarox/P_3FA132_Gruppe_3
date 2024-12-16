@@ -1,5 +1,6 @@
 package dev.hv.model.classes;
 
+import dev.hv.ResponseMessages;
 import dev.hv.model.ICustomer;
 import dev.hv.model.ICustomer.Gender;
 import dev.hv.model.IReading.KindOfMeter;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,7 +122,7 @@ public class ReadingTest
         } catch (IllegalArgumentException e)
         {
             exceptionThrown = true;
-            assertEquals(e.getMessage(), "ID cannot be null");
+            assertEquals(ResponseMessages.ModelParameterNull.toString(List.of("ID")), e.getMessage());
         }
         assertTrue(exceptionThrown, "Because the exception should have been triggert");
     }
