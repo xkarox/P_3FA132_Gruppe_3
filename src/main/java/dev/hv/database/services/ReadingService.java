@@ -26,56 +26,53 @@ public class ReadingService extends AbstractBaseService<Reading>
         super(dbConnection, null);
     }
 
-
     @Override
+    // Req. Nr.: 8
     public Reading add(Reading item) throws SQLException, ReflectiveOperationException, IOException
     {
         if (item == null)
-        {
             throw new IllegalArgumentException("Reading is null and cannot be inserted.");
-        }
+        if (item.getCustomer() == null)
+            throw new IllegalArgumentException("Creating a reading without a Customer is not possible.");
 
         String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
-                " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount, meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+                " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount,  meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
-        PreparedStatement statement = this._dbConnection.newPrepareStatement(sqlStatement);
-        statement.setObject(1, item.getId());
-        statement.setString(2, item.getComment());
-        if (item.getCustomer() == null)
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
         {
-            return null;
-        } else
-        {
-            try(CustomerService customerService = ServiceProvider.Services.getCustomerService()){
+            stmt.setString(1, item.getId().toString());
+            stmt.setString(2, item.getComment());
+
+            String customerId = null;
+            try (CustomerService customerService = ServiceProvider.Services.getCustomerService())
+            {
                 Customer existingCustomer = customerService.getById(item.getCustomer().getId());
-
-                // customer does not exists
                 if (existingCustomer == null)
                 {
+                    // Req. Nr.: 16
                     customerService.add((Customer) item.getCustomer());
                 }
-
-                statement.setObject(3, item.getCustomer().getId());
+                customerId = item.getCustomer().getId().toString();
             }
-        }
-        statement.setDate(4, Date.valueOf(item.getDateOfReading()));
-        statement.setString(5, String.valueOf(item.getKindOfMeter().ordinal()));
-        statement.setDouble(6, item.getMeterCount());
-        statement.setString(7, item.getMeterId());
-        statement.setBoolean(8, item.getSubstitute());
-        this._dbConnection.executePreparedStatementCommand(statement);
 
+            stmt.setString(3, customerId);
+            stmt.setDate(4, Date.valueOf(item.getDateOfReading()));
+            stmt.setString(5, String.valueOf(item.getKindOfMeter().ordinal()));
+            stmt.setDouble(6, item.getMeterCount());
+            stmt.setString(7, item.getMeterId());
+            stmt.setBoolean(8, item.getSubstitute());
+            this._dbConnection.executePreparedStatementCommand(stmt, 1);
+        }
         return item;
     }
 
     @Override
+    // Req. Nr.: 9
     public Reading getById(UUID id) throws ReflectiveOperationException, SQLException
     {
-        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Reading(), String.format("WHERE id = '%s'", id));
+        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE id = '%s'", id));
         if (result.size() > 1)
-        {
             throw new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", result.size()));
-        }
         if (result.isEmpty())
             return null;
         return (Reading) result.getFirst();
@@ -83,44 +80,43 @@ public class ReadingService extends AbstractBaseService<Reading>
 
     @SuppressWarnings("unchecked")
     @Override
+    // Req. Nr.: 12
     public List<Reading> getAll() throws ReflectiveOperationException, SQLException
     {
-        return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(new Reading());
+        return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(Reading.class);
     }
 
     @Override
+    // Req. Nr.: 10
     public Reading update(Reading item) throws SQLException, IllegalArgumentException
     {
         if (item.getId() == null)
-        {
             throw new IllegalArgumentException("Cannot update reading without id");
+
+
+        String sqlStatement = "UPDATE " + item.getSerializedTableName() + " " +
+                "SET customerId = ?, comment = ?, dateOfReading = ?, kindOfMeter = ?, meterCount = ?, " +
+                "meterId = ?, substitute = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
+            stmt.setString(1, item.getCustomer().getId().toString());
+            stmt.setString(2, item.getComment());
+            stmt.setDate(3, Date.valueOf(item.getDateOfReading()));
+            stmt.setString(4, String.valueOf(item.getKindOfMeter().ordinal()));
+            stmt.setDouble(5, item.getMeterCount());
+            stmt.setString(6, item.getMeterId());
+            stmt.setBoolean(7, item.getSubstitute());
+            stmt.setString(8, item.getId().toString());
+            this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
-        StringBuilder sb = new StringBuilder("UPDATE ");
-        sb.append(item.getSerializedTableName()).append(" SET");
-        sb.append(" customerId='").append(Objects.requireNonNull(item.getCustomer()).getId());
-        sb.append("' ,comment='").append(item.getComment());
-        sb.append("' ,dateOfReading='").append(item.getDateOfReading());
-        sb.append("' ,kindOfMeter='").append(item.getKindOfMeter().ordinal());
-        sb.append("' ,meterCount='").append(item.getMeterCount());
-        sb.append("' ,meterId='").append(item.getMeterId());
-        sb.append("' ,substitute=").append(item.getSubstitute().toString());
-        sb.append(" WHERE Id='").append(item.getId()).append("';");
-        _dbConnection.executeSqlUpdateCommand(sb.toString(), 1);
         return item;
     }
 
     @Override
+    // Req. Nr.: 11
     public void remove(Reading item) throws SQLException
     {
-        String delStatement = new StringBuilder("DELETE FROM ").append(item.getSerializedTableName())
-                .append(" WHERE id=?").toString();
-        if (item.getId() == null)
-        {
-            throw new IllegalArgumentException("Cannot delete a reading without id");
-        }
-        PreparedStatement preparedStatement = _dbConnection.getConnection().prepareStatement(delStatement);
-        preparedStatement.setString(1, item.getId().toString());
-        preparedStatement.executeUpdate();
+        removeDbItem(item);
     }
 
     @Override

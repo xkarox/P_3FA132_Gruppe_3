@@ -49,11 +49,11 @@ public class ReadingServiceTest
                 , LocalDate.now(), Gender.M);
         this._testReading = new Reading(UUID.randomUUID()
                 , "Omae wa mou shindeiru!", this._testCustomer.getId()
-                , LocalDate.now(), KindOfMeter.STROM
+                , null, LocalDate.now(), KindOfMeter.STROM
                 , 1234.5, "10006660001", false);
         this._testReading.setCustomer(this._testCustomer);
         this._testReadingWithoutCustomer = new Reading(UUID.randomUUID()
-                , "lalalala", null, LocalDate.now()
+                , "lalalala", null, null, LocalDate.now()
                 , KindOfMeter.WASSER, 1823.293, "8231891239", true);
         DatabaseConnection _databaseConnection = new DatabaseConnection();
         _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
@@ -75,9 +75,7 @@ public class ReadingServiceTest
         assertNotNull(createdCustomer, "A customer should be created");
         assertEquals(createdCustomer, this._testReading.getCustomer());
 
-        this._readingService.add((this._testReadingWithoutCustomer));
-        Reading readingWithoutCustomerFromDb = this._readingService.getById(this._testReadingWithoutCustomer.getId());
-        assertNull(readingWithoutCustomerFromDb, "Reading should be null because of no customer");
+        assertThrows(IllegalArgumentException.class, () -> this._readingService.add(this._testReadingWithoutCustomer));
     }
 
     @Test
@@ -85,7 +83,7 @@ public class ReadingServiceTest
     {
         DatabaseConnection mockConnection = mock(DatabaseConnection.class);
         when(mockConnection.newPrepareStatement(anyString())).thenThrow(SQLException.class);
-        assertThrows(SQLException.class, () -> new ReadingService(mockConnection).add(new Reading()));
+        assertThrows(IllegalArgumentException.class, () -> new ReadingService(mockConnection).add(new Reading()));
     }
 
     @Test
@@ -148,7 +146,7 @@ public class ReadingServiceTest
 
         Reading reading2 = new Reading(UUID.randomUUID()
                 , "no comment", this._testCustomer.getId()
-                , LocalDate.now(), KindOfMeter.HEIZUNG
+                , null, LocalDate.now(), KindOfMeter.HEIZUNG
                 , 999.9, "10009960001", true);
         reading2.setCustomer(this._testCustomer);
 

@@ -15,7 +15,7 @@ import java.util.Properties;
 
 public class DbHelperService
 {
-    private List<IDbItem> _tables = new ArrayList<IDbItem>()
+    private List<IDbItem> _tables = new ArrayList<>()
     {
         {
             add(new Customer());
@@ -34,19 +34,20 @@ public class DbHelperService
 
     public List<String> createSqlTableSchemaCommands()
     {
-        List<String> commands = new ArrayList<String>();
+        List<String> commands = new ArrayList<>();
 
         for (IDbItem table : _tables)
         {
             String columnDefinition = table.getSerializedStructure();
             String tableName = table.getSerializedTableName();
-            String createStatement = String.format("CREATE TABLE %s (%s);", tableName, columnDefinition);
+            String createStatement = String.format("CREATE TABLE IF NOT EXISTS %s (%s);", tableName, columnDefinition);
             commands.add(createStatement);
         }
 
         return commands;
     }
 
+    // Req. Nr.: 17
     public static Properties loadProperties() throws IOException
     {
         Properties properties;

@@ -1,6 +1,11 @@
 package dev.hv;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
+
+import java.text.SimpleDateFormat;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,9 +37,45 @@ public class UtilsTest
     }
 
     @Test
+    void getObjectMapper()
+    {
+        Object expectedJavaTimeModuleTypeId = String.valueOf(new JavaTimeModule().getTypeId());
+        SimpleDateFormat expectedDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        ObjectMapper objMapper = Utils.getObjectMapper();
+        Set<Object> moduleIds =  objMapper.getRegisteredModuleIds();
+        System.out.println();
+        assertEquals(1, moduleIds.size(), "There should be only one registered module");
+        assertTrue(moduleIds.contains(expectedJavaTimeModuleTypeId), "The registered modules should contain the JavaTimeModule");
+        assertEquals(expectedDateFormat, objMapper.getDateFormat(), "Date format should be set to yyyy-MM-dd");
+    }
+
+    @Test
         // Just for coverage in jacoco report
     void staticTest()
     {
         Utils utils = new Utils();
+    }
+
+
+    @Test
+    void getLastPartAfterDot()
+    {
+        String test = "this.is.a.string";
+        String expectedOutput = "string";
+
+        String output = Utils.getLastPartAfterDot(test);
+
+        assertEquals(expectedOutput, output, "Strings should match");
+    }
+
+    @Test
+    void getLastPartAfterDotNoDotInput()
+    {
+        String test = "string";
+        String expectedOutput = "string";
+
+        String output = Utils.getLastPartAfterDot(test);
+
+        assertEquals(expectedOutput, output, "Strings should match");
     }
 }

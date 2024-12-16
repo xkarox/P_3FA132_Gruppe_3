@@ -1,5 +1,8 @@
 package dev.hv.database;
 
+import dev.hv.database.provider.InternalServiceProvider;
+import dev.provider.ServiceProvider;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,5 +32,16 @@ public class DbTestHelper
         Field secretField = DatabaseConnection.class.getDeclaredField("_connection");
         secretField.setAccessible(true);
         secretField.set(dbConnection, mockConnection);
+    }
+
+    public static void LoadTestServiceProvider() throws IOException
+    {
+        ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
+    }
+
+    public static void UnloadTestServiceProvider()
+    {
+        ServiceProvider.Services.setMultithreading(false);
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
     }
 }

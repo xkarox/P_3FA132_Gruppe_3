@@ -130,7 +130,7 @@ public class CustomerTest
         expectedStructure += "id UUID PRIMARY KEY NOT NULL,";
         expectedStructure += "firstName VARCHAR(120) NOT NULL,";
         expectedStructure += "lastName VARCHAR(120) NOT NULL,";
-        expectedStructure += "birthDate DATE NOT NULL,";
+        expectedStructure += "birthDate DATE,";
         expectedStructure += "gender int NOT NULL";
         assertEquals(expectedStructure, this._customer.getSerializedStructure());
     }

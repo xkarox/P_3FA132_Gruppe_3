@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+// Req. Nr.: 13
 public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
 {
     private final InternalServiceProvider _provider;
@@ -156,13 +157,22 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         preparedStatement.executeUpdate();
     }
 
+    public int executePreparedStatementCommand(PreparedStatement preparedStatement, int expectedLinesAffected) throws SQLException
+    {
+        int result = preparedStatement.executeUpdate();
+        Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
+        return result;
+    }
+
     public PreparedStatement newPrepareStatement(String statement) throws SQLException
     {
         return this.getConnection().prepareStatement(statement);
     }
 
-    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause) throws SQLException, ReflectiveOperationException
+    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws SQLException, ReflectiveOperationException
     {
+        IDbItem object = classInfo.getConstructor().newInstance();
+
         var tClass = object.getClass();
         List<FieldInfo> fieldInfos = FieldInfo.getFieldInformationFromClass(tClass);
         String queryCommand = String.format("SELECT * FROM %s %s;", object.getSerializedTableName(), sqlWhereClause);
@@ -186,10 +196,8 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
                         case "int" -> result.getInt(fieldName);
                         case "Boolean" -> result.getBoolean(fieldName);
                         case "Double" -> result.getDouble(fieldName);
-                        default -> null;
+                        default -> throw new IllegalArgumentException("Field type not supported");
                     };
-                    if (value == null)
-                        throw new IllegalArgumentException("Field type not supported");
                     args.add(value);
                 }
 
@@ -203,9 +211,9 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return results;
     }
 
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTable(Class<? extends IDbItem> classInfo) throws ReflectiveOperationException, SQLException
     {
-        return getObjectsFromDbTable(object, "");
+        return getObjectsFromDbTable(classInfo, "");
     }
 
     /**
@@ -213,9 +221,9 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
      *
      * @param sqlWhereClause Sql where statement, starts with: Where ...
      */
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException
     {
-        return getObjectsFromDbTable(object, sqlWhereClause);
+        return getObjectsFromDbTable(classInfo, sqlWhereClause);
 
     }
 
