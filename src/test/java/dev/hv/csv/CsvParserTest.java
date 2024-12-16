@@ -1,4 +1,4 @@
-package dev.hv;
+package dev.hv.csv;
 
 import org.junit.jupiter.api.*;
 
@@ -168,32 +168,29 @@ public class CsvParserTest
     {
         CsvParser parser = new CsvParser(_csvReadingFile);
 
-        List<Map<String, String>> expectedValues = new ArrayList<>();
-        Map<String, String> row1 = new HashMap<>();
-        row1.put("Datum", "01.02.2018");
-        row1.put("Zählerstand in m³", "5,965");
-        row1.put("Kommentar", "");
+        List<List<String>> expectedValues = new ArrayList<>();
+        List<String> row1 = new ArrayList<>();
+        row1.add("01.02.2018");
+        row1.add("5,965");
         expectedValues.add(row1);
 
-        Map<String, String> row2 = new HashMap<>();
-        row2.put("Datum", "01.04.2018");
-        row2.put("Zählerstand in m³", "6,597");
-        row2.put("Kommentar", "");
+        List<String> row2 = new ArrayList<>();
+        row2.add("01.04.2018");
+        row2.add("6,597");
         expectedValues.add(row2);
 
-        Map<String, String> row3 = new HashMap<>();
-        row3.put("Datum", "01.05.2018");
-        row3.put("Zählerstand in m³", "6,859");
-        row3.put("Kommentar", "");
+        List<String> row3 = new ArrayList<>();
+        row3.add("01.05.2018");
+        row3.add("6,859");
         expectedValues.add(row3);
 
-        Iterable<Map<String, String>> actualValues = parser.getValues();
+        Iterable<List<String>> actualValues = parser.getValues();
 
-        Iterator<Map<String, String>> actualIterator = actualValues.iterator();
-        for (Map<String, String> expectedRow : expectedValues)
+        Iterator<List<String>> actualIterator = actualValues.iterator();
+        for (List<String> expectedRow : expectedValues)
         {
             assertTrue(actualIterator.hasNext(), "more lines should exist");
-            Map<String, String> actualRow = actualIterator.next();
+            List<String> actualRow = actualIterator.next();
             assertEquals(expectedRow, actualRow, "lines are not the same");
         }
         assertFalse(actualIterator.hasNext(), "no more lines should exist");
@@ -204,32 +201,32 @@ public class CsvParserTest
     {
         CsvParser parser = new CsvParser(_csvCustomerFile);
 
-        List<Map<String, String>> expectedValues = new ArrayList<>();
+        List<List<String>> expectedValues = new ArrayList<>();
 
-        Map<String, String> row1 = new HashMap<>();
-        row1.put("UUID", "ec617965-88b4-4721-8158-ee36c38e4db3");
-        row1.put("Anrede", "Herr");
-        row1.put("Vorname", "Pumukel");
-        row1.put("Nachname", "Kobold");
-        row1.put("Geburtsdatum", "21.02.1962");
+        List<String> row1 = new ArrayList<>();
+        row1.add("ec617965-88b4-4721-8158-ee36c38e4db3");
+        row1.add("Herr");
+        row1.add("Pumukel");
+        row1.add("Kobold");
+        row1.add("21.02.1962");
         expectedValues.add(row1);
 
-        Map<String, String> row2 = new HashMap<>();
-        row2.put("UUID", "848c39a1-0cbb-427a-ac6f-a88941943dc8");
-        row2.put("Anrede", "Herr");
-        row2.put("Vorname", "André");
-        row2.put("Nachname", "Schöne");
-        row2.put("Geburtsdatum", "16.02.1928");
+        List<String> row2 = new ArrayList<>();
+        row2.add("848c39a1-0cbb-427a-ac6f-a88941943dc8");
+        row2.add("Herr");
+        row2.add("André");
+        row2.add("Schöne");
+        row2.add("16.02.1928");
         expectedValues.add(row2);
 
-        Iterable<Map<String, String>> actualValues = parser.getValues();
+        Iterable<List<String>> actualValues = parser.getValues();
 
-        Iterator<Map<String, String>> actualIterator = actualValues.iterator();
+        Iterator<List<String>> actualIterator = actualValues.iterator();
 
-        for (Map<String, String> expectedRow : expectedValues)
+        for (List<String> expectedRow : expectedValues)
         {
             assertTrue(actualIterator.hasNext(), "more lines should exist");
-            Map<String, String> actualRow = actualIterator.next();
+            List<String> actualRow = actualIterator.next();
             assertEquals(expectedRow, actualRow, "lines are not the same");
         }
     }

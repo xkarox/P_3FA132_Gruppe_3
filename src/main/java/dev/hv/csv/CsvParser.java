@@ -1,4 +1,4 @@
-package dev.hv;
+package dev.hv.csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,13 +15,9 @@ public class CsvParser
         this._csvFile = formatter.formatFile(csvFile, this.getSeparator());
     }
 
-    public Iterable<Map<String, String>> getValues() {
-        List<Map<String, String>> valuesList = new ArrayList<>();
+    public Iterable<List<String>> getValues() {
+        List<List<String>> valuesList = new ArrayList<>();
         try (Scanner scanner = new Scanner(this._csvFile)) {
-            Iterable<String> headerIterable = this.getHeader();
-            List<String> header = new ArrayList<>();
-            headerIterable.forEach(header::add);
-
             if (this.getSeparator() == ',') {
                 if (scanner.hasNextLine()) {
                     scanner.nextLine();
@@ -29,17 +25,9 @@ public class CsvParser
 
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    String[] values = line.split(",");
+                    List<String> values = Arrays.stream(line.split(",")).toList();
+                    valuesList.add(values);
 
-                    Map<String, String> dataMap = new HashMap<>();
-                    for (int i = 0; i < header.size(); i++) {
-                        if (i < values.length) {
-                            dataMap.put(header.get(i), values[i].isEmpty() ? "" : values[i]);
-                        } else {
-                            dataMap.put(header.get(i), "");
-                        }
-                    }
-                    valuesList.add(dataMap);
                 }
             } else if (this.getSeparator() == ';') {
                 for (int i = 0; i < 3 && scanner.hasNextLine(); i++) {
@@ -48,18 +36,8 @@ public class CsvParser
 
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    line = line.replace("\"", "");
-                    String[] values = line.split(";");
-
-                    Map<String, String> dataMap = new HashMap<>();
-                    for (int i = 0; i < header.size(); i++) {
-                        if (i < values.length) {
-                            dataMap.put(header.get(i), values[i].isEmpty() ? "" : values[i]);
-                        } else {
-                            dataMap.put(header.get(i), "");
-                        }
-                    }
-                    valuesList.add(dataMap);
+                    List<String> values = Arrays.stream(line.split(";")).toList();
+                    valuesList.add(values);
                 }
             }
         } catch (Exception e) {

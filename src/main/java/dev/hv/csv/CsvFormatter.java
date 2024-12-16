@@ -1,4 +1,4 @@
-package dev.hv;
+package dev.hv.csv;
 
 import java.io.File;
 import java.io.FileWriter;
