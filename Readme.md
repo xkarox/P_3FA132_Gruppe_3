@@ -33,3 +33,10 @@ Releases are based one main.
 - Curly brackets start in the next line
 - Calling local variables using this.
 - No wildcards for library imports
+
+
+## Testing
+To skip Spring-Server restart in endpoint test set a global system variable to:
+````java
+SkipServerRestart=True
+````

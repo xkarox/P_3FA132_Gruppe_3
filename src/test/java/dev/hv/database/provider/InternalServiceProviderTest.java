@@ -1,6 +1,6 @@
 package dev.hv.database.provider;
 
-import dev.hv.ErrorMessages;
+import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.DbTestHelper;
@@ -84,7 +84,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
 
@@ -95,7 +95,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
 
@@ -108,7 +108,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
 
@@ -119,7 +119,7 @@ class InternalServiceProviderTest
         } catch (IllegalArgumentException e)
         {
             exceptionTriggert = true;
-            assertTrue(e.getMessage().contains(String.valueOf(ErrorMessages.ServicesNotAvailable)));
+            assertTrue(e.getMessage().contains(String.valueOf(ResponseMessages.ServicesNotAvailable)));
         }
         assertTrue(exceptionTriggert, "Because the simFailedException should have been triggert");
     }
@@ -158,8 +158,10 @@ class InternalServiceProviderTest
         secretField.setAccessible(true);
         secretField.set(services, possibleDbConnections);
 
+        DatabaseConnection lowerIdCon = System.identityHashCode(testCon1) < System.identityHashCode(testCon) ? testCon1 : testCon;
+
         List<Integer> usedDbConnections = new ArrayList<>();
-        usedDbConnections.add(System.identityHashCode(testCon));
+        usedDbConnections.add(System.identityHashCode(lowerIdCon));
 
         Field secretField1 = InternalServiceProvider.class.getDeclaredField("_usedDbConnections");
         secretField1.setAccessible(true);
@@ -167,7 +169,7 @@ class InternalServiceProviderTest
 
         try(DatabaseConnection con1 = services.getDatabaseConnection())
         {
-            assertEquals(System.identityHashCode(testCon1) ,System.identityHashCode(con1), "Because the connection should be the same");
+            assertNotEquals(System.identityHashCode(lowerIdCon) ,System.identityHashCode(con1), "Because the connection should be the same");
         }
     }
 

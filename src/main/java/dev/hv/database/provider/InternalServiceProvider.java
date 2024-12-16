@@ -1,5 +1,6 @@
 package dev.hv.database.provider;
 
+import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
@@ -8,7 +9,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-import static dev.hv.ErrorMessages.ServicesNotAvailable;
+import static dev.hv.ResponseMessages.ServicesNotAvailable;
 
 public class InternalServiceProvider
 {
@@ -134,7 +135,7 @@ public class InternalServiceProvider
             usedConnections.remove(Integer.valueOf(id));
             notifyAll();
         } else {
-            throw new IllegalArgumentException("Connection was not registered with the current service provider.");
+            throw new IllegalArgumentException(ResponseMessages.DbConnectionNotRegistered.toString());
         }
     }
 

@@ -53,7 +53,7 @@ public class CustomerService extends AbstractBaseService<Customer>
     // Req. Nr.: 4
     public Customer getById(UUID id) throws ReflectiveOperationException, SQLException, RuntimeException
     {
-        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(new Customer(), String.format("WHERE id = '%s'", id));
+        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Customer.class, String.format("WHERE id = '%s'", id));
         if (result.size() > 1)
         {
             throw new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", result.size()));
@@ -68,7 +68,7 @@ public class CustomerService extends AbstractBaseService<Customer>
     // Req. Nr.: 7
     public List<Customer> getAll() throws ReflectiveOperationException, SQLException
     {
-        return (List<Customer>) this._dbConnection.getAllObjectsFromDbTable(new Customer());
+        return (List<Customer>) this._dbConnection.getAllObjectsFromDbTable(Customer.class);
     }
 
     @Override

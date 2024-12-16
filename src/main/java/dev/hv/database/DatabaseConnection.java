@@ -1,6 +1,6 @@
 package dev.hv.database;
 
-import dev.hv.ErrorMessages;
+import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.intefaces.IDatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
@@ -141,7 +141,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         var connection = this.getConnection();
         Statement stmt = connection.createStatement();
         int result = stmt.executeUpdate(sql);
-        Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
+        Utils.checkValueEquals(expectedLinesAffected, result, ResponseMessages.SqlUpdate);
         return result;
     }
 
@@ -160,7 +160,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
     public int executePreparedStatementCommand(PreparedStatement preparedStatement, int expectedLinesAffected) throws SQLException
     {
         int result = preparedStatement.executeUpdate();
-        Utils.checkValueEquals(expectedLinesAffected, result, ErrorMessages.SqlUpdate);
+        Utils.checkValueEquals(expectedLinesAffected, result, ResponseMessages.SqlUpdate);
         return result;
     }
 
@@ -169,8 +169,10 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return this.getConnection().prepareStatement(statement);
     }
 
-    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(T object, String sqlWhereClause) throws SQLException, ReflectiveOperationException
+    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws SQLException, ReflectiveOperationException
     {
+        IDbItem object = classInfo.getConstructor().newInstance();
+
         var tClass = object.getClass();
         List<FieldInfo> fieldInfos = FieldInfo.getFieldInformationFromClass(tClass);
         String queryCommand = String.format("SELECT * FROM %s %s;", object.getSerializedTableName(), sqlWhereClause);
@@ -194,7 +196,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
                         case "int" -> result.getInt(fieldName);
                         case "Boolean" -> result.getBoolean(fieldName);
                         case "Double" -> result.getDouble(fieldName);
-                        default -> throw new IllegalArgumentException("Field type not supported");
+                        default -> throw new IllegalArgumentException(ResponseMessages.DbFieldTypeNotSupported.toString());
                     };
                     args.add(value);
                 }
@@ -209,9 +211,9 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return results;
     }
 
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTable(T object) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTable(Class<? extends IDbItem> classInfo) throws ReflectiveOperationException, SQLException
     {
-        return getObjectsFromDbTable(object, "");
+        return getObjectsFromDbTable(classInfo, "");
     }
 
     /**
@@ -219,9 +221,9 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
      *
      * @param sqlWhereClause Sql where statement, starts with: Where ...
      */
-    public <T extends IDbItem> List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(T object, String sqlWhereClause) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException
     {
-        return getObjectsFromDbTable(object, sqlWhereClause);
+        return getObjectsFromDbTable(classInfo, sqlWhereClause);
 
     }
 
