@@ -3,6 +3,7 @@ package dev.server.controller;
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
+import dev.hv.model.IId;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
@@ -16,6 +17,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpStatus;
 import dev.server.Server;
@@ -28,6 +32,7 @@ import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -68,16 +73,17 @@ public class ReadingControllerTest
         return reading;
     }
 
-    void addReading() throws IOException, InterruptedException
+    void addReading(Reading reading) throws IOException, InterruptedException
     {
-        String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(_url))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-                .build();
-        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        try (ReadingService cs = ServiceProvider.Services.getReadingService()) {
+            cs.add(reading);
+        } catch (ReflectiveOperationException e)
+        {
+            throw new RuntimeException(e);
+        } catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @BeforeAll
@@ -345,11 +351,8 @@ public class ReadingControllerTest
         // ReflectionException
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         ReadingService mockReadingService = mock(ReadingService.class);
+        when(mockReadingService.getById(any())).thenThrow(ReflectiveOperationException.class);
 
-        CustomerService mockCustomerService = mock(CustomerService.class);
-        when(mockCustomerService.getById(any())).thenThrow(ReflectiveOperationException.class);
-
-        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
         HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -363,10 +366,10 @@ public class ReadingControllerTest
         reading.setCustomer(null);
 
         ServiceProvider.Services = mock(InternalServiceProvider.class);
-        CustomerService mockCustomerService = mock(CustomerService.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
 
-        when(mockCustomerService.getById(any())).thenReturn(null);
-        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+        when(mockReadingService.getById(any())).thenReturn(null);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
@@ -494,5 +497,126 @@ public class ReadingControllerTest
 
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(responseMessage.toString(), body.get("message"));
+    }
+    @Test
+    void getReadings() throws IOException, InterruptedException, SQLException
+    {
+        Customer customer = null;
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            customer = cs.add(this._customer);
+        }
+
+        this._reading.setId(UUID.randomUUID());
+        this.addReading(this._reading);
+        this._reading.setId(UUID.randomUUID());
+        this.addReading(this._reading);
+        this._reading.setId(UUID.randomUUID());
+        this.addReading(this._reading);
+
+
+        LocalDate startDate = LocalDate.of(2000, 11, 2);
+        LocalDate endDate = LocalDate.of(2999, 11, 2);
+
+        String url = new StringBuilder(_url)
+                .append("?customer=").append(customer.getId())
+                .append("&start=").append(startDate)
+                .append("&end=").append(endDate)
+                .append("&kindOfMeter=1")
+                .toString();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Collection<? extends IId> unpackedResponse =
+                Utils.unpackCollectionFromJsonString(response.body(), Reading.class);
+
+        Reading reading = ((Reading)unpackedResponse.toArray()[0]);
+        assertEquals(3, unpackedResponse.size(), "The response should contain 3 elements");
+        assertTrue(unpackedResponse.contains(this._reading));
+        assertEquals(IReading.KindOfMeter.STROM, reading.getKindOfMeter(), "Meter type should be STROM");
+        assertEquals(reading.getCustomerId(), customer.getId(), "The customer id should match");
+        assertTrue(endDate.isAfter(reading.getDateOfReading()) && startDate.isBefore(reading.getDateOfReading()), "The reading date should be between the start and end dates");
+    }
+
+    @Test
+    void getReadingsStartDateFormatDoesntMatch() throws IOException, InterruptedException
+    {
+        String startDateWrongFormat = "10000-69-69";
+        String url = new StringBuilder(_url)
+                .append("?start=").append(startDateWrongFormat)
+                .append("&kindOfMeter=1").toString();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode(), "Returned status code should be 400 Bad Request");
+        assertTrue(response.body().contains(ResponseMessages.InvalidDateFormatProvided.toString()));
+    }
+
+    @Test
+    void getReadingsEndDateFormatDoesntMatch() throws IOException, InterruptedException
+    {
+
+        String startDateWrongFormat = "10000-69-69";
+        String url = new StringBuilder(_url)
+                .append("?end=").append(startDateWrongFormat)
+                .append("&kindOfMeter=1").toString();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode(), "Returned status code should be 400 Bad Request");
+        assertTrue(response.body().contains(ResponseMessages.InvalidDateFormatProvided.toString()));
+    }
+
+    @Test
+    void getReadingsInvalidKindOfMeter() throws IOException, InterruptedException
+    {
+        String url = new StringBuilder(_url)
+                .append("?end=").append(LocalDate.of(2024, 12, 13))
+                .append("&kindOfMeter=69").toString();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode(), "Returned status code should be 400 Bad Request");
+        assertTrue(response.body().contains(ResponseMessages.InvalidKindOfMeterProvided.toString()));
+    }
+
+    @Test
+    void getReadingsRuntimeException() throws IOException, InterruptedException, SQLException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        when(ServiceProvider.Services.getReadingService()).thenThrow(IOException.class);
+
+        String url = new StringBuilder(_url)
+                .append("?start=").append(LocalDate.now())
+                .append("&kindOfMeter=1").toString();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(500, response.statusCode(), "Returned status code should be 5090 Internal Server Error");
+        assertTrue(response.body().contains("Internal Server Error"));
     }
 }

@@ -38,6 +38,10 @@ Releases are based one main.
 - No wildcards for library imports
 
 
+### Endpoint Internal Error Handling 
+Internal Errors are always sent back to the requester with code 500.
+-> Allowed after consultation with Mr Niedermair 
+
 ## Testing
 To skip Spring-Server restart in endpoint test set a global system variable to:
 ````java
