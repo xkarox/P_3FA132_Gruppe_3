@@ -1,6 +1,7 @@
 package dev.hv.csv;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -8,7 +9,7 @@ import java.util.Scanner;
 public class CsvFormatter
 {
 
-    public File formatFile(File csvFile, char separator)
+    public File formatFile(File csvFile, char separator) throws IOException
     {
         File tempFile = new File(csvFile.getParent(), "temp.csv");
 
@@ -27,9 +28,6 @@ public class CsvFormatter
                 }
                 writer.write(line + System.lineSeparator());
             }
-        } catch (IOException e)
-        {
-            throw new RuntimeException(e);
         }
 
         if (csvFile.delete())
