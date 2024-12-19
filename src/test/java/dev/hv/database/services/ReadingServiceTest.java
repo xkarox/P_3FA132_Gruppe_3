@@ -132,7 +132,7 @@ public class ReadingServiceTest
     }
 
     @Test
-    void getByIdSizeErrorTest() throws ReflectiveOperationException, SQLException
+    void getByIdSizeErrorTest() throws ReflectiveOperationException, SQLException, IOException
     {
         List<Reading> items = new ArrayList<>();
         items.add(new Reading());

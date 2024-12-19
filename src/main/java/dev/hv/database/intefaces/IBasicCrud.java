@@ -9,9 +9,9 @@ public interface IBasicCrud<T>
 {
     T add(T item) throws ReflectiveOperationException, SQLException, IOException;          // Create
 
-    T getById(UUID id) throws ReflectiveOperationException, SQLException;     // Read
+    T getById(UUID id) throws ReflectiveOperationException, SQLException, IOException;     // Read
 
-    List<T> getAll() throws ReflectiveOperationException, SQLException;       // Get all items from db
+    List<T> getAll() throws ReflectiveOperationException, SQLException, IOException;       // Get all items from db
 
     T update(T item) throws SQLException;       // Update
 

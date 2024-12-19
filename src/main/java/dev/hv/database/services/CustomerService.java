@@ -51,7 +51,7 @@ public class CustomerService extends AbstractBaseService<Customer>
 
     @Override
     // Req. Nr.: 4
-    public Customer getById(UUID id) throws ReflectiveOperationException, SQLException, RuntimeException
+    public Customer getById(UUID id) throws ReflectiveOperationException, SQLException, RuntimeException, IOException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Customer.class, String.format("WHERE id = '%s'", id));
         if (result.size() > 1)
@@ -66,7 +66,7 @@ public class CustomerService extends AbstractBaseService<Customer>
     @SuppressWarnings("unchecked")
     @Override
     // Req. Nr.: 7
-    public List<Customer> getAll() throws ReflectiveOperationException, SQLException
+    public List<Customer> getAll() throws ReflectiveOperationException, SQLException, IOException
     {
         return (List<Customer>) this._dbConnection.getAllObjectsFromDbTable(Customer.class);
     }
