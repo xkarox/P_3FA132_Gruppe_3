@@ -2,6 +2,7 @@ package dev.server.controller;
 
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.CustomerService;
+import dev.hv.database.services.ReadingService;
 import dev.hv.model.IId;
 import dev.hv.model.IReading;
 import dev.hv.model.classes.Reading;
@@ -480,10 +481,25 @@ public class CustomerControllerTest
         reading1.setKindOfMeter(IReading.KindOfMeter.STROM);
         reading1.setMeterCount(100);
 
+        Reading reading2 = new Reading();
+        reading2.setCustomer(this._customer);
+        reading2.setSubstitute(true);
+        reading2.setDateOfReading(LocalDate.now());
+        reading2.setKindOfMeter(IReading.KindOfMeter.WASSER);
+        reading2.setMeterCount(9999);
+
+        List<Reading> readings = Arrays.asList(reading1, reading2);
+
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         CustomerService mockCustomerService = mock(CustomerService.class);
-        when(mockCustomerService.getById(any())).thenReturn(this._customer);
+        ReadingService mockReadingService = mock(ReadingService.class);
         when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+        when(mockCustomerService.getById(any())).thenReturn(this._customer);
+        when(mockReadingService.getReadingsByCustomerId(any())).thenReturn(readings);
+        reading1.setCustomer(null);
+        reading2.setCustomer(null);
+
 
         UUID id = UUID.randomUUID();
         String url = _url + "/" + id;
@@ -491,14 +507,16 @@ public class CustomerControllerTest
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
-                .GET()
+                .DELETE()
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return statCustomerus code 200 OK");
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return code 200 OK");
 
         String customerJson = Utils.unpackFromJsonString(response.body(), Customer.class);
+        Collection<? extends IId> readingJson = Utils.unpackCollectionFromMergedJsonString(response.body(), Reading.class);
         Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
+        // Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
         assertEquals(this._customer.getId(), customer.getId(), "Should return the same object");
     }
 

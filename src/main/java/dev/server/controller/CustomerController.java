@@ -132,7 +132,6 @@ public class CustomerController {
         try (CustomerService cs = ServiceProvider.Services.getCustomerService(); ReadingService rs = ServiceProvider.Services.getReadingService())
         {
             Customer customer = cs.getById(id);
-            Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
 
             if (customer == null)
             {
@@ -141,10 +140,13 @@ public class CustomerController {
 
             cs.remove(customer);
 
+            Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
+
             String customerJsonString = Utils.packIntoJsonString(customer, Customer.class);
             String readingJsonString = Utils.packIntoJsonString(readings, Reading.class);
 
-            return Utils.packIntoJsonString(customer, Customer.class);
+            return Utils.mergeJsonString(customerJsonString, readingJsonString);
+
 
         } catch (IOException | ReflectiveOperationException | SQLException e)
         {

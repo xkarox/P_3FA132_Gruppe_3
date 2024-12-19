@@ -1,5 +1,6 @@
 package dev.hv;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
@@ -77,5 +78,11 @@ public class UtilsTest
         String output = Utils.getLastPartAfterDot(test);
 
         assertEquals(expectedOutput, output, "Strings should match");
+    }
+
+    @Test
+    void mergeJsonStringTest() throws JsonProcessingException
+    {
+        String test = Utils.mergeJsonString("hell", "he");
     }
 }
