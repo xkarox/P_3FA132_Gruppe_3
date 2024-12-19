@@ -68,7 +68,7 @@ public class ReadingService extends AbstractBaseService<Reading>
 
     @Override
     // Req. Nr.: 9
-    public Reading getById(UUID id) throws ReflectiveOperationException, SQLException
+    public Reading getById(UUID id) throws ReflectiveOperationException, SQLException, IOException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE id = '%s'", id));
         if (result.size() > 1)
@@ -81,7 +81,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     public Collection<Reading> queryReadings(Optional<UUID> customerId,
                                  Optional<LocalDate> startDate,
                                  Optional<LocalDate> endDate,
-                                 Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException
+                                 Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException, IOException
     {
         StringBuilder whereClauseBuilder = new StringBuilder("WHERE");
         customerId.ifPresentOrElse(
@@ -115,7 +115,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     @SuppressWarnings("unchecked")
     @Override
     // Req. Nr.: 12
-    public List<Reading> getAll() throws ReflectiveOperationException, SQLException
+    public List<Reading> getAll() throws ReflectiveOperationException, SQLException, IOException
     {
         return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(Reading.class);
     }

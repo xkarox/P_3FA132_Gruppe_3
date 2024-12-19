@@ -214,7 +214,7 @@ public class DatabaseConnectionTest
 
     @Test
     @Tag("createMockHelperService")
-    void executePreparedStatementCommandTest() throws ReflectiveOperationException, SQLException
+    void executePreparedStatementCommandTest() throws ReflectiveOperationException, SQLException, IOException
     {
         this._dbConnection.createAllTables();
 
@@ -235,7 +235,7 @@ public class DatabaseConnectionTest
 
     @Test
     @Tag("createMockHelperService")
-    void getAllObjectsFromDbTableTest() throws ReflectiveOperationException, SQLException
+    void getAllObjectsFromDbTableTest() throws ReflectiveOperationException, SQLException, IOException
     {
         MockTableObject mockInstance = new MockTableObject("Peter", 99);
         MockTableObject mockInstance2 = new MockTableObject("hans", 66);

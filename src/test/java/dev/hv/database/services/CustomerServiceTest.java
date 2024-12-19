@@ -136,7 +136,7 @@ public class CustomerServiceTest
     }
 
     @Test
-    void getByIdSizeErrorTest() throws ReflectiveOperationException, SQLException
+    void getByIdSizeErrorTest() throws ReflectiveOperationException, SQLException, IOException
     {
         List<Customer> items = new ArrayList<>();
         items.add(new Customer());
