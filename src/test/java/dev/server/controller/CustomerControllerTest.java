@@ -3,6 +3,8 @@ package dev.server.controller;
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.CustomerService;
 import dev.hv.model.IId;
+import dev.hv.model.IReading;
+import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
@@ -471,6 +473,13 @@ public class CustomerControllerTest
     @Test
     void deleteCustomerByIdTest() throws ReflectiveOperationException, SQLException, IOException, InterruptedException
     {
+        Reading reading1 = new Reading();
+        reading1.setCustomer(this._customer);
+        reading1.setSubstitute(true);
+        reading1.setDateOfReading(LocalDate.now());
+        reading1.setKindOfMeter(IReading.KindOfMeter.STROM);
+        reading1.setMeterCount(100);
+
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         CustomerService mockCustomerService = mock(CustomerService.class);
         when(mockCustomerService.getById(any())).thenReturn(this._customer);
@@ -486,7 +495,7 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return statCustomerus code 200 OK");
 
         String customerJson = Utils.unpackFromJsonString(response.body(), Customer.class);
         Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);

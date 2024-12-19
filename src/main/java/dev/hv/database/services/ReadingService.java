@@ -78,10 +78,16 @@ public class ReadingService extends AbstractBaseService<Reading>
         return (Reading) result.getFirst();
     }
 
+    public List<Reading> getReadingsByCustomerId(UUID id) throws ReflectiveOperationException, SQLException
+    {
+        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE customerId = '%s'", id));
+        return result.isEmpty() ? List.of() : (List<Reading>) result;
+    }
+
     public Collection<Reading> queryReadings(Optional<UUID> customerId,
-                                 Optional<LocalDate> startDate,
-                                 Optional<LocalDate> endDate,
-                                 Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException
+                                             Optional<LocalDate> startDate,
+                                             Optional<LocalDate> endDate,
+                                             Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException
     {
         StringBuilder whereClauseBuilder = new StringBuilder("WHERE");
         customerId.ifPresentOrElse(
@@ -132,7 +138,8 @@ public class ReadingService extends AbstractBaseService<Reading>
                 "SET customerId = ?, comment = ?, dateOfReading = ?, kindOfMeter = ?, meterCount = ?, " +
                 "meterId = ?, substitute = ? WHERE id = ?";
 
-        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
+        {
             stmt.setString(1, item.getCustomer().getId().toString());
             stmt.setString(2, item.getComment());
             stmt.setDate(3, Date.valueOf(item.getDateOfReading()));

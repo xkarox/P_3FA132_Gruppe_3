@@ -1,6 +1,8 @@
 package dev.server.controller;
 
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.ReadingService;
+import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.services.CustomerService;
@@ -127,15 +129,20 @@ public class CustomerController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public String deleteCustomer(@PathVariable("id") UUID id)
     {
-        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService(); ReadingService rs = ServiceProvider.Services.getReadingService())
         {
             Customer customer = cs.getById(id);
-            cs.remove(customer);
+            Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
 
             if (customer == null)
             {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
             }
+
+            cs.remove(customer);
+
+            String customerJsonString = Utils.packIntoJsonString(customer, Customer.class);
+            String readingJsonString = Utils.packIntoJsonString(readings, Reading.class);
 
             return Utils.packIntoJsonString(customer, Customer.class);
 

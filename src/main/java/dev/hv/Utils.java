@@ -93,4 +93,8 @@ public class Utils
         return _objMapper.writeValueAsString(responseArray);
     }
 
+    public static String mergeJsonString(String firstJson, String secondJson) {
+
+    }
+
 }
