@@ -1,5 +1,6 @@
 package dev.hv.model.classes;
 
+import dev.hv.ResponseMessages;
 import dev.hv.model.ICustomer;
 import dev.hv.model.decorator.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
@@ -11,6 +12,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -59,7 +61,7 @@ public class Customer implements ICustomer
         this._birthDate = birthDate;
         if (gender == null)
         {
-            throw new IllegalArgumentException("Gender cannot be null");
+            throw new IllegalArgumentException(ResponseMessages.ModelParameterNull.toString(List.of("Gender")));
         }
         this._gender = gender;
     }
@@ -97,9 +99,9 @@ public class Customer implements ICustomer
 
     @JsonIgnore
     @Override
-    public void setBirthDate(LocalDate birtDate)
+    public void setBirthDate(LocalDate birthDate)
     {
-        this._birthDate = birtDate;
+        this._birthDate = birthDate;
     }
 
     @JsonIgnore

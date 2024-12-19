@@ -1,11 +1,13 @@
 package dev.hv.model.classes;
 
+import dev.hv.ResponseMessages;
 import dev.hv.model.ICustomer.Gender;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -177,8 +179,19 @@ public class CustomerTest
         } catch (IllegalArgumentException e)
         {
             exceptionThrown = true;
-            assertEquals(e.getMessage(), "Gender cannot be null");
+            assertEquals(e.getMessage(), ResponseMessages.ModelParameterNull.toString(List.of("Gender")));
         }
         assertTrue(exceptionThrown, "Because the exception should have been triggert");
+    }
+
+    @Test
+    void constructorNullTest2()
+    {
+        Customer customer = new Customer(null);
+        assertNotNull(customer.getId(), "Because the ID should not be null");
+
+        UUID id = UUID.randomUUID();
+        Customer customer2 = new Customer(id);
+        assertEquals(id, customer2.getId(), "Because the ID should be the same");
     }
 }

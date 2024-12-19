@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class Utils
 {
-    public static <T> void checkValueEquals(T expectedValue, T result, ErrorMessages errorMessage)
+    public static <T> void checkValueEquals(T expectedValue, T result, ResponseMessages errorMessage)
     {
         if (!result.equals(expectedValue))
         {

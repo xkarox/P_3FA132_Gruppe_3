@@ -1,12 +1,11 @@
 package dev.server.controller;
 
+import dev.hv.ResponseMessages;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
-import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.Customer;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,19 +14,19 @@ import dev.server.validator.CustomerJsonSchemaValidatorService;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.UUID;
 
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/customers")
-public class CustomerController
-{
+public class CustomerController {
     private void validateRequestData(String jsonString)
     {
         boolean invalidCustomer = CustomerJsonSchemaValidatorService.getInstance().validate(jsonString);
-        if (invalidCustomer)
+        if ( invalidCustomer )
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
         }
     }
 
@@ -48,12 +47,14 @@ public class CustomerController
             customer = cs.add(customer);
             return Utils.packIntoJsonString(customer, Customer.class);
 
-        } catch (JsonProcessingException | SQLException | RuntimeException e)
+        }
+        catch (JsonProcessingException | SQLException | RuntimeException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
-        } catch (IOException e)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+        }
+        catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 
@@ -69,16 +70,18 @@ public class CustomerController
             Customer dbCustomer = cs.getById(customer.getId());
             if (dbCustomer == null)
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
             cs.update(customer);
-            return new ResponseEntity<String>("Customer successfully updated", HttpStatus.OK);
-        } catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
+            return new ResponseEntity<String>(ResponseMessages.ControllerUpdateSuccess.toString(), HttpStatus.OK);
+        }
+        catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid customer data provided");
-        } catch (IOException e)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+        }
+        catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Internal Server IOError");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerInternalError.toString());
 
         }
     }

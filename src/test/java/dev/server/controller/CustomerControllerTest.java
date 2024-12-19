@@ -1,11 +1,6 @@
 package dev.server.controller;
 
-import dev.hv.database.services.CustomerService;
-import dev.hv.database.services.ReadingService;
-import dev.hv.model.IId;
-import dev.hv.model.classes.Reading;
-import dev.hv.services.logService.LogLevel;
-import dev.hv.services.logService.LogService;
+import dev.hv.ResponseMessages;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
@@ -17,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.*;
 import dev.server.controller.CustomerController;
 import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.AfterEach;
@@ -30,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import dev.server.Server;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -38,6 +33,8 @@ import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.Objects;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,20 +71,40 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    @BeforeAll
+    static void beforeAll()
+    {
+        String restartServer = System.getenv("SkipServerRestart");
+        if (Objects.equals(restartServer, "True"))
+            Server.startServer(" ");
+    }
+
+    @AfterAll
+    static void afterAl()
+    {
+        String restartServer = System.getenv("SkipServerRestart");
+        if (Objects.equals(restartServer, "True"))
+            Server.stopServer();
+    }
+
+
     @BeforeEach
     void setUp() throws IOException, SQLException
     {
-        Server.startServer(" ");
+        String restartServer = System.getenv("SkipServerRestart");
+        if (!Objects.equals(restartServer, "True"))
+            Server.startServer(" ");
 
         _httpClient = HttpClient.newHttpClient();
 
-        if (_connection == null)
+        if(_connection == null)
         {
             _connection = new DatabaseConnection();
             _connection.openConnection();
             _connection.removeAllTables();
             _connection.createAllTables();
-        } else
+        }
+        else
         {
             _connection.truncateAllTables();
         }
@@ -101,9 +118,11 @@ public class CustomerControllerTest
     }
 
     @AfterEach
-    void tearDown() throws SQLException, IOException
+    void tearDown()
     {
-        Server.stopServer();
+        String restartServer = System.getenv("SkipServerRestart");
+        if (!Objects.equals(restartServer, "True"))
+            Server.stopServer();
         ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
     }
 
@@ -119,17 +138,17 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 
-        assertEquals(HttpStatus.CREATED.value(), response.statusCode(), "Should return status code 201 CREATED");
+        assertEquals(HttpStatus.CREATED.value(), response.statusCode(),"Should return status code 201 CREATED");
         assertEquals(jsonString, response.body(), "Should return the same object send in request");
     }
 
     @Test
-    void addCustomerWithoutId() throws IOException, InterruptedException
+    void addCustomerWithoutId()  throws IOException, InterruptedException
     {
         Customer customerWithoutId = new Customer();
         customerWithoutId.setLastName("Ruehl");
         customerWithoutId.setFirstName("Markus");
-        customerWithoutId.setBirthDate(LocalDate.of(1972, 2, 22));
+        customerWithoutId.setBirthDate(LocalDate.of(1972,2,22));
         customerWithoutId.setGender(Gender.M);
 
         String jsonString = Utils.packIntoJsonString(customerWithoutId, Customer.class);
@@ -159,35 +178,30 @@ public class CustomerControllerTest
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(response.statusCode(), HttpStatus.BAD_REQUEST.value(), "Should return a 400 BAD REQUEST");
-        assertEquals("Invalid customer data provided", body.get("message"), "Message should be Invalid customer data provided");
+        assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid customer data provided");
     }
 
     @Test
-    void addCustomerEmptyBody() throws IOException, InterruptedException
-    {
+    void addCustomerEmptyBody() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(_url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString("{}"))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
-        assertEquals("Invalid customer data provided", body.get("message"), "Message should be Invalid customer data provided");
+        assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid customer data provided");
     }
 
     @Test
     void addCustomerIOException() throws Exception
     {
-        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        ServiceProvider.Services =  mock(InternalServiceProvider.class);
         when(ServiceProvider.Services.getCustomerService()).thenThrow(IOException.class);
 
         String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
@@ -198,11 +212,9 @@ public class CustomerControllerTest
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
-        assertEquals("Internal Server IOError", body.get("message"), "Message should be 'Internal Server IOError'");
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return a 500 Internal Server Error");
+        assertEquals(ResponseMessages.ControllerInternalError.toString(), body.get("message"), "Message should be 'Internal Server IOError'");
     }
 
     @Test
@@ -219,11 +231,9 @@ public class CustomerControllerTest
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
-        assertEquals("Invalid customer data provided", body.get("message"), "Message should be 'Invalid customer data provided'");
+        assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be 'Invalid customer data provided'");
     }
 
     @Test
@@ -252,7 +262,7 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(HttpStatus.OK.value(), response.statusCode(), "Status code should be 200 OK");
-        assertEquals("Customer successfully updated", response.body(), "Should return a message on success");
+        assertEquals(ResponseMessages.ControllerUpdateSuccess.toString(), response.body(), "Should return a message on success");
     }
 
     @Test
@@ -267,12 +277,10 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should be Status Code 400 Bad Request");
-        assertEquals("Invalid customer data provided", body.get("message"), "Message should be Invalid customer data provided");
+        assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid customer data provided");
     }
 
     @Test
@@ -286,12 +294,10 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Should return Status Code 404 Not Found");
-        assertEquals("Customer not found in database", body.get("message"), "Message should be Customer not found in database");
+        assertEquals(ResponseMessages.ControllerNotFound.toString(), body.get("message"), "Message should be Customer not found in database");
     }
 
     @Test
@@ -310,11 +316,9 @@ public class CustomerControllerTest
                 .PUT(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
-        assertEquals("Internal Server IOError", body.get("message"), "Message should be 'Internal Server IOError'");
+        assertEquals(ResponseMessages.ControllerInternalError.toString(), body.get("message"), "Message should be 'Internal Server IOError'");
     }
 
     @Test
@@ -333,11 +337,9 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>()
-        {
-        });
+        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
-        assertEquals("Invalid customer data provided", body.get("message"), "Message should be 'Invalid customer data provided'");
+        assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be 'Invalid customer data provided'");
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 
 import java.io.InputStream;
@@ -64,7 +65,7 @@ public class CustomerJsonSchemaValidatorService extends JsonSchemaValidatorServi
         InputStream schemaStream = currClass.getClassLoader().getResourceAsStream(getJsonSchemaPath());
         if (schemaStream == null)
         {
-            throw new IllegalArgumentException("Schema file not found");
+            throw new IllegalArgumentException(ResponseMessages.JsonSchemaFileNotFound.toString());
         }
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
         this.setJsonSchema(factory.getSchema(schemaStream));
