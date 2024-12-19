@@ -1,5 +1,6 @@
 package dev.hv.database.services;
 
+import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.DbTestHelper;
@@ -142,7 +143,7 @@ public class CustomerServiceTest
         items.add(new Customer());
         items.add(new Customer());
 
-        Exception thrownException = new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", items.size()));
+        Exception thrownException = new RuntimeException(ResponseMessages.ResultSizeError.toString(List.of(items.size())));
 
         DatabaseConnection mockConnection = mock(DatabaseConnection.class);
         when(mockConnection.getAllObjectsFromDbTableWithFilter(any(), anyString()))
