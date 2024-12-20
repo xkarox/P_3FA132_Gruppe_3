@@ -66,18 +66,6 @@ public class ReadingService extends AbstractBaseService<Reading>
         return item;
     }
 
-    @Override
-    // Req. Nr.: 9
-    public Reading getById(UUID id) throws ReflectiveOperationException, SQLException, IOException
-    {
-        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE id = '%s'", id));
-        if (result.size() > 1)
-            throw new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", result.size()));
-        if (result.isEmpty())
-            return null;
-        return (Reading) result.getFirst();
-    }
-
     public Collection<Reading> queryReadings(Optional<UUID> customerId,
                                  Optional<LocalDate> startDate,
                                  Optional<LocalDate> endDate,
@@ -112,14 +100,6 @@ public class ReadingService extends AbstractBaseService<Reading>
         return (Collection<Reading>) this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, whereClauseBuilder.toString());
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    // Req. Nr.: 12
-    public List<Reading> getAll() throws ReflectiveOperationException, SQLException, IOException
-    {
-        return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(Reading.class);
-    }
-
     @Override
     // Req. Nr.: 10
     public Reading update(Reading item) throws SQLException, IllegalArgumentException
@@ -144,22 +124,5 @@ public class ReadingService extends AbstractBaseService<Reading>
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
         return item;
-    }
-
-    @Override
-    // Req. Nr.: 11
-    public void remove(Reading item) throws SQLException
-    {
-        removeDbItem(item);
-    }
-
-    @Override
-    public void close() throws SQLException
-    {
-        if (this._provider != null)
-        {
-            this._provider.releaseDbConnection(this._dbConnection);
-            this._provider.releaseReadingService(this);
-        }
     }
 }
