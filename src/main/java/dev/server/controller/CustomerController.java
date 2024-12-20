@@ -138,13 +138,15 @@ public class CustomerController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
 
-            cs.remove(customer);
-
             Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
 
             Map<String, Object> customerWithReadings = new LinkedHashMap<>();
             customerWithReadings.put("customer", customer);
             customerWithReadings.put("readings", readings);
+            cs.remove(customer);
+            for (Reading reading: readings) {
+                reading.setCustomer(null);
+            }
 
             return Utils.mergeJsonString(customerWithReadings);
 
