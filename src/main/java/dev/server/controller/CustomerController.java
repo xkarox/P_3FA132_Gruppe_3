@@ -139,14 +139,15 @@ public class CustomerController {
             }
 
             Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
-
-            Map<String, Object> customerWithReadings = new LinkedHashMap<>();
-            customerWithReadings.put("customer", customer);
-            customerWithReadings.put("readings", readings);
             cs.remove(customer);
+
+            //ToDo: ask about this
             for (Reading reading: readings) {
                 reading.setCustomer(null);
             }
+            Map<String, Object> customerWithReadings = new LinkedHashMap<>();
+            customerWithReadings.put("customer", customer);
+            customerWithReadings.put("readings", readings);
 
             return Utils.mergeJsonString(customerWithReadings);
 
