@@ -85,9 +85,9 @@ public class ReadingService extends AbstractBaseService<Reading>
     }
 
     public Collection<Reading> queryReadings(Optional<UUID> customerId,
-                                             Optional<LocalDate> startDate,
-                                             Optional<LocalDate> endDate,
-                                             Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException
+                                 Optional<LocalDate> startDate,
+                                 Optional<LocalDate> endDate,
+                                 Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException
     {
         StringBuilder whereClauseBuilder = new StringBuilder("WHERE");
         customerId.ifPresentOrElse(

@@ -47,3 +47,6 @@ To skip Spring-Server restart in endpoint test set a global system variable to:
 ````java
 SkipServerRestart=True
 ````
+
+ToDo: 
+    - return Customer not only id 

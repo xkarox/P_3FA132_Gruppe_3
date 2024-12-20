@@ -3,12 +3,16 @@ package dev.hv.model.classes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.CustomerService;
 import dev.hv.model.ICustomer;
 import dev.hv.model.IReading;
 import dev.hv.model.decorator.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
+import dev.provider.ServiceProvider;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -211,14 +215,25 @@ public class Reading implements IReading
     }
 
     @Override
-    public IDbItem dbObjectFactory(Object... args)
+    public IDbItem dbObjectFactory(Object... args) throws SQLException, IOException, ReflectiveOperationException
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse((String) args[3], formatter);
 
+        UUID customerId = args[2] != null ? UUID.fromString((String) args[2]): null;
+        Customer customer = null;
+        if (customerId != null)
+        {
+            try(CustomerService cs =  ServiceProvider.Services.getCustomerService())
+            {
+                customer = cs.getById(UUID.fromString((String) args[2]));
+            }
+        }
+
         this._id = UUID.fromString((String) args[0]);
         this._comment = (String) args[1];
-        this._customerId = args[2] != null ? UUID.fromString((String) args[2]): null;
+        this._customerId = customerId;
+        this._customer = customer;
         this._dateOfReading = date;
         this._kindOfMeter = IReading.KindOfMeter.values()[(int) args[4]];
         this._meterCount = (Double) args[5];

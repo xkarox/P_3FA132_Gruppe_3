@@ -4,6 +4,8 @@ import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.intefaces.IDatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
+import dev.hv.model.classes.Customer;
+import dev.hv.model.classes.Reading;
 import dev.hv.model.decorator.FieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 
@@ -169,7 +171,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return this.getConnection().prepareStatement(statement);
     }
 
-    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws SQLException, ReflectiveOperationException
+    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws SQLException, ReflectiveOperationException, IOException
     {
         IDbItem object = classInfo.getConstructor().newInstance();
 
@@ -211,7 +213,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return results;
     }
 
-    public List<? extends IDbItem> getAllObjectsFromDbTable(Class<? extends IDbItem> classInfo) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTable(Class<? extends IDbItem> classInfo) throws ReflectiveOperationException, SQLException, IOException
     {
         return getObjectsFromDbTable(classInfo, "");
     }
@@ -221,7 +223,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
      *
      * @param sqlWhereClause Sql where statement, starts with: Where ...
      */
-    public List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException
+    public List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException, IOException
     {
         return getObjectsFromDbTable(classInfo, sqlWhereClause);
 
