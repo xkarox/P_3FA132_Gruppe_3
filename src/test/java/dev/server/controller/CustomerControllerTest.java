@@ -1,5 +1,6 @@
 package dev.server.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
@@ -496,6 +497,7 @@ public class CustomerControllerTest
         when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
         when(mockCustomerService.getById(any())).thenReturn(this._customer);
+        when(mockReadingService.getReadingsByCustomerId(any())).thenReturn(readings);
         doAnswer(invocation -> {
             reading1.setCustomer(null);
             reading2.setCustomer(null);
@@ -515,12 +517,28 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return code 200 OK");
 
-        String customerJson = Utils.unpackFromJsonString(response.body(), Customer.class);
-        Collection<? extends IId> customerWithReadings = Utils.unpackCollectionFromMergedJsonString(response.body());
-        Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
+        ObjectMapper objectMapper = Utils.getObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(response.body());
 
-        assertEquals(this._customer.getId(), customer.getId(), "Should return the same object");
-        assertEquals(reading1, customerWithReadings.toArray()[0], "reading is not the same as in json");
+        assertTrue(rootNode.has("customer"), "JSON should contain 'customer'");
+        assertTrue(rootNode.has("readings"), "JSON should contain 'readings'");
+
+        JsonNode customerNode = rootNode.get("customer");
+        assertEquals(this._customer.getId().toString(), customerNode.get("id").asText(), "Customer ID should match");
+        assertEquals(this._customer.getFirstName(), customerNode.get("firstName").asText(), "Customer firstName should match");
+        assertEquals(this._customer.getLastName(), customerNode.get("lastName").asText(), "Customer lastName should match");
+
+        JsonNode readingsNode = rootNode.get("readings");
+        assertTrue(readingsNode.isArray(), "Readings should be an array");
+        assertEquals(2, readingsNode.size(), "Should have 2 readings");
+
+        JsonNode reading1Node = readingsNode.get(0);
+        assertEquals(reading1.getKindOfMeter().toString(), reading1Node.get("kindOfMeter").asText(), "First reading kindOfMeter should match");
+        assertEquals(reading1.getMeterCount(), reading1Node.get("meterCount").asInt(), "First reading meterCount should match");
+
+        JsonNode reading2Node = readingsNode.get(1);
+        assertEquals(reading2.getKindOfMeter().toString(), reading2Node.get("kindOfMeter").asText(), "Second reading kindOfMeter should match");
+        assertEquals(reading2.getMeterCount(), reading2Node.get("meterCount").asInt(), "Second reading meterCount should match");
     }
 
     @Test

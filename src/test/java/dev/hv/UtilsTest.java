@@ -113,8 +113,6 @@ public class UtilsTest
         List<Reading> readings = Arrays.asList(reading1, reading2);
 
         ObjectMapper _objMapper = Utils.getObjectMapper();
-        String customerJsonString = Utils.packIntoJsonString(customer, Customer.class);
-        String readingJsonString = Utils.packIntoJsonString(readings, Reading.class);
 
         Map<String, Object> object = new LinkedHashMap<>();
         object.put("customer", customer);
@@ -166,28 +164,4 @@ public class UtilsTest
         System.out.println("test");
     }
 
-    @Test
-    void unpackCollectionFromMergeJsonStringWithCustomerTest() {
-
-    }
-
-    @Test
-    void unpackCollectionFromMergedJsonStringWithArrayOfReadings() {
-
-    }
-
-    @Test
-    void unpackCollectionFromMergedJsonStringWithSingleReading() {
-
-    }
-
-    @Test
-    void unpackCollectionFromMergedJsonStringWithInvalidJson() {
-
-    }
-
-    @Test
-    void unpackCollectionFromMergedJsonStringWithUnsupportedClass() {
-
-    }
 }

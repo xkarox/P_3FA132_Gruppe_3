@@ -142,7 +142,7 @@ public class CustomerController {
 
             Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
 
-            Map<String, Object> customerWithReadings = new HashMap<>();
+            Map<String, Object> customerWithReadings = new LinkedHashMap<>();
             customerWithReadings.put("customer", customer);
             customerWithReadings.put("readings", readings);
 
