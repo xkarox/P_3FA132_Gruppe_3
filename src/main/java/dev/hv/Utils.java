@@ -81,27 +81,27 @@ public class Utils
         }
     }
 
-    public static Collection<? extends IId> unpackCollectionFromMergedJsonString(String js, Class classType) throws JsonProcessingException
+    public static Collection<? extends IId> unpackCollectionFromMergedJsonString(String json, Class classType) throws JsonProcessingException
     {
         ObjectMapper _objMapper = Utils.getObjectMapper();
-        JsonNode rootNode = _objMapper.readTree(js);
+        JsonNode rootNode = _objMapper.readTree(json);
 
         if (classType == Reading.class)
         {
             JsonNode readingsNode = rootNode.get("readings");
             if (readingsNode != null && readingsNode.isArray())
             {
-                return _objMapper.readValue(readingsNode.toString(), new TypeReference<List<Reading>>()
+                return _objMapper.readValue(readingsNode.toString(), new TypeReference<Collection<Reading>>()
                 {
                 });
             } else if (rootNode.isArray())
             {
-                return _objMapper.readValue(rootNode.toString(), new TypeReference<List<Reading>>()
+                return _objMapper.readValue(rootNode.toString(), new TypeReference<Collection<Reading>>()
                 {
                 });
             } else if (rootNode.isObject())
             {
-                List<Reading> readingList = new ArrayList<>();
+                Collection<Reading> readingList = new ArrayList<>();
                 readingList.add(_objMapper.treeToValue(rootNode, Reading.class));
                 return readingList;
             }
@@ -110,12 +110,12 @@ public class Utils
             JsonNode customerNode = rootNode.get("customer");
             if (customerNode != null && customerNode.isObject())
             {
-                List<Customer> customerList = new ArrayList<>();
+                Collection<Customer> customerList = new ArrayList<>();
                 customerList.add(_objMapper.treeToValue(customerNode, Customer.class));
                 return customerList;
             } else if (rootNode.isObject())
             {
-                List<Customer> customerList = new ArrayList<>();
+                Collection<Customer> customerList = new ArrayList<>();
                 customerList.add(_objMapper.treeToValue(rootNode, Customer.class));
                 return customerList;
             }

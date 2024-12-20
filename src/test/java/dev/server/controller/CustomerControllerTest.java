@@ -500,7 +500,6 @@ public class CustomerControllerTest
         reading1.setCustomer(null);
         reading2.setCustomer(null);
 
-
         UUID id = UUID.randomUUID();
         String url = _url + "/" + id;
 
@@ -516,8 +515,8 @@ public class CustomerControllerTest
         String customerJson = Utils.unpackFromJsonString(response.body(), Customer.class);
         Collection<? extends IId> readingJson = Utils.unpackCollectionFromMergedJsonString(response.body(), Reading.class);
         Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
-        // Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
         assertEquals(this._customer.getId(), customer.getId(), "Should return the same object");
+        assertEquals(reading1, readingJson.toArray()[0], "reading is not the same as in json");
     }
 
     @Test
@@ -530,7 +529,7 @@ public class CustomerControllerTest
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
-                .GET()
+                .DELETE()
                 .build();
 
         testThrownCustomerServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
