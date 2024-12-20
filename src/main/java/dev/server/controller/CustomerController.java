@@ -1,6 +1,9 @@
 package dev.server.controller;
 
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.ReadingService;
+import dev.hv.model.IId;
+import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.services.CustomerService;
@@ -14,7 +17,7 @@ import dev.server.validator.CustomerJsonSchemaValidatorService;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.UUID;
+import java.util.*;
 
 
 @CrossOrigin
@@ -83,6 +86,74 @@ public class CustomerController {
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerInternalError.toString());
 
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.GET)
+    public String getCustomers()
+    {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            Collection<Customer> customer = cs.getAll();
+            return Utils.packIntoJsonString(customer, Customer.class);
+
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public String getCustomer(@PathVariable("id") UUID id)
+    {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            Customer customer = cs.getById(id);
+
+            if (customer == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
+            }
+
+            return Utils.packIntoJsonString(customer, Customer.class);
+
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public String deleteCustomer(@PathVariable("id") UUID id)
+    {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService(); ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            Customer customer = cs.getById(id);
+
+            if (customer == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
+            }
+
+            Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
+            cs.remove(customer);
+
+            //ToDo: ask about this
+            for (Reading reading: readings) {
+                reading.setCustomer(null);
+            }
+            Map<String, Object> customerWithReadings = new LinkedHashMap<>();
+            customerWithReadings.put("customer", customer);
+            customerWithReadings.put("readings", readings);
+
+            return Utils.mergeJsonString(customerWithReadings);
+
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 }

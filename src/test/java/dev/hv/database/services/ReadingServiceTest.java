@@ -4,10 +4,12 @@ import dev.hv.database.DatabaseConnection;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.DbTestHelper;
 import dev.hv.model.ICustomer.Gender;
+import dev.hv.model.IReading;
 import dev.hv.model.IReading.KindOfMeter;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -129,6 +131,42 @@ public class ReadingServiceTest
                 assertEquals(this._testReading, result, "Because the customer should exist");
             }
         }
+    }
+
+    @Test
+    void getReadingsByCustomerIdTest() throws ReflectiveOperationException, SQLException, IOException
+    {
+        Reading reading1 = new Reading();
+        reading1.setId(UUID.randomUUID());
+        reading1.setCustomer(this._testCustomer);
+        reading1.setSubstitute(true);
+        reading1.setDateOfReading(LocalDate.now());
+        reading1.setKindOfMeter(IReading.KindOfMeter.STROM);
+        reading1.setMeterCount(100);
+        reading1.setMeterId("123");
+
+        Reading reading2 = new Reading();
+        reading2.setId(UUID.randomUUID());
+        reading2.setCustomer(this._testCustomer);
+        reading2.setSubstitute(true);
+        reading2.setDateOfReading(LocalDate.now());
+        reading2.setKindOfMeter(IReading.KindOfMeter.WASSER);
+        reading2.setMeterCount(9999);
+        reading2.setMeterId("789");
+
+        try (ReadingService rs = ServiceProvider.Services.getReadingService()) {
+            rs.add(reading1);
+            rs.add(reading2);
+            List<Reading> readings = rs.getReadingsByCustomerId(this._testCustomer.getId());
+            assertEquals(2, readings.size(), "Should return 2 readings for the test customer");
+            assertTrue(readings.contains(reading1), "Should contain the first test reading");
+            assertTrue(readings.contains(reading2), "Should contain the second test reading");
+
+            rs.remove(reading1);
+            rs.remove(reading2);
+
+        }
+
     }
 
     @Test

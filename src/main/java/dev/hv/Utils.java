@@ -1,6 +1,9 @@
 package dev.hv;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.hv.model.IId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,9 +13,7 @@ import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Utils
 {
@@ -32,7 +33,8 @@ public class Utils
         }
     }
 
-    public static ObjectMapper getObjectMapper() {
+    public static ObjectMapper getObjectMapper()
+    {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -40,16 +42,18 @@ public class Utils
         return objectMapper;
     }
 
-    public static String getLastPartAfterDot(String str) {
+    public static String getLastPartAfterDot(String str)
+    {
         int lastIndex = str.lastIndexOf('.');
-        if (lastIndex == -1) {
+        if (lastIndex == -1)
+        {
             return str; // No dot found, return the original string
         }
         return str.substring(lastIndex + 1);
     }
 
 
-//    Removes the customer or reading declaration
+    //    Removes the customer or reading declaration
     public static String unpackFromJsonString(String objectJson, Class classType) throws JsonProcessingException
     {
         String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase());
@@ -65,10 +69,15 @@ public class Utils
         ObjectMapper _objMapper = Utils.getObjectMapper();
         if (classType == Reading.class)
         {
-            Map<String, Collection<Reading>> collection = _objMapper.readValue(objectJson, new TypeReference<Map<String, Collection<Reading>>>() {});
+            Map<String, Collection<Reading>> collection = _objMapper.readValue(objectJson, new TypeReference<Map<String, Collection<Reading>>>()
+            {
+            });
             return collection.get("readings");
-        } else {
-            Map<String, Collection<Customer>> collection = _objMapper.readValue(objectJson, new TypeReference<Map<String, Collection<Customer>>>() {});
+        } else
+        {
+            Map<String, Collection<Customer>> collection = _objMapper.readValue(objectJson, new TypeReference<Map<String, Collection<Customer>>>()
+            {
+            });
             return collection.get("customers");
         }
     }
@@ -87,10 +96,17 @@ public class Utils
         String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase()) + "s";
         ObjectMapper _objMapper = Utils.getObjectMapper();
 
-        Map<String, Collection<? extends  IId>> responseArray = new HashMap<>();
+        Map<String, Collection<? extends IId>> responseArray = new HashMap<>();
         responseArray.put(key, objects);
 
         return _objMapper.writeValueAsString(responseArray);
+    }
+
+    public static String mergeJsonString(Map<String, Object> objects) throws JsonProcessingException
+    {
+        ObjectMapper objectMapper = Utils.getObjectMapper();
+        return objectMapper.writeValueAsString(objects);
+
     }
 
 }

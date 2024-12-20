@@ -1,6 +1,12 @@
 package dev.server.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.CustomerService;
+import dev.hv.database.services.ReadingService;
+import dev.hv.model.IId;
+import dev.hv.model.IReading;
+import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
@@ -12,7 +18,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dev.server.validator.CustomerWithReadingsJsonSchemaValidatorService;
+import dev.server.validator.ReadingJsonSchemaValidationService;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -28,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -128,6 +140,7 @@ public class CustomerControllerTest
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
 
         assertEquals(HttpStatus.CREATED.value(), response.statusCode(),"Should return status code 201 CREATED");
         assertEquals(jsonString, response.body(), "Should return the same object send in request");
@@ -331,5 +344,239 @@ public class CustomerControllerTest
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be 'Invalid customer data provided'");
+    }
+
+    @Test
+    void getAllCustomersTest() throws ReflectiveOperationException, SQLException, IOException, InterruptedException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        CustomerService cs = mock(CustomerService.class);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(cs);
+
+        Customer customer1 = new Customer();
+        customer1.setGender(Gender.M);
+        customer1.setFirstName("Elon");
+        customer1.setLastName("Musk");
+        customer1.setBirthDate(LocalDate.of(1986, 4, 6));
+
+        Customer customer2 = new Customer();
+        customer2.setGender(Gender.W);
+        customer2.setFirstName("Angela");
+        customer2.setLastName("Merkel");
+        customer2.setBirthDate(LocalDate.of(1976, 9, 22));
+
+        List<Customer> mockCustomers = Arrays.asList(customer1, customer2);
+
+        when(cs.getAll()).thenReturn(mockCustomers);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+
+        Collection<? extends IId> unpackedCustomer = Utils.unpackCollectionFromJsonString(response.body(), Customer.class);
+
+        Customer customer = (Customer)unpackedCustomer.toArray()[0];
+        assertEquals(2, unpackedCustomer.size(), "The response should contain 2 elements");
+        assertTrue(unpackedCustomer.contains(customer1), "Customer is not contained");
+        assertEquals(Gender.M, customer1.getGender(), "Gender should be male");
+        assertEquals("Elon", customer1.getFirstName(), "First name should be 'Elon'");
+        assertEquals("Musk", customer1.getLastName(), "Last name should be 'Musk'");
+        assertEquals(LocalDate.of(1986, 4, 6), customer1.getBirthDate(), "Birthdate should be 06.04.1986");
+    }
+
+    @Test
+    void getAllCustomersThrowsException() throws SQLException, IOException, InterruptedException, ReflectiveOperationException
+    {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(_url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        testThrownCustomerServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownCustomerServiceException(request, SQLException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        //Reflection Exception
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        CustomerService mockCustomerService = mock(CustomerService.class);
+
+        when(mockCustomerService.getAll()).thenThrow(ReflectiveOperationException.class);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 internal server error");
+
+    }
+
+    @Test
+    void getCustomerByIdTest() throws ReflectiveOperationException, SQLException, IOException, InterruptedException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        CustomerService mockCustomerService = mock(CustomerService.class);
+        when(mockCustomerService.getById(any())).thenReturn(this._customer);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+
+        String customerJson = Utils.unpackFromJsonString(response.body(), Customer.class);
+        Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
+        assertEquals(this._customer.getId(), customer.getId(), "Should return the same object");
+    }
+
+    @Test
+    void getCustomerByIdThrowsException() throws SQLException, IOException, InterruptedException, ReflectiveOperationException
+    {
+
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        testThrownCustomerServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownCustomerServiceException(request, SQLException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        //Reflection Exception
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        CustomerService mockCustomerService = mock(CustomerService.class);
+
+        when(mockCustomerService.getById(any())).thenThrow(ReflectiveOperationException.class);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 internal server error");
+
+    }
+
+    void testThrownCustomerServiceException(HttpRequest request, Class<? extends Exception> exception, int expectedStatusCode) throws SQLException, IOException, InterruptedException
+    {
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        when(ServiceProvider.Services.getCustomerService()).thenThrow(exception);
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(expectedStatusCode, response.statusCode(), "Should return status code " + expectedStatusCode);
+    }
+
+    @Test
+    void deleteCustomerByIdTest() throws ReflectiveOperationException, SQLException, IOException, InterruptedException
+    {
+        Reading reading1 = new Reading();
+        reading1.setId(UUID.randomUUID());
+        reading1.setMeterId("456");
+        reading1.setCustomer(this._customer);
+        reading1.setSubstitute(true);
+        reading1.setDateOfReading(LocalDate.now());
+        reading1.setKindOfMeter(IReading.KindOfMeter.STROM);
+        reading1.setMeterCount(100);
+        reading1.setComment("comment");
+
+        Reading reading2 = new Reading();
+        reading2.setId(UUID.randomUUID());
+        reading2.setMeterId("123");
+        reading2.setCustomer(this._customer);
+        reading2.setSubstitute(true);
+        reading2.setDateOfReading(LocalDate.now());
+        reading2.setKindOfMeter(IReading.KindOfMeter.WASSER);
+        reading2.setMeterCount(9999);
+        reading2.setComment("comment2");
+
+        List<Reading> readings = Arrays.asList(reading1, reading2);
+
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        CustomerService mockCustomerService = mock(CustomerService.class);
+        ReadingService mockReadingService = mock(ReadingService.class);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+        when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+        when(mockCustomerService.getById(any())).thenReturn(this._customer);
+        when(mockReadingService.getReadingsByCustomerId(any())).thenReturn(readings);
+        doAnswer(invocation -> {
+            reading1.setCustomer(null);
+            reading2.setCustomer(null);
+            return null;
+        }).when(mockCustomerService).remove(any());
+
+
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return code 200 OK");
+
+        boolean invalidCustomerWithReadings = CustomerWithReadingsJsonSchemaValidatorService.getInstance().validate(response.body());
+        assertFalse(invalidCustomerWithReadings, "customer with readings is not valid");
+
+        ObjectMapper objectMapper = Utils.getObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(response.body());
+
+        assertTrue(rootNode.has("customer"), "JSON should contain 'customer'");
+        assertTrue(rootNode.has("readings"), "JSON should contain 'readings'");
+
+        JsonNode customerNode = rootNode.get("customer");
+        assertEquals(this._customer.getId().toString(), customerNode.get("id").asText(), "Customer ID should match");
+        assertEquals(this._customer.getFirstName(), customerNode.get("firstName").asText(), "Customer firstName should match");
+        assertEquals(this._customer.getLastName(), customerNode.get("lastName").asText(), "Customer lastName should match");
+
+        JsonNode readingsNode = rootNode.get("readings");
+        assertTrue(readingsNode.isArray(), "Readings should be an array");
+        assertEquals(2, readingsNode.size(), "Should have 2 readings");
+
+        JsonNode reading1Node = readingsNode.get(0);
+        assertEquals(reading1.getKindOfMeter().toString(), reading1Node.get("kindOfMeter").asText(), "First reading kindOfMeter should match");
+        assertEquals(reading1.getMeterCount(), reading1Node.get("meterCount").asInt(), "First reading meterCount should match");
+
+        JsonNode reading2Node = readingsNode.get(1);
+        assertEquals(reading2.getKindOfMeter().toString(), reading2Node.get("kindOfMeter").asText(), "Second reading kindOfMeter should match");
+        assertEquals(reading2.getMeterCount(), reading2Node.get("meterCount").asInt(), "Second reading meterCount should match");
+    }
+
+    @Test
+    void deleteCustomerByIdThrowsException() throws SQLException, IOException, InterruptedException, ReflectiveOperationException
+    {
+
+        UUID id = UUID.randomUUID();
+        String url = _url + "/" + id;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        testThrownCustomerServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownCustomerServiceException(request, SQLException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        //Reflection Exception
+        ServiceProvider.Services = mock(InternalServiceProvider.class);
+        CustomerService mockCustomerService = mock(CustomerService.class);
+
+        when(mockCustomerService.getById(any())).thenThrow(ReflectiveOperationException.class);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 internal server error");
+
     }
 }
