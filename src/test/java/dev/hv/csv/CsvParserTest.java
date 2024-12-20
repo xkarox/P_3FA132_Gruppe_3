@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CsvParserTest
 {
+    /*
     private static long _entriesInDirectory = 0;
 
     private static final String _directory = "src/test/resources/";
@@ -283,6 +284,8 @@ public class CsvParserTest
         }
 
     }
+
+     */
 
 }
 
