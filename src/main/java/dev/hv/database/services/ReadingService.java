@@ -66,19 +66,8 @@ public class ReadingService extends AbstractBaseService<Reading>
         return item;
     }
 
-    @Override
-    // Req. Nr.: 9
-    public Reading getById(UUID id) throws ReflectiveOperationException, SQLException
-    {
-        var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE id = '%s'", id));
-        if (result.size() > 1)
-            throw new RuntimeException(String.format("Expected size of result be equal to 1, but found %d", result.size()));
-        if (result.isEmpty())
-            return null;
-        return (Reading) result.getFirst();
-    }
 
-    public List<Reading> getReadingsByCustomerId(UUID id) throws ReflectiveOperationException, SQLException
+    public List<Reading> getReadingsByCustomerId(UUID id) throws ReflectiveOperationException, SQLException, IOException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE customerId = '%s'", id));
         return result.isEmpty() ? List.of() : (List<Reading>) result;
@@ -87,7 +76,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     public Collection<Reading> queryReadings(Optional<UUID> customerId,
                                  Optional<LocalDate> startDate,
                                  Optional<LocalDate> endDate,
-                                 Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException
+                                 Optional<IReading.KindOfMeter> kindOfMeter) throws SQLException, ReflectiveOperationException, IOException
     {
         StringBuilder whereClauseBuilder = new StringBuilder("WHERE");
         customerId.ifPresentOrElse(
@@ -121,7 +110,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     @SuppressWarnings("unchecked")
     @Override
     // Req. Nr.: 12
-    public List<Reading> getAll() throws ReflectiveOperationException, SQLException
+    public List<Reading> getAll() throws ReflectiveOperationException, SQLException, IOException
     {
         return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(Reading.class);
     }
