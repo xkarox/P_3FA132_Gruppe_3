@@ -100,7 +100,7 @@ public class CustomerController {
 
         } catch (IOException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 
@@ -114,14 +114,14 @@ public class CustomerController {
 
             if (customer == null)
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
 
             return Utils.packIntoJsonString(customer, Customer.class);
 
         } catch (IOException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 
@@ -135,7 +135,7 @@ public class CustomerController {
 
             if (customer == null)
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found in database");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
 
             cs.remove(customer);
@@ -150,7 +150,7 @@ public class CustomerController {
 
         } catch (IOException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
 }
