@@ -6,6 +6,7 @@ import dev.hv.Utils;
 import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.Customer;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import dev.server.Services.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,10 @@ public class CustomerController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
-    public String addCustomer(@RequestBody String customerJson)
+    public String addCustomer(@RequestBody String customerJson,
+                              @RequestHeader(value = "Authorization", required = false) String authorizationHeader)
     {
+        AuthenticationService.validateToken(authorizationHeader);
         this.validateRequestData(customerJson);
         try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
