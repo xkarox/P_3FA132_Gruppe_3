@@ -2,6 +2,7 @@ package dev.server.controller;
 
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.ReadingService;
+import dev.hv.model.IId;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
@@ -16,8 +17,7 @@ import dev.server.validator.CustomerJsonSchemaValidatorService;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
 
 
 @CrossOrigin
@@ -142,11 +142,11 @@ public class CustomerController {
 
             Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
 
-            String customerJsonString = Utils.packIntoJsonString(customer, Customer.class);
-            String readingJsonString = Utils.packIntoJsonString(readings, Reading.class);
+            Map<String, Object> customerWithReadings = new HashMap<>();
+            customerWithReadings.put("customer", customer);
+            customerWithReadings.put("readings", readings);
 
-            return Utils.mergeJsonString(customerJsonString, readingJsonString);
-
+            return Utils.mergeJsonString(customerWithReadings);
 
         } catch (IOException | ReflectiveOperationException | SQLException e)
         {

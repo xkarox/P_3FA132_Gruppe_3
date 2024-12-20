@@ -496,9 +496,12 @@ public class CustomerControllerTest
         when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
         when(mockCustomerService.getById(any())).thenReturn(this._customer);
-        when(mockReadingService.getReadingsByCustomerId(any())).thenReturn(readings);
-        reading1.setCustomer(null);
-        reading2.setCustomer(null);
+        doAnswer(invocation -> {
+            reading1.setCustomer(null);
+            reading2.setCustomer(null);
+            return null;
+        }).when(mockCustomerService).remove(any());
+
 
         UUID id = UUID.randomUUID();
         String url = _url + "/" + id;
@@ -513,10 +516,11 @@ public class CustomerControllerTest
         assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return code 200 OK");
 
         String customerJson = Utils.unpackFromJsonString(response.body(), Customer.class);
-        Collection<? extends IId> readingJson = Utils.unpackCollectionFromMergedJsonString(response.body(), Reading.class);
+        Collection<? extends IId> customerWithReadings = Utils.unpackCollectionFromMergedJsonString(response.body());
         Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
+
         assertEquals(this._customer.getId(), customer.getId(), "Should return the same object");
-        assertEquals(reading1, readingJson.toArray()[0], "reading is not the same as in json");
+        assertEquals(reading1, customerWithReadings.toArray()[0], "reading is not the same as in json");
     }
 
     @Test

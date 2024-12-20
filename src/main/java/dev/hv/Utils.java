@@ -1,5 +1,6 @@
 package dev.hv;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -81,47 +82,50 @@ public class Utils
         }
     }
 
-    public static Collection<? extends IId> unpackCollectionFromMergedJsonString(String json, Class classType) throws JsonProcessingException
+    public static Collection<? extends IId> unpackCollectionFromMergedJsonString(String json) throws JsonProcessingException
     {
         ObjectMapper _objMapper = Utils.getObjectMapper();
         JsonNode rootNode = _objMapper.readTree(json);
+        Collection<IId> result = new ArrayList<>();
 
-        if (classType == Reading.class)
+        JsonNode readingsNode = rootNode.get("readings");
+        if (readingsNode != null && readingsNode.isArray())
         {
-            JsonNode readingsNode = rootNode.get("readings");
-            if (readingsNode != null && readingsNode.isArray())
+            result.addAll(_objMapper.readValue(readingsNode.toString(), new TypeReference<Collection<Reading>>()
             {
-                return _objMapper.readValue(readingsNode.toString(), new TypeReference<Collection<Reading>>()
-                {
-                });
-            } else if (rootNode.isArray())
-            {
-                return _objMapper.readValue(rootNode.toString(), new TypeReference<Collection<Reading>>()
-                {
-                });
-            } else if (rootNode.isObject())
-            {
-                Collection<Reading> readingList = new ArrayList<>();
-                readingList.add(_objMapper.treeToValue(rootNode, Reading.class));
-                return readingList;
-            }
-        } else if (classType == Customer.class)
+            }));
+        } else if (rootNode.isArray())
         {
-            JsonNode customerNode = rootNode.get("customer");
-            if (customerNode != null && customerNode.isObject())
+            result.addAll(_objMapper.readValue(rootNode.toString(), new TypeReference<Collection<Reading>>()
             {
-                Collection<Customer> customerList = new ArrayList<>();
-                customerList.add(_objMapper.treeToValue(customerNode, Customer.class));
-                return customerList;
-            } else if (rootNode.isObject())
+            }));
+        } else if (rootNode.isObject())
+        {
+            Reading reading = _objMapper.treeToValue(rootNode, Reading.class);
+            if (reading != null)
             {
-                Collection<Customer> customerList = new ArrayList<>();
-                customerList.add(_objMapper.treeToValue(rootNode, Customer.class));
-                return customerList;
+                result.add(reading);
             }
         }
 
-        return Collections.emptyList();
+        JsonNode customerNode = rootNode.get("customer");
+        if (customerNode != null && customerNode.isObject())
+        {
+            Customer customer = _objMapper.treeToValue(customerNode, Customer.class);
+            if (customer != null)
+            {
+                result.add(customer);
+            }
+        } else if (rootNode.isObject())
+        {
+            Customer customer = _objMapper.treeToValue(rootNode, Customer.class);
+            if (customer != null)
+            {
+                result.add(customer);
+            }
+        }
+
+        return result;
     }
 
     public static String packIntoJsonString(IId object, Class classType) throws JsonProcessingException
@@ -144,18 +148,10 @@ public class Utils
         return _objMapper.writeValueAsString(responseArray);
     }
 
-    public static String mergeJsonString(String firstJson, String secondJson) throws JsonProcessingException
+    public static String mergeJsonString(Map<String, Object> objects) throws JsonProcessingException
     {
-        ObjectMapper _objMapper = Utils.getObjectMapper();
-        JsonNode firstNode = _objMapper.readTree(firstJson);
-        JsonNode secondNode = _objMapper.readTree(secondJson);
-
-        ObjectNode mergedNode = _objMapper.createObjectNode();
-
-        mergedNode.setAll((ObjectNode) firstNode);
-        mergedNode.setAll((ObjectNode) secondNode);
-
-        return _objMapper.writeValueAsString(mergedNode);
+        ObjectMapper objectMapper = Utils.getObjectMapper();
+        return objectMapper.writeValueAsString(objects);
 
     }
 

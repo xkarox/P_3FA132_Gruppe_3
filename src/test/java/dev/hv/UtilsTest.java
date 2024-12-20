@@ -116,7 +116,11 @@ public class UtilsTest
         String customerJsonString = Utils.packIntoJsonString(customer, Customer.class);
         String readingJsonString = Utils.packIntoJsonString(readings, Reading.class);
 
-        String result = Utils.mergeJsonString(customerJsonString, readingJsonString);
+        Map<String, Object> object = new LinkedHashMap<>();
+        object.put("customer", customer);
+        object.put("readings", readings);
+
+        String result = Utils.mergeJsonString(object);
 
         JsonNode resultNode = _objMapper.readTree(result);
         JsonNode customerNode = resultNode.get("customer");
@@ -158,7 +162,7 @@ public class UtilsTest
         List<Reading> readings = Arrays.asList(reading1, reading2);
         String json = _objMapper.writeValueAsString(Map.of("readings", readings));
 
-        Collection<? extends IId> result = Utils.unpackCollectionFromMergedJsonString(json, Reading.class);
+        Collection<? extends IId> result = Utils.unpackCollectionFromMergedJsonString(json);
         System.out.println("test");
     }
 
