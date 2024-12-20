@@ -9,13 +9,13 @@
     "customer": {
       "type": "object",
       "required": [
-        "uuid",
+        "id",
         "firstName",
         "lastName",
         "gender"
       ],
       "properties": {
-        "uuid": {
+        "id": {
           "type": "string"
         },
         "firstName": {
@@ -38,55 +38,55 @@
           ]
         }
       }
-    },
-    "readings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "uuid",
-          "customer",
-          "dateOfReading",
-          "meterId",
-          "substitute",
-          "metercount",
-          "kindOfMeter"
-        ],
-        "properties": {
-          "uuid": {
-            "type": "string"
-          },
-          "customer": {
-            "type": "null"
-          },
-          "dateOfReading": {
-            "type": "string",
-            "format": "date"
-          },
-          "comment": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "meterId": {
-            "type": "string"
-          },
-          "substitute": {
-            "type": "boolean"
-          },
-          "metercount": {
-            "type": "number"
-          },
-          "kindOfMeter": {
-            "type": "string",
-            "enum": [
-              "HEIZUNG",
-              "STROM",
-              "WASSER",
-              "UNBEKANNT"
-            ]
-          }
+    }
+  },
+  "readings": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": [
+        "id",
+        "customer",
+        "dateOfReading",
+        "meterId",
+        "substitute",
+        "metercount",
+        "kindOfMeter"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "customer": {
+          "type": "null"
+        },
+        "dateOfReading": {
+          "type": "string",
+          "format": "date"
+        },
+        "comment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "meterId": {
+          "type": "string"
+        },
+        "substitute": {
+          "type": "boolean"
+        },
+        "metercount": {
+          "type": "number"
+        },
+        "kindOfMeter": {
+          "type": "string",
+          "enum": [
+            "HEIZUNG",
+            "STROM",
+            "WASSER",
+            "UNBEKANNT"
+          ]
         }
       }
     }

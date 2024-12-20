@@ -82,52 +82,6 @@ public class Utils
         }
     }
 
-    public static Collection<? extends IId> unpackCollectionFromMergedJsonString(String json) throws JsonProcessingException
-    {
-        ObjectMapper _objMapper = Utils.getObjectMapper();
-        JsonNode rootNode = _objMapper.readTree(json);
-        Collection<IId> result = new ArrayList<>();
-
-        JsonNode readingsNode = rootNode.get("readings");
-        if (readingsNode != null && readingsNode.isArray())
-        {
-            result.addAll(_objMapper.readValue(readingsNode.toString(), new TypeReference<Collection<Reading>>()
-            {
-            }));
-        } else if (rootNode.isArray())
-        {
-            result.addAll(_objMapper.readValue(rootNode.toString(), new TypeReference<Collection<Reading>>()
-            {
-            }));
-        } else if (rootNode.isObject())
-        {
-            Reading reading = _objMapper.treeToValue(rootNode, Reading.class);
-            if (reading != null)
-            {
-                result.add(reading);
-            }
-        }
-
-        JsonNode customerNode = rootNode.get("customer");
-        if (customerNode != null && customerNode.isObject())
-        {
-            Customer customer = _objMapper.treeToValue(customerNode, Customer.class);
-            if (customer != null)
-            {
-                result.add(customer);
-            }
-        } else if (rootNode.isObject())
-        {
-            Customer customer = _objMapper.treeToValue(rootNode, Customer.class);
-            if (customer != null)
-            {
-                result.add(customer);
-            }
-        }
-
-        return result;
-    }
-
     public static String packIntoJsonString(IId object, Class classType) throws JsonProcessingException
     {
         String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase());

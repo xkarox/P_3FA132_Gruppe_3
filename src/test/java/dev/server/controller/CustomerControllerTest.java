@@ -18,6 +18,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dev.server.validator.CustomerWithReadingsJsonSchemaValidatorService;
+import dev.server.validator.ReadingJsonSchemaValidationService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -476,18 +478,24 @@ public class CustomerControllerTest
     void deleteCustomerByIdTest() throws ReflectiveOperationException, SQLException, IOException, InterruptedException
     {
         Reading reading1 = new Reading();
+        reading1.setId(UUID.randomUUID());
+        reading1.setMeterId("456");
         reading1.setCustomer(this._customer);
         reading1.setSubstitute(true);
         reading1.setDateOfReading(LocalDate.now());
         reading1.setKindOfMeter(IReading.KindOfMeter.STROM);
         reading1.setMeterCount(100);
+        reading1.setComment("comment");
 
         Reading reading2 = new Reading();
+        reading2.setId(UUID.randomUUID());
+        reading2.setMeterId("123");
         reading2.setCustomer(this._customer);
         reading2.setSubstitute(true);
         reading2.setDateOfReading(LocalDate.now());
         reading2.setKindOfMeter(IReading.KindOfMeter.WASSER);
         reading2.setMeterCount(9999);
+        reading2.setComment("comment2");
 
         List<Reading> readings = Arrays.asList(reading1, reading2);
 
@@ -516,6 +524,9 @@ public class CustomerControllerTest
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return code 200 OK");
+
+        boolean invalidCustomerWithReadings = CustomerWithReadingsJsonSchemaValidatorService.getInstance().validate(response.body());
+        assertFalse(invalidCustomerWithReadings, "customer with readings is not valid");
 
         ObjectMapper objectMapper = Utils.getObjectMapper();
         JsonNode rootNode = objectMapper.readTree(response.body());

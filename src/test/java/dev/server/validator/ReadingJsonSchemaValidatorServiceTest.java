@@ -3,15 +3,13 @@ package dev.server.validator;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
-import dev.server.validator.ReadingJsonSchemaValidationService;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ReadingJsonSchemaValidationServiceTest
+public class ReadingJsonSchemaValidatorServiceTest
 {
     static JsonSchema customerSchema;
 

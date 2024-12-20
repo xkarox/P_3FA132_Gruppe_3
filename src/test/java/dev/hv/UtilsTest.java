@@ -145,23 +145,4 @@ public class UtilsTest
         assertEquals(9999, reading2Node.get("meterCount").asInt(), "Meter count for reading 2 should be 9999");
         assertTrue(reading2Node.get("substitute").asBoolean(), "Reading 2 should be a substitute");
     }
-
-    @Test
-    void unpackCollectionFromMergedJsonStringWithReadingsTest() throws JsonProcessingException
-    {
-        ObjectMapper _objMapper = Utils.getObjectMapper();
-
-        Reading reading1 = new Reading();
-        reading1.setMeterCount(100);
-        reading1.setKindOfMeter(IReading.KindOfMeter.STROM);
-        Reading reading2 = new Reading();
-        reading2.setMeterCount(200);
-        reading2.setKindOfMeter(IReading.KindOfMeter.WASSER);
-        List<Reading> readings = Arrays.asList(reading1, reading2);
-        String json = _objMapper.writeValueAsString(Map.of("readings", readings));
-
-        Collection<? extends IId> result = Utils.unpackCollectionFromMergedJsonString(json);
-        System.out.println("test");
-    }
-
 }
