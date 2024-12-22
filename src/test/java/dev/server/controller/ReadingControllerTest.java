@@ -17,11 +17,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
-import org.springframework.http.HttpStatus;
 import dev.server.Server;
 
 import java.io.IOException;
@@ -91,7 +91,7 @@ public class ReadingControllerTest
     {
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
-            Server.startServer(" ");
+            Server.startServer("http://localhost:8080/");
     }
 
     @AfterAll
@@ -107,7 +107,7 @@ public class ReadingControllerTest
     {
         String restartServer = System.getenv("SkipServerRestart");
         if (!Objects.equals(restartServer, "True"))
-            Server.startServer(" ");
+            Server.startServer("http://localhost:8080/");
         this._httpClient = HttpClient.newHttpClient();
 
         if(_connection == null)
@@ -153,7 +153,7 @@ public class ReadingControllerTest
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(HttpStatus.CREATED.value(), response.statusCode(), "Should return status code 201 CREATED");
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.statusCode(), "Should return status code 201 CREATED");
         assertEquals(jsonString, response.body(), "Should return the same object send in request");
     }
 
@@ -180,7 +180,7 @@ public class ReadingControllerTest
         String readingString = Utils.unpackFromJsonString(response.body(), Reading.class);
         Reading reading = _objMapper.readValue(readingString, Reading.class);
 
-        assertEquals(response.statusCode(), HttpStatus.CREATED.value(), "Should return status code 201 CREATED");
+        assertEquals(response.statusCode(), Response.Status.CREATED.getStatusCode(), "Should return status code 201 CREATED");
         assertEquals(readingWithoutId.getComment(), reading.getComment(), "Comment should match");
         assertEquals(readingWithoutId.getDateOfReading(), reading.getDateOfReading(), "Date of reading should match");
         assertEquals(readingWithoutId.getKindOfMeter(), reading.getKindOfMeter(), "Kind of meter should match");
@@ -249,7 +249,7 @@ public class ReadingControllerTest
         HttpResponse<String> response = _httpClient.send(customerRequest, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Status code should be 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Status code should be 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid reading data provided");
     }
 
@@ -265,7 +265,7 @@ public class ReadingControllerTest
         HttpResponse<String> response = _httpClient.send(readingRequest, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Status code should be 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Status code should be 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid reading data provided");
     }
 
@@ -284,7 +284,7 @@ public class ReadingControllerTest
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return a 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerInternalError.toString(), body.get("message"), "Message should be 'Internal Server IOError'");
     }
 
@@ -304,7 +304,7 @@ public class ReadingControllerTest
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Should return a 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be 'Invalid reading data provided'");
     }
 
@@ -330,7 +330,7 @@ public class ReadingControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
     }
 
     @Test
@@ -344,9 +344,9 @@ public class ReadingControllerTest
                 .PUT(HttpRequest.BodyPublishers.ofString(Utils.packIntoJsonString(this._reading, Reading.class)))
                 .build();
 
-        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
-        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
-        testThrownReadingServiceException(request, JsonProcessingException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
+        testThrownReadingServiceException(request, IOException.class, Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
+        testThrownReadingServiceException(request, SQLException.class, Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
+        testThrownReadingServiceException(request, JsonProcessingException.class, Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
 
         // ReflectionException
         ServiceProvider.Services = mock(InternalServiceProvider.class);
@@ -356,7 +356,7 @@ public class ReadingControllerTest
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
         HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
     }
 
     @Test
@@ -378,7 +378,7 @@ public class ReadingControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Should return status code 28 Not found");
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.statusCode(), "Should return status code 28 Not found");
     }
 
     @Test
@@ -400,7 +400,7 @@ public class ReadingControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
 
         String readingJson = Utils.unpackFromJsonString(response.body(), Reading.class);
         Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
@@ -421,8 +421,8 @@ public class ReadingControllerTest
                 .GET()
                 .build();
 
-        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
-        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
+        testThrownReadingServiceException(request, IOException.class, Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
+        testThrownReadingServiceException(request, SQLException.class, Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
 
         // ReflectionException
         ServiceProvider.Services = mock(InternalServiceProvider.class);
@@ -431,7 +431,7 @@ public class ReadingControllerTest
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
         HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
     }
 
     @Test
@@ -454,7 +454,7 @@ public class ReadingControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
 
         String readingJson = Utils.unpackFromJsonString(response.body(), Reading.class);
         Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
@@ -475,8 +475,8 @@ public class ReadingControllerTest
                 .DELETE()
                 .build();
 
-        testThrownReadingServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
-        testThrownReadingServiceException(request, SQLException.class, HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
+        testThrownReadingServiceException(request, IOException.class, Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError);
+        testThrownReadingServiceException(request, SQLException.class, Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest);
 
         // ReflectionException
         ServiceProvider.Services = mock(InternalServiceProvider.class);
@@ -485,15 +485,15 @@ public class ReadingControllerTest
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
 
         HttpResponse<String> response2 = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.statusCode(), "Should return status code 400 BAD REQUEST");
     }
 
-    void testThrownReadingServiceException(HttpRequest request, Class<? extends Exception> exception, HttpStatus expectedStatusCode, ResponseMessages responseMessage) throws SQLException, IOException, InterruptedException
+    void testThrownReadingServiceException(HttpRequest request, Class<? extends Exception> exception, Response.Status expectedStatusCode, ResponseMessages responseMessage) throws SQLException, IOException, InterruptedException
     {
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         when(ServiceProvider.Services.getReadingService()).thenThrow(exception);
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(expectedStatusCode.value(), response.statusCode(), "Should return status code " + expectedStatusCode.value());
+        assertEquals(expectedStatusCode.getStatusCode(), response.statusCode(), "Should return status code " + expectedStatusCode.getStatusCode());
 
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(responseMessage.toString(), body.get("message"));
@@ -617,6 +617,6 @@ public class ReadingControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(500, response.statusCode(), "Returned status code should be 5090 Internal Server Error");
-        assertTrue(response.body().contains("Internal Server Error"));
+        assertTrue(response.body().contains("Internal Server IOError"));
     }
 }

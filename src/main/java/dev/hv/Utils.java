@@ -91,6 +91,11 @@ public class Utils
         return _objMapper.writeValueAsString(responseCustomer);
     }
 
+    public static String packIntoJsonString(Map<? extends Object, ? extends Object> object) throws JsonProcessingException
+    {
+        return Utils.getObjectMapper().writeValueAsString(object);
+    }
+
     public static String packIntoJsonString(Collection<? extends IId> objects, Class classType) throws JsonProcessingException
     {
         String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase()) + "s";

@@ -7,37 +7,64 @@ import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import dev.server.validator.ReadingJsonSchemaValidationService;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
+import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-@CrossOrigin(origins= "*")
-@RestController
-@RequestMapping(value = "/readings")
+
+@Path("/readings")
 public class ReadingController
 {
-    private void validateRequestData(String jsonString)
+    private Response createErrorResponse(Response.Status status, String message) throws JsonProcessingException
     {
-        boolean invalidCustomer = ReadingJsonSchemaValidationService.getInstance().validate(jsonString);
-        if ( invalidCustomer )
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", message);
+        try
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+            return Response.status(status)
+                    .entity(Utils.getObjectMapper().writeValueAsString(errorResponse))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+        catch (JsonProcessingException e)
+        {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", ResponseMessages.ControllerInternalError.toString());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Utils.getObjectMapper().writeValueAsString(response))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         }
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(method = RequestMethod.POST)
-    public String addReading(@RequestBody String readingJson)
+    private Response validateRequestData(String jsonString) throws JsonProcessingException
     {
-        this.validateRequestData(readingJson);
+        boolean invalidReading = ReadingJsonSchemaValidationService.getInstance().validate(jsonString);
+        if ( invalidReading )
+        {
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
+        }
+        return null;
+    }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addReading(String readingJson) throws JsonProcessingException
+    {
+        Response invalid = this.validateRequestData(readingJson);
+        if (invalid != null) {
+            return invalid;
+        }
         try (ReadingService rs = ServiceProvider.Services.getReadingService())
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
@@ -47,95 +74,120 @@ public class ReadingController
                 reading.setId(UUID.randomUUID());
             }
             reading = rs.add(reading);
-            return Utils.packIntoJsonString(reading, Reading.class);
+            return Response.status(Response.Status.CREATED)
+                    .entity(Utils.packIntoJsonString(reading, Reading.class))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         }
         catch (JsonProcessingException | SQLException | ReflectiveOperationException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.PUT)
-    public String updateReading(@RequestBody String readingJson)
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateReading(String readingJson) throws JsonProcessingException
     {
-        this.validateRequestData(readingJson);
+        Response invalid = this.validateRequestData(readingJson);
+        if (invalid != null) {
+            return invalid;
+        }
         try (ReadingService rs = ServiceProvider.Services.getReadingService())
         {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
             if (rs.getById(reading.getId()) == null)
             {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
+                return createErrorResponse(Response.Status.NOT_FOUND,
+                        ResponseMessages.ControllerNotFound.toString());
             }
             rs.update(reading);
-            return Utils.packIntoJsonString(reading, Reading.class);
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(reading, Reading.class))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         }
         catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
-
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public String getReading(@PathVariable("id") UUID id)
+    @GET
+    @Path("/{id}")
+    public Response getReading(@PathParam("id") UUID id) throws JsonProcessingException
     {
         try
         {
             try (ReadingService rs = ServiceProvider.Services.getReadingService())
             {
                 Reading reading = rs.getById(id);
-                return Utils.packIntoJsonString(reading, Reading.class);
+                return Response.status(Response.Status.OK)
+                        .entity(Utils.packIntoJsonString(reading, Reading.class))
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
             }
         }
         catch (SQLException | ReflectiveOperationException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String deleteReading(@PathVariable("id") UUID id){
+    @DELETE
+    @Path("/{id}")
+    public Response deleteReading(@PathParam("id") UUID id) throws JsonProcessingException
+    {
         try
         {
             try (ReadingService rs = ServiceProvider.Services.getReadingService())
             {
                 Reading reading = rs.getById(id);
                 ServiceProvider.Services.getReadingService().remove(reading);
-                return Utils.packIntoJsonString(reading, Reading.class);
+                return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(reading, Reading.class))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
             }
         }
         catch (SQLException | ReflectiveOperationException e)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
         }
         catch (IOException e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET)
-    public String getReadings(@RequestParam(name = "customer", required = false) String customerId,
-                              @RequestParam(name = "start", required = false) String startDate,
-                              @RequestParam(name = "end", required = false) String endDate,
-                              @RequestParam(name = "kindOfMeter", required = false)Integer kindOfMeter)
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getReadings(@QueryParam("customer") String customerId,
+                              @QueryParam("start") String startDate,
+                              @QueryParam("end") String endDate,
+                              @QueryParam("kindOfMeter") Integer kindOfMeter) throws JsonProcessingException
     {
         try {
             UUID id = customerId != null ? UUID.fromString(customerId) : null;
@@ -145,7 +197,8 @@ public class ReadingController
             {
                 if (!startDate.matches("\\d{4}-\\d{2}-\\d{2}"))
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.InvalidDateFormatProvided.toString());
+                    return createErrorResponse(Response.Status.BAD_REQUEST,
+                            ResponseMessages.InvalidDateFormatProvided.toString());
                 }
                 start = LocalDate.parse(startDate);
             }
@@ -154,7 +207,8 @@ public class ReadingController
             {
                 if (!endDate.matches("\\d{4}-\\d{2}-\\d{2}"))
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.InvalidDateFormatProvided.toString());
+                    return createErrorResponse(Response.Status.BAD_REQUEST,
+                            ResponseMessages.InvalidDateFormatProvided.toString());
                 }
                 end = LocalDate.parse(endDate);
             }
@@ -166,7 +220,8 @@ public class ReadingController
                     meterType = IReading.KindOfMeter.values()[kindOfMeter];
                 } else
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.InvalidKindOfMeterProvided.toString());
+                    return createErrorResponse(Response.Status.BAD_REQUEST,
+                            ResponseMessages.InvalidKindOfMeterProvided.toString());
                 }
             }
             String returnString = null;
@@ -174,13 +229,15 @@ public class ReadingController
             {
                 Collection<Reading> queryResults = rs.queryReadings(Optional.ofNullable(id), Optional.ofNullable(start),
                         Optional.ofNullable(end), Optional.ofNullable(meterType));
-                returnString = Utils.packIntoJsonString(queryResults, Reading.class);
-            }
 
-            return returnString;
+                return Response.status(Response.Status.OK)
+                        .entity(Utils.packIntoJsonString(queryResults, Reading.class))
+                        .build();
+            }
         } catch (SQLException | IOException | ReflectiveOperationException e )
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 }

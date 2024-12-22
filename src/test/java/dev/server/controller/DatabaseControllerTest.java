@@ -12,10 +12,10 @@ import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.server.Server;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,10 +25,8 @@ import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class DatabaseControllerTest
@@ -65,7 +63,7 @@ public class DatabaseControllerTest
     @BeforeEach
     void setUp() throws IOException, SQLException
     {
-        Server.startServer(" ");
+        Server.startServer("http://localhost:8080/");
         this._httpClient = HttpClient.newHttpClient();
 
         if(_connection == null)
@@ -113,7 +111,7 @@ public class DatabaseControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
     }
 
     @Test
@@ -128,11 +126,11 @@ public class DatabaseControllerTest
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         when(ServiceProvider.Services.getDatabaseConnection()).thenThrow(new SQLException());
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 Internal Server Error");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 Internal Server Error");
 
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         when(ServiceProvider.Services.getDatabaseConnection()).thenThrow(new IOException());
         response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 Internal Server Error");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 Internal Server Error");
     }
 }
