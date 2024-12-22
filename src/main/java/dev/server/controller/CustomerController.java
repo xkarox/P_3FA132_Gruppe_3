@@ -20,29 +20,10 @@ import java.net.URI;
 import java.sql.SQLException;
 import java.util.*;
 
+import static dev.hv.Utils.createErrorResponse;
+
 @Path("/customers")
 public class CustomerController {
-    private Response createErrorResponse(Response.Status status, String message) throws JsonProcessingException
-    {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("message", message);
-        try
-        {
-            return Response.status(status)
-                    .entity(Utils.getObjectMapper().writeValueAsString(errorResponse))
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-        catch (JsonProcessingException e)
-        {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", ResponseMessages.ControllerInternalError.toString());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Utils.getObjectMapper().writeValueAsString(response))
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-    }
 
     private Response validateRequestData(String jsonString) throws JsonProcessingException
     {
@@ -92,10 +73,6 @@ public class CustomerController {
     {
         try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
             Customer customer = cs.getById(id);
-            if (customer == null) {
-                return createErrorResponse(Response.Status.NOT_FOUND,
-                        ResponseMessages.ControllerNotFound.toString());
-            }
             return Response.status(Response.Status.OK)
                     .entity(Utils.packIntoJsonString(customer, Customer.class))
                     .type(MediaType.APPLICATION_JSON)
@@ -166,10 +143,6 @@ public class CustomerController {
              ReadingService rs = ServiceProvider.Services.getReadingService()) {
 
             Customer customer = cs.getById(id);
-            if (customer == null) {
-                return createErrorResponse(Response.Status.NOT_FOUND,
-                        ResponseMessages.ControllerNotFound.toString());
-            }
 
             Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
             cs.remove(customer);

@@ -38,7 +38,7 @@ public class ReadingJsonSchemaValidationService extends JsonSchemaValidatorServi
             return !validationMessages.isEmpty();
         } catch (JsonProcessingException e)
         {
-            return false;
+            return true;
         }
     }
 

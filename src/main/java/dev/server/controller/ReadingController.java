@@ -18,32 +18,12 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import static dev.hv.Utils.createErrorResponse;
+
 
 @Path("/readings")
 public class ReadingController
 {
-    private Response createErrorResponse(Response.Status status, String message) throws JsonProcessingException
-    {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("message", message);
-        try
-        {
-            return Response.status(status)
-                    .entity(Utils.getObjectMapper().writeValueAsString(errorResponse))
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-        catch (JsonProcessingException e)
-        {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", ResponseMessages.ControllerInternalError.toString());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Utils.getObjectMapper().writeValueAsString(response))
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-    }
-
     private Response validateRequestData(String jsonString) throws JsonProcessingException
     {
         boolean invalidReading = ReadingJsonSchemaValidationService.getInstance().validate(jsonString);
