@@ -1,6 +1,7 @@
 package dev.server;
 
 import com.sun.net.httpserver.HttpServer;
+import dev.server.config.JerseyConfig;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -14,7 +15,7 @@ public class Server {
         String _url = url;
         System.out.println("Start server");
         System.out.println(_url);
-        final ResourceConfig rc = new ResourceConfig().packages(pack);
+        final ResourceConfig rc = new JerseyConfig();
         serverInstance = JdkHttpServerFactory.createHttpServer(
                 URI.create(_url), rc);
         System.out.println("Ready for Requests....");
