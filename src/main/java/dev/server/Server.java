@@ -12,12 +12,11 @@ public class Server {
 
     public static void startServer(String url) {
         final String pack = "dev.server.controller";
-        String _url = url;
         System.out.println("Start server");
-        System.out.println(_url);
+        System.out.println(url);
         final ResourceConfig rc = new JerseyConfig();
         serverInstance = JdkHttpServerFactory.createHttpServer(
-                URI.create(_url), rc);
+                URI.create(url), rc);
         System.out.println("Ready for Requests....");
     }
 
