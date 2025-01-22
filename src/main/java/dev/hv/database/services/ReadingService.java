@@ -18,12 +18,12 @@ public class ReadingService extends AbstractBaseService<Reading>
 {
     public ReadingService(DatabaseConnection dbConnection, InternalServiceProvider provider)
     {
-        super(dbConnection, provider);
+        super(dbConnection, provider, Reading.class);
     }
 
     public ReadingService(DatabaseConnection dbConnection)
     {
-        super(dbConnection, null);
+        super(dbConnection, null, Reading.class);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ReadingService extends AbstractBaseService<Reading>
             stmt.setString(1, item.getId().toString());
             stmt.setString(2, item.getComment());
 
-            String customerId = null;
+            String customerId;
             try (CustomerService customerService = ServiceProvider.Services.getCustomerService())
             {
                 Customer existingCustomer = customerService.getById(item.getCustomer().getId());
@@ -70,7 +70,7 @@ public class ReadingService extends AbstractBaseService<Reading>
     public List<Reading> getReadingsByCustomerId(UUID id) throws ReflectiveOperationException, SQLException, IOException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE customerId = '%s'", id));
-        return result.isEmpty() ? List.of() : (List<Reading>) result;
+        return result.isEmpty() ? List.of() : result;
     }
 
     public Collection<Reading> queryReadings(Optional<UUID> customerId,
@@ -104,15 +104,14 @@ public class ReadingService extends AbstractBaseService<Reading>
                 ofMeter -> whereClauseBuilder.append(" AND kindOfMeter = ")
                         .append(ofMeter.ordinal()));
 
-        return (Collection<Reading>) this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, whereClauseBuilder.toString());
+        return this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, whereClauseBuilder.toString());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     // Req. Nr.: 12
     public List<Reading> getAll() throws ReflectiveOperationException, SQLException, IOException
     {
-        return (List<Reading>) this._dbConnection.getAllObjectsFromDbTable(Reading.class);
+        return this._dbConnection.getAllObjectsFromDbTable(Reading.class);
     }
 
     @Override
@@ -140,13 +139,6 @@ public class ReadingService extends AbstractBaseService<Reading>
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
         return item;
-    }
-
-    @Override
-    // Req. Nr.: 11
-    public void remove(Reading item) throws SQLException
-    {
-        removeDbItem(item);
     }
 
     @Override
