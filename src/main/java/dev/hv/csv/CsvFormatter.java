@@ -11,10 +11,10 @@ public class CsvFormatter
 
     public File formatFile(File csvFile, char separator) throws IOException
     {
-        File tempFile = new File(csvFile.getParent(), "temp.csv");
+        File formattedFile = new File(csvFile.getParent(), "formatted_" + csvFile.getName());
 
         try (Scanner scanner = new Scanner(csvFile);
-             FileWriter writer = new FileWriter(tempFile))
+             FileWriter writer = new FileWriter(formattedFile))
         {
             String regex = "^" + separator + "+$";
 
@@ -29,17 +29,10 @@ public class CsvFormatter
                 writer.write(line + System.lineSeparator());
             }
         }
-
-        if (csvFile.delete())
-        {
-            if (!tempFile.renameTo(csvFile))
-            {
-                throw new RuntimeException("Error at replacing of old file");
-            }
-        } else
-        {
-            throw new RuntimeException("Error at deleting old file");
+        catch (Exception e) {
+          e.printStackTrace();
         }
-        return csvFile;
+
+        return formattedFile;
     }
 }

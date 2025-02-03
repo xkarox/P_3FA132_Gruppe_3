@@ -1,6 +1,7 @@
 package dev.hv.csv;
 
 import org.junit.jupiter.api.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,15 +14,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CsvFormatterTest
 {
-    enum LineType {
+    enum LineType
+    {
         LINES_ADDED("Lines added"),
         LINES_AFTER_FORMAT("Lines after format");
 
         private final String description;
 
-        LineType(String description) {
+        LineType(String description)
+        {
             this.description = description;
         }
+
         @Override
         public String toString()
         {
@@ -66,6 +70,8 @@ public class CsvFormatterTest
 
     private static final Map<File, Map<String, Integer>> _mockedCustomerFiles = new HashMap<>();
     private static final Map<File, Map<String, Integer>> _mockedReadingFiles = new HashMap<>();
+    private static final List<File> _formattedMockedCustomerFiles = new ArrayList<>();
+    private static final List<File> _formattedMockedReadingFiles = new ArrayList<>();
 
     @BeforeAll
     static void beforeAll()
@@ -244,7 +250,7 @@ public class CsvFormatterTest
             long actualFileCount = Files.list(Paths.get(_directory))
                     .filter(Files::isRegularFile)
                     .count();
-            assertEquals(_entriesInDirectory + _mockedCustomerFiles.size() + _mockedReadingFiles.size(), actualFileCount, "It should be the same amount of files counted");
+            assertEquals(_entriesInDirectory + _mockedCustomerFiles.size() + _mockedReadingFiles.size() + _formattedMockedCustomerFiles.size() + _formattedMockedReadingFiles.size(), actualFileCount, "It should be the same amount of files counted");
 
         } catch (IOException e)
         {
@@ -317,6 +323,7 @@ public class CsvFormatterTest
             Map<String, Integer> lineCountMap = entry.getValue();
 
             File formattedFile = formatter.formatFile(originalFile, ',');
+            _formattedMockedCustomerFiles.add(formattedFile);
 
             int actualLineCount = 0;
             try (Scanner scanner = new Scanner(formattedFile))
@@ -331,21 +338,18 @@ public class CsvFormatterTest
                 throw new RuntimeException("Error when trying to count lines in formatted file: " + formattedFile.getName(), e);
             }
 
-            for (Map.Entry<String, Integer> integerEntry : lineCountMap.entrySet()) {
-                int value = integerEntry.getValue();
-            }
-
             int expectedLineCount = lineCountMap.get(LineType.LINES_AFTER_FORMAT.toString());
             assertEquals(expectedLineCount, actualLineCount,
                     "Line count mismatch for file: " + originalFile.getName() +
                             " (Expected: " + expectedLineCount + ", Actual: " + actualLineCount + ")");
         }
-        for (Map.Entry<File, Map<String , Integer>> entry : _mockedReadingFiles.entrySet())
+        for (Map.Entry<File, Map<String, Integer>> entry : _mockedReadingFiles.entrySet())
         {
             File originalFile = entry.getKey();
             Map<String, Integer> lineCountMap = entry.getValue();
 
             File formattedFile = formatter.formatFile(originalFile, ';');
+            _formattedMockedReadingFiles.add(formattedFile);
 
             int actualLineCount = 0;
             try (Scanner scanner = new Scanner(formattedFile))
@@ -381,7 +385,6 @@ public class CsvFormatterTest
                 }
             }
         }
-        _mockedCustomerFiles.clear();
 
         for (File file : _mockedReadingFiles.keySet())
         {
@@ -394,6 +397,25 @@ public class CsvFormatterTest
                 }
             }
         }
-        _mockedCustomerFiles.clear();
+
+        for (File file : _formattedMockedReadingFiles) {
+            if (file.exists()) {
+                boolean deleted = file.delete();
+                if (!deleted) {
+                    System.err.println("Failed to delete file: " + file.getAbsolutePath());
+                }
+            }
+        }
+        for (File file : _formattedMockedCustomerFiles) {
+            if (file.exists()) {
+                boolean deleted = file.delete();
+                if (!deleted) {
+                    System.err.println("Failed to delete file: " + file.getAbsolutePath());
+                }
+            }
+        }
+
+
+
     }
 }
