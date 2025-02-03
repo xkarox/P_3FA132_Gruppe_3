@@ -8,7 +8,7 @@ public class CsvParser
 {
     private File _csvFile;
 
-    public CsvParser(File csvFile)
+    public CsvParser(File csvFile) throws IOException
     {
         CsvFormatter formatter = new CsvFormatter();
         this._csvFile = csvFile;

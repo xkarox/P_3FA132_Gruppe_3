@@ -307,7 +307,7 @@ public class CsvFormatterTest
 
     @Test
     @Order(3)
-    void removeEmptyLinesTest()
+    void removeEmptyLinesTest() throws IOException
     {
         CsvFormatter formatter = new CsvFormatter();
 

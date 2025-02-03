@@ -117,21 +117,21 @@ public class CsvParserTest
     }
 
     @Test
-    void getReadingSeparatorTest()
+    void getReadingSeparatorTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvReadingFile);
         assertEquals(';', parser.getSeparator());
     }
 
     @Test
-    void getCustomerSeparatorTest()
+    void getCustomerSeparatorTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvCustomerFile);
         assertEquals(',', parser.getSeparator());
     }
 
     @Test
-    void getReadingHeaderTest()
+    void getReadingHeaderTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvReadingFile);
         Iterable<String> header = parser.getHeader();
@@ -148,7 +148,7 @@ public class CsvParserTest
     }
 
     @Test
-    void getCustomerHeaderTest()
+    void getCustomerHeaderTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvCustomerFile);
         Iterable<String> header = parser.getHeader();
@@ -164,7 +164,7 @@ public class CsvParserTest
     }
 
     @Test
-    void getReadingValuesTest()
+    void getReadingValuesTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvReadingFile);
 
@@ -197,7 +197,7 @@ public class CsvParserTest
     }
 
     @Test
-    void getCustomerValuesTest()
+    void getCustomerValuesTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvCustomerFile);
 
@@ -232,7 +232,7 @@ public class CsvParserTest
     }
 
     @Test
-    void getReadingMetaDataTest()
+    void getReadingMetaDataTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvReadingFile);
 
@@ -258,7 +258,7 @@ public class CsvParserTest
     }
 
     @Test
-    void getCustomerMetaDataTest()
+    void getCustomerMetaDataTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvCustomerFile);
 
