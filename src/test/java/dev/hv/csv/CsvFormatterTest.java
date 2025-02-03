@@ -322,7 +322,7 @@ public class CsvFormatterTest
             File originalFile = entry.getKey();
             Map<String, Integer> lineCountMap = entry.getValue();
 
-            File formattedFile = formatter.formatFile(originalFile, ',');
+            File formattedFile = formatter.formatFile(originalFile, ",");
             _formattedMockedCustomerFiles.add(formattedFile);
 
             int actualLineCount = 0;
@@ -348,7 +348,7 @@ public class CsvFormatterTest
             File originalFile = entry.getKey();
             Map<String, Integer> lineCountMap = entry.getValue();
 
-            File formattedFile = formatter.formatFile(originalFile, ';');
+            File formattedFile = formatter.formatFile(originalFile, ";");
             _formattedMockedReadingFiles.add(formattedFile);
 
             int actualLineCount = 0;

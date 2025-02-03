@@ -6,6 +6,43 @@ import java.util.*;
 
 public class CsvParser
 {
+    enum Separator
+    {
+        READING_SEPARATOR(";"),
+        CUSTOMER_SEPARATOR(",");
+
+        private final String description;
+
+        Separator(String description)
+        {
+            this.description = description;
+        }
+
+        @Override
+        public String toString()
+        {
+            return description;
+        }
+    }
+    enum LineNumbers
+    {
+        LINES_UNTIL_VALUES_READING(3),
+        LINES_UNTIL_VALUES_CUSTOMER(1),
+        METADATA_READING_NUMBER_OF_VALUES(2);
+
+        private final int number;
+
+        LineNumbers(int number)
+        {
+            this.number = number;
+        }
+
+        public int getNumber()
+        {
+            return number;
+        }
+    }
+
     private File _csvFile;
 
     public CsvParser(File csvFile) throws IOException
@@ -18,25 +55,25 @@ public class CsvParser
     public Iterable<List<String>> getValues() {
         List<List<String>> valuesList = new ArrayList<>();
         try (Scanner scanner = new Scanner(this._csvFile)) {
-            if (this.getSeparator() == ',') {
+            if (Objects.equals(this.getSeparator(), Separator.CUSTOMER_SEPARATOR.toString())) {
                 if (scanner.hasNextLine()) {
                     scanner.nextLine();
                 }
 
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    List<String> values = Arrays.stream(line.split(",")).toList();
+                    List<String> values = Arrays.stream(line.split(Separator.CUSTOMER_SEPARATOR.toString())).toList();
                     valuesList.add(values);
 
                 }
-            } else if (this.getSeparator() == ';') {
-                for (int i = 0; i < 3 && scanner.hasNextLine(); i++) {
+            } else if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString())) {
+                for (int i = 0; i < LineNumbers.LINES_UNTIL_VALUES_READING.getNumber() && scanner.hasNextLine(); i++) {
                     scanner.nextLine();
                 }
 
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    List<String> values = Arrays.stream(line.split(";")).toList();
+                    List<String> values = Arrays.stream(line.split(Separator.READING_SEPARATOR.toString())).toList();
                     valuesList.add(values);
                 }
             }
@@ -51,21 +88,21 @@ public class CsvParser
         List<String> headerList = new ArrayList<>();
 
         try (Scanner scanner = new Scanner(this._csvFile)) {
-            if (this.getSeparator() == ',') {
+            if (Objects.equals(this.getSeparator(), Separator.CUSTOMER_SEPARATOR.toString())) {
                 if (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    String[] headers = line.split(",");
+                    String[] headers = line.split(Separator.CUSTOMER_SEPARATOR.toString());
                     Collections.addAll(headerList, headers);
                 }
-            } else if (this.getSeparator() == ';') {
+            } else if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString())) {
                 int lineNumber = 0;
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
                     lineNumber++;
 
-                    if (lineNumber == 3) {
+                    if (lineNumber == LineNumbers.LINES_UNTIL_VALUES_READING.getNumber()) {
                         line = line.replace("\"", "");
-                        String[] headers = line.split(";");
+                        String[] headers = line.split(Separator.READING_SEPARATOR.toString());
                         Collections.addAll(headerList, headers);
                         break;
                     }
@@ -84,21 +121,21 @@ public class CsvParser
         int lineCount = 0;
 
         try (Scanner scanner = new Scanner(this._csvFile)) {
-            if (this.getSeparator() == ';') {
-                while (scanner.hasNextLine() && lineCount < 2) {
+            if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString())) {
+                while (scanner.hasNextLine() && lineCount < LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber()) {
                     String line = scanner.nextLine();
                     lineCount++;
 
                     line = line.replace("\"", "");
-                    String[] parts = line.split(";");
+                    String[] parts = line.split(Separator.READING_SEPARATOR.toString());
 
-                    if (parts.length == 2) {
+                    if (parts.length == LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber()) {
                         Map<String, String> dataMap = new HashMap<>();
                         dataMap.put(parts[0], parts[1]);
                         metaDataList.add(dataMap);
                     }
                 }
-            } else if (this.getSeparator() == ',') {
+            } else if (Objects.equals(this.getSeparator(), Separator.CUSTOMER_SEPARATOR.toString())) {
                 return metaDataList;
             }
         } catch (Exception e) {
@@ -108,26 +145,26 @@ public class CsvParser
     }
 
 
-    public char getSeparator()
+    public String getSeparator()
     {
         try (Scanner scanner = new Scanner(this._csvFile))
         {
             if (scanner.hasNextLine())
             {
                 String line = scanner.nextLine();
-                if (line.contains(","))
+                if (line.contains(Separator.CUSTOMER_SEPARATOR.toString()))
                 {
-                    return ',';
-                } else if (line.contains(";"))
+                    return Separator.CUSTOMER_SEPARATOR.toString();
+                } else if (line.contains(Separator.READING_SEPARATOR.toString()))
                 {
-                    return ';';
+                    return Separator.READING_SEPARATOR.toString();
                 }
             }
         } catch (IOException e)
         {
             e.printStackTrace();
         }
-        return '"';
+        return "";
     }
 
 }

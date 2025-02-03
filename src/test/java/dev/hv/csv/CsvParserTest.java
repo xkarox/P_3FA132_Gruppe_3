@@ -30,6 +30,7 @@ public class CsvParserTest
             "\"Zählernummer\";\"MST-af34569\";\n";
 
     private static final Map<File, Integer> _mockedFiles = new HashMap<>();
+    private static final List<File> _formatedMockedFiles = new ArrayList<>();
 
     @BeforeAll
     static void beforeAll()
@@ -120,14 +121,14 @@ public class CsvParserTest
     void getReadingSeparatorTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvReadingFile);
-        assertEquals(';', parser.getSeparator());
+        assertEquals(";", parser.getSeparator());
     }
 
     @Test
     void getCustomerSeparatorTest() throws IOException
     {
         CsvParser parser = new CsvParser(_csvCustomerFile);
-        assertEquals(',', parser.getSeparator());
+        assertEquals(",", parser.getSeparator());
     }
 
     @Test
@@ -280,7 +281,7 @@ public class CsvParserTest
                 }
             }
         }
-        _mockedFiles.clear();
+
     }
 
 }

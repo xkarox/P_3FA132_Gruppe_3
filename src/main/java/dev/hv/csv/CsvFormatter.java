@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class CsvFormatter
 {
 
-    public File formatFile(File csvFile, char separator) throws IOException
+    public File formatFile(File csvFile, String separator) throws IOException
     {
         File formattedFile = new File(csvFile.getParent(), "formatted_" + csvFile.getName());
 
