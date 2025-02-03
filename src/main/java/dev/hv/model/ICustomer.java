@@ -23,7 +23,7 @@ public interface ICustomer extends IId, IDbItem
 
     String getLastName();
 
-    void setBirthDate(LocalDate birtDate);
+    void setBirthDate(LocalDate birthDate);
 
     void setFirstName(String firstName);
 

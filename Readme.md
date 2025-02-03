@@ -1,5 +1,8 @@
 # 3FA132_Gruppe_3
 
+# Linked projects
+https://github.com/Jddk1871/P_3FA132_Gruppe_3_Frontend
+
 # Conventions
 
 - Language: english
@@ -33,3 +36,14 @@ Releases are based one main.
 - Curly brackets start in the next line
 - Calling local variables using this.
 - No wildcards for library imports
+
+
+### Endpoint Internal Error Handling 
+Internal Errors are always sent back to the requester with code 500.
+-> Allowed after consultation with Mr Niedermair 
+
+## Testing
+To skip Spring-Server restart in endpoint test set a global system variable to:
+````java
+SkipServerRestart=True
+````

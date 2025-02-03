@@ -16,10 +16,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,8 +30,6 @@ public class ReadingServiceTest
     private Reading _testReading;
     private Reading _testReadingWithoutCustomer;
     private Customer _testCustomer;
-    private ReadingService _readingService;
-    private CustomerService _customerService;
 
     @BeforeAll
     static void OneTimeSetup() throws IOException
@@ -59,23 +54,27 @@ public class ReadingServiceTest
         _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         _databaseConnection.removeAllTables();
         _databaseConnection.createAllTables();
-        this._customerService = new CustomerService(_databaseConnection);
-        this._readingService = new ReadingService(_databaseConnection);
     }
 
     @Test
     void testAdd() throws ReflectiveOperationException, SQLException, IOException
     {
-        this._readingService.add(this._testReading);
-        Reading readingFromDb = this._readingService.getById(this._testReading.getId());
-        assertNotNull(readingFromDb, "Reading should not be null after being added to the database.");
-        assertEquals(this._testReading, readingFromDb, "Readings are not the same");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                rs.add(this._testReading);
+                Reading readingFromDb = rs.getById(this._testReading.getId());
+                assertNotNull(readingFromDb, "Reading should not be null after being added to the database.");
+                assertEquals(this._testReading, readingFromDb, "Readings are not the same");
 
-        Customer createdCustomer = this._customerService.getById(this._testReading.getCustomer().getId());
-        assertNotNull(createdCustomer, "A customer should be created");
-        assertEquals(createdCustomer, this._testReading.getCustomer());
+                Customer createdCustomer = cs.getById(this._testReading.getCustomer().getId());
+                assertNotNull(createdCustomer, "A customer should be created");
+                assertEquals(createdCustomer, this._testReading.getCustomer());
 
-        assertThrows(IllegalArgumentException.class, () -> this._readingService.add(this._testReadingWithoutCustomer));
+                assertThrows(IllegalArgumentException.class, () -> rs.add(this._testReadingWithoutCustomer));
+            }
+        }
     }
 
     @Test
@@ -89,35 +88,47 @@ public class ReadingServiceTest
     @Test
     void updateTest() throws ReflectiveOperationException, SQLException, IOException
     {
-        this._customerService.add(this._testCustomer);
-//        add origin reading
-        this._readingService.add(this._testReading);
-//        modify reading
-        this._testReading.setComment("NANI?!");
-        this._testReading.setDateOfReading(LocalDate.of(2000, 11, 2));
-        this._testReading.setKindOfMeter(KindOfMeter.HEIZUNG);
-        this._testReading.setMeterCount(98765.5);
-        this._testReading.setMeterId("456738901");
-        this._testReading.setSubstitute(true);
-//        update reading
-        this._readingService.update(this._testReading);
-//        get reading
-        Reading updatedReading = this._readingService.getById(this._testReading.getId());
-//        check if reading updated correctly
-        assertEquals(this._testReading, updatedReading, "Reading should be changed");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                cs.add(this._testCustomer);
+                //        add origin reading
+                rs.add(this._testReading);
+                //        modify reading
+                this._testReading.setComment("NANI?!");
+                this._testReading.setDateOfReading(LocalDate.of(2000, 11, 2));
+                this._testReading.setKindOfMeter(KindOfMeter.HEIZUNG);
+                this._testReading.setMeterCount(98765.5);
+                this._testReading.setMeterId("456738901");
+                this._testReading.setSubstitute(true);
+                //        update reading
+                rs.update(this._testReading);
+                //        get reading
+                Reading updatedReading = rs.getById(this._testReading.getId());
+                //        check if reading updated correctly
+                assertEquals(this._testReading, updatedReading, "Reading should be changed");
+            }
+        }
     }
 
     @Test
     void getByIdTest() throws ReflectiveOperationException, SQLException, IOException
     {
-        this._customerService.add(this._testCustomer);
-        this._readingService.add(this._testReading);
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                cs.add(this._testCustomer);
+                rs.add(this._testReading);
 
-        var nullResult = this._readingService.getById(UUID.randomUUID());
-        assertNull(nullResult, "Because there are no items in the db");
+                var nullResult = rs.getById(UUID.randomUUID());
+                assertNull(nullResult, "Because there are no items in the db");
 
-        var result = this._readingService.getById(this._testReading.getId());
-        assertEquals(this._testReading, result, "Because the customer should exist");
+                var result = rs.getById(this._testReading.getId());
+                assertEquals(this._testReading, result, "Because the customer should exist");
+            }
+        }
     }
 
     @Test
@@ -141,60 +152,90 @@ public class ReadingServiceTest
     @Test
     void getAllTest() throws ReflectiveOperationException, SQLException, IOException
     {
-        this._customerService.add(this._testCustomer);
-        this._readingService.add(this._testReading);
-
-        Reading reading2 = new Reading(UUID.randomUUID()
-                , "no comment", this._testCustomer.getId()
-                , null, LocalDate.now(), KindOfMeter.HEIZUNG
-                , 999.9, "10009960001", true);
-        reading2.setCustomer(this._testCustomer);
-
-        this._readingService.add(reading2);
-
-        var result = this._readingService.getAll();
-        result.sort(Comparator.comparing(Reading::getId));
-        assertEquals(2, result.size(), "Because there are 2 items");
-
-        // Because Java is shit
-        Reading reading1 = this._testReading;
-        List<Reading> prepeared = new ArrayList<>()
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
             {
-                add(reading1);
-                add(reading2);
-            }
-        };
-        prepeared.sort(Comparator.comparing(Reading::getId));
+                cs.add(this._testCustomer);
+                rs.add(this._testReading);
 
-        assertEquals(prepeared, result);
+                Reading reading2 = new Reading(UUID.randomUUID()
+                        , "no comment", this._testCustomer.getId()
+                        , null, LocalDate.now(), KindOfMeter.HEIZUNG
+                        , 999.9, "10009960001", true);
+                reading2.setCustomer(this._testCustomer);
+
+                rs.add(reading2);
+
+                var result = rs.getAll();
+                result.sort(Comparator.comparing(Reading::getId));
+                assertEquals(2, result.size(), "Because there are 2 items");
+
+                // Because Java is shit
+                Reading reading1 = this._testReading;
+                List<Reading> prepeared = new ArrayList<>()
+                {
+                    {
+                        add(reading1);
+                        add(reading2);
+                    }
+                };
+                prepeared.sort(Comparator.comparing(Reading::getId));
+
+                assertEquals(prepeared, result);
+            }
+        }
+    }
+
+    @Test
+    void queryReadings() throws SQLException, IOException, ReflectiveOperationException
+    {
+        KindOfMeter meterType = this._testReading.getKindOfMeter();
+        UUID customerId = this._testReading.getCustomerId();
+
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            rs.add(this._testReading);
+
+            Collection<Reading> readings =  rs.queryReadings(Optional.ofNullable(customerId), Optional.empty(), Optional.empty(), Optional.ofNullable(meterType));
+            assertEquals(1, readings.size());
+            assertTrue(readings.contains(this._testReading));
+        }
     }
 
 
     @Test
     void removeTest() throws ReflectiveOperationException, SQLException, IOException
     {
-//        add Customer and Reading
-        this._customerService.add(this._testCustomer);
-        this._readingService.add(this._testReading);
-//        remove reading
-        this._readingService.remove(this._testReading);
-//        try to get reading
-        assertNull(this._readingService.getById(this._testReading.getId()), "Should return null because the " +
-                "reading was deleted before");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                cs.add(this._testCustomer);
+                rs.add(this._testReading);
+                rs.remove(this._testReading);
+                    Reading nullReading = rs.getById(this._testReading.getId());
+                    assertNull(nullReading, "Should return null because the " +
+                            "reading was deleted before");
+            }
+        }
     }
 
     @Test
-    void crudNullCheck() throws NoSuchFieldException, IllegalAccessException
+    void crudNullCheck() throws NoSuchFieldException, IllegalAccessException, SQLException, IOException
     {
-        Reading reading = _testReading;
-        Field secretField = Reading.class.getDeclaredField("_id");
-        secretField.setAccessible(true);
-        secretField.set(reading, null);
 
-        assertThrows(IllegalArgumentException.class, () -> this._readingService.add(null));
-        assertThrows(IllegalArgumentException.class, () -> this._readingService.update(reading));
-        assertThrows(IllegalArgumentException.class, () -> this._readingService.remove(reading));
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            Reading reading = _testReading;
+            Field secretField = Reading.class.getDeclaredField("_id");
+            secretField.setAccessible(true);
+            secretField.set(reading, null);
+
+            assertThrows(IllegalArgumentException.class, () -> rs.add(null));
+            assertThrows(IllegalArgumentException.class, () -> rs.update(reading));
+            assertThrows(IllegalArgumentException.class, () -> rs.remove(reading));
+        }
     }
 
     @Test
