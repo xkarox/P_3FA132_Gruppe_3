@@ -9,13 +9,13 @@ import java.util.Scanner;
 public class CsvFormatter
 {
 
-    public File formatFile(File csvFile, String separator) throws IOException
+    public String formatFile(String csvFile)
     {
-        File formattedFile = new File(csvFile.getParent(), "formatted_" + csvFile.getName());
+        StringBuilder formattedContent = new StringBuilder();
 
-        try (Scanner scanner = new Scanner(csvFile);
-             FileWriter writer = new FileWriter(formattedFile))
+        try (Scanner scanner = new Scanner(csvFile))
         {
+            String separator = ";";
             String regex = "^" + separator + "+$";
 
             while (scanner.hasNextLine())
@@ -26,13 +26,13 @@ public class CsvFormatter
                 {
                     continue;
                 }
-                writer.write(line + System.lineSeparator());
+                formattedContent.append(line).append(System.lineSeparator());
             }
         }
         catch (Exception e) {
-          e.printStackTrace();
+            e.printStackTrace();
         }
 
-        return formattedFile;
+        return formattedContent.toString();
     }
 }
