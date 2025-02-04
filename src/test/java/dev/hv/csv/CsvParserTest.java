@@ -87,6 +87,6 @@ public class CsvParserTest {
     void getCustomerMetaDataTest() throws IOException
     {
         CsvParser parser = new CsvParser(CSV_CUSTOMER_CONTENT);
-        // assertTrue(parser.getMetaData().isEmpty(), "Customer CSV should have no metadata");
+        assertFalse(parser.getMetaData().iterator().hasNext(), "Customer CSV should have no metadata");
     }
 }
