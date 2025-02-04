@@ -21,7 +21,6 @@ public class Customer implements ICustomer
 {
     @JsonProperty("id")
     @IFieldInfo(fieldName = "id", fieldType = String.class)
-    @Nullable
     private UUID _id;
 
     @JsonProperty("firstName")
@@ -125,7 +124,6 @@ public class Customer implements ICustomer
         this._lastName = lastName;
     }
 
-    @Nullable
     @JsonIgnore
     @Override
     public UUID getId()

@@ -5,26 +5,21 @@ import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>
 {
     public CustomerService(DatabaseConnection dbConnection, InternalServiceProvider provider)
     {
-        super(dbConnection, provider);
+        super(dbConnection, provider, Customer.class);
     }
 
     public CustomerService(DatabaseConnection dbConnection)
     {
-        super(dbConnection, null);
+        super(dbConnection, null, Customer.class);
     }
 
 
@@ -71,5 +66,36 @@ public class CustomerService extends AbstractBaseService<Customer>
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
         return item;
+    }
+
+    @Override
+    public void remove(Customer item) throws SQLException
+    {
+        super.remove(item);
+        if (item.getId() != null)
+            cleanUpAfterCustomerRemove(item.getId());
+        else throw new IllegalArgumentException("Cannot delete a customer without id"); // ToDo: better handling
+    }
+
+    private void cleanUpAfterCustomerRemove(UUID customerId) throws SQLException
+    {
+        String sqlStatement = "UPDATE " + new Reading().getSerializedTableName() + " " +
+                "SET customerId=NULL WHERE customerId = ?";
+
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
+            stmt.setString(1, customerId.toString());
+
+            this._dbConnection.executePreparedStatementCommand(stmt);
+        }
+    }
+
+    @Override
+    public void close() throws SQLException
+    {
+        if (this._provider != null)
+        {
+            this._provider.releaseDbConnection(this._dbConnection);
+            this._provider.releaseCustomerService(this);
+        }
     }
 }

@@ -1,11 +1,12 @@
 package dev.hv.database.mocks;
 
+import dev.hv.model.IId;
 import dev.hv.model.decorator.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 
 import java.util.UUID;
 
-public class MockTableObject implements IDbItem
+public class MockTableObject implements IDbItem, IId
 {
     @IFieldInfo(fieldName = "name", fieldType = UUID.class)
     public String name;
@@ -74,5 +75,17 @@ public class MockTableObject implements IDbItem
             return this.age == other.age && this.name.equals(other.name);
         }
         return false;
+    }
+
+    @Override
+    public UUID getId()
+    {
+        return null;
+    }
+
+    @Override
+    public void setId(UUID id)
+    {
+
     }
 }
