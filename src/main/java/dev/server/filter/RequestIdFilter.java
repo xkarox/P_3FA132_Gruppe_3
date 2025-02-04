@@ -24,11 +24,11 @@ public class RequestIdFilter implements ContainerRequestFilter, ContainerRespons
         String requestId = UUID.randomUUID().toString();
         // MDC -> Mapped Diagnostics Context
         MDC.put("requestId", requestId);
-
     }
 
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
         MDC.remove("requestId");
+        MDC.clear();
     }
 }
