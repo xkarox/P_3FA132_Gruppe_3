@@ -83,7 +83,7 @@ jobs:
         run: mvn -B test --file pom.xml
 
       - name: Upload Maven artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: maven-artifacts
             path: target/*.jar
