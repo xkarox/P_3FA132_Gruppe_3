@@ -4,8 +4,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.intefaces.IDatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.classes.Customer;
-import dev.hv.model.classes.Reading;
+import dev.hv.model.IId;
 import dev.hv.model.decorator.FieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 
@@ -171,7 +170,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return this.getConnection().prepareStatement(statement);
     }
 
-    private <T extends IDbItem> List<? extends IDbItem> getObjectsFromDbTable(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws SQLException, ReflectiveOperationException, IOException
+    private <T extends IDbItem & IId> List<T> getObjectsFromDbTable(Class<T> classInfo, String sqlWhereClause) throws SQLException, ReflectiveOperationException, IOException
     {
         IDbItem object = classInfo.getConstructor().newInstance();
 
@@ -179,7 +178,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         List<FieldInfo> fieldInfos = FieldInfo.getFieldInformationFromClass(tClass);
         String queryCommand = String.format("SELECT * FROM %s %s;", object.getSerializedTableName(), sqlWhereClause);
 
-        List<IDbItem> results = new ArrayList<>();
+        List<T> results = new ArrayList<>();
 
         try (ResultSet result = this.executeSqlQueryCommand(queryCommand))
         {
@@ -203,8 +202,8 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
                     args.add(value);
                 }
 
-                Constructor<? extends IDbItem> constructor = tClass.getConstructor();
-                IDbItem newObject = constructor.newInstance();
+                Constructor<T> constructor = classInfo.getConstructor();
+                T newObject = constructor.newInstance();
                 newObject.dbObjectFactory(args.toArray());
                 results.add(newObject);
             }
@@ -213,7 +212,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return results;
     }
 
-    public List<? extends IDbItem> getAllObjectsFromDbTable(Class<? extends IDbItem> classInfo) throws ReflectiveOperationException, SQLException, IOException
+    public <T extends IDbItem & IId> List<T> getAllObjectsFromDbTable(Class<T> classInfo) throws ReflectiveOperationException, SQLException, IOException
     {
         return getObjectsFromDbTable(classInfo, "");
     }
@@ -223,7 +222,7 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
      *
      * @param sqlWhereClause Sql where statement, starts with: Where ...
      */
-    public List<? extends IDbItem> getAllObjectsFromDbTableWithFilter(Class<? extends IDbItem> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException, IOException
+    public <T extends IDbItem & IId> List<T> getAllObjectsFromDbTableWithFilter(Class<T> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException, IOException
     {
         return getObjectsFromDbTable(classInfo, sqlWhereClause);
 
