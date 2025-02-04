@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -91,6 +93,11 @@ public class Utils
         return _objMapper.writeValueAsString(responseCustomer);
     }
 
+    public static String packIntoJsonString(Map<? extends Object, ? extends Object> object) throws JsonProcessingException
+    {
+        return Utils.getObjectMapper().writeValueAsString(object);
+    }
+
     public static String packIntoJsonString(Collection<? extends IId> objects, Class classType) throws JsonProcessingException
     {
         String key = Utils.getLastPartAfterDot(classType.toString().toLowerCase()) + "s";
@@ -107,6 +114,28 @@ public class Utils
         ObjectMapper objectMapper = Utils.getObjectMapper();
         return objectMapper.writeValueAsString(objects);
 
+    }
+
+    public static Response createErrorResponse(Response.Status status, String message) throws JsonProcessingException
+    {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", message);
+        try
+        {
+            return Response.status(status)
+                    .entity(Utils.getObjectMapper().writeValueAsString(errorResponse))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+        catch (JsonProcessingException e)
+        {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", ResponseMessages.ControllerInternalError.toString());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Utils.getObjectMapper().writeValueAsString(response))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
     }
 
 }

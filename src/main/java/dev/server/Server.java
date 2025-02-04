@@ -1,25 +1,29 @@
 package dev.server;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
+import com.sun.net.httpserver.HttpServer;
+import dev.server.config.JerseyConfig;
+import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 
-public class Server
-{
-    private static ApplicationContext _appContext;
+import java.net.URI;
 
-//    url probably refers to the database url -> ask teacher
-    public static void startServer(String url){
-        _appContext = SpringApplication.run(Main.class);
+public class Server {
+    private static HttpServer serverInstance;
+
+    public static void startServer(String url) {
+        final String pack = "dev.server.controller";
+        System.out.println("Start server");
+        System.out.println(url);
+        final ResourceConfig rc = new JerseyConfig();
+        serverInstance = JdkHttpServerFactory.createHttpServer(
+                URI.create(url), rc);
+        System.out.println("Ready for Requests....");
     }
 
-    public static void stopServer()
-    {
-        SpringApplication.exit(_appContext, () -> 0);
+    public static void stopServer() {
+        if (serverInstance != null) {
+            serverInstance.stop(0);
+        }
     }
-
-    public static ApplicationContext getAppContext()
-    {
-        return _appContext;
-    }
-
 }
+

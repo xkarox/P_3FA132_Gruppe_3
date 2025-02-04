@@ -2,158 +2,173 @@ package dev.server.controller;
 
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.ReadingService;
-import dev.hv.model.IId;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.Customer;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import dev.server.validator.CustomerJsonSchemaValidatorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.*;
 
+import static dev.hv.Utils.createErrorResponse;
 
-@CrossOrigin
-@RestController
-@RequestMapping(value = "/customers")
+@Path("/customers")
 public class CustomerController {
-    private void validateRequestData(String jsonString)
-    {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
+
+    private Response validateRequestData(String jsonString) throws JsonProcessingException {
+        logger.debug("Validating request data: {}", jsonString);
         boolean invalidCustomer = CustomerJsonSchemaValidatorService.getInstance().validate(jsonString);
-        if ( invalidCustomer )
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+        if (invalidCustomer) {
+            logger.warn("Invalid customer data: {}", jsonString);
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
         }
+        return null;
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(method = RequestMethod.POST)
-    public String addCustomer(@RequestBody String customerJson)
-    {
-        this.validateRequestData(customerJson);
-        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
-        {
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addCustomer(String customerJson) throws JsonProcessingException {
+        logger.info("Received request to add customer: {}", customerJson);
+        Response validationResponse = validateRequestData(customerJson);
+        if (validationResponse != null) return validationResponse;
+
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
             Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
 
-            if (customer.getId() == null)
-            {
+            if (customer.getId() == null) {
                 customer.setId(UUID.randomUUID());
             }
-            customer = cs.add(customer);
-            return Utils.packIntoJsonString(customer, Customer.class);
 
-        }
-        catch (JsonProcessingException | SQLException | RuntimeException e)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
-        }
-        catch (IOException e)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            customer = cs.add(customer);
+            logger.info("Customer added successfully: {}", customer);
+            return Response.status(Response.Status.CREATED)
+                    .entity(Utils.packIntoJsonString(customer, Customer.class))
+                    .type(MediaType.APPLICATION_JSON)
+                    .location(URI.create("/customers/" + customer.getId()))
+                    .build();
+        } catch (JsonProcessingException | SQLException | RuntimeException e) {
+            logger.error("Error adding customer: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
+        } catch (IOException e) {
+            logger.error("Internal server error: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<String> updateCustomer(@RequestBody String customerJson)
-    {
-        this.validateRequestData(customerJson);
-        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
-        {
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCustomer(@PathParam("id") UUID id) throws JsonProcessingException {
+        logger.info("Received request to get customer with ID: {}", id);
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
+            Customer customer = cs.getById(id);
+            logger.info("Customer retrieved successfully: {}", customer);
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(customer, Customer.class))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (IOException | ReflectiveOperationException | SQLException e) {
+            logger.error("Error retrieving customer: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCustomers() throws JsonProcessingException {
+        logger.info("Received request to get all customers");
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
+            Collection<Customer> customers = cs.getAll();
+            logger.info("Customers retrieved successfully");
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(customers, Customer.class))
+                    .build();
+        } catch (IOException | ReflectiveOperationException | SQLException e) {
+            logger.error("Error retrieving customers: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateCustomer(String customerJson) throws JsonProcessingException {
+        logger.info("Received request to update customer: {}", customerJson);
+        Response invalid = this.validateRequestData(customerJson);
+        if (invalid != null) {
+            return invalid;
+        }
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
             customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
             Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
             Customer dbCustomer = cs.getById(customer.getId());
-            if (dbCustomer == null)
-            {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
+            if (dbCustomer == null) {
+                logger.warn("Customer not found: {}", customer.getId());
+                return createErrorResponse(Response.Status.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
             cs.update(customer);
-            return new ResponseEntity<String>(ResponseMessages.ControllerUpdateSuccess.toString(), HttpStatus.OK);
-        }
-        catch (JsonProcessingException | ReflectiveOperationException | SQLException e)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
-        }
-        catch (IOException e)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ResponseMessages.ControllerInternalError.toString());
-
-        }
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET)
-    public String getCustomers()
-    {
-        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
-        {
-            Collection<Customer> customer = cs.getAll();
-            return Utils.packIntoJsonString(customer, Customer.class);
-
-        } catch (IOException | ReflectiveOperationException | SQLException e)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            logger.info("Customer updated successfully: {}", customer);
+            return Response.status(Response.Status.OK)
+                    .entity(ResponseMessages.ControllerUpdateSuccess.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (JsonProcessingException | ReflectiveOperationException | SQLException e) {
+            logger.error("Error updating customer: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+        } catch (IOException e) {
+            logger.error("Internal server error: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public String getCustomer(@PathVariable("id") UUID id)
-    {
-        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
-        {
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteCustomer(@PathParam("id") UUID id) throws JsonProcessingException {
+        logger.info("Received request to delete customer with ID: {}", id);
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService();
+             ReadingService rs = ServiceProvider.Services.getReadingService()) {
+
             Customer customer = cs.getById(id);
-
-            if (customer == null)
-            {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
-            }
-
-            return Utils.packIntoJsonString(customer, Customer.class);
-
-        } catch (IOException | ReflectiveOperationException | SQLException e)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
-        }
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String deleteCustomer(@PathVariable("id") UUID id)
-    {
-        try (CustomerService cs = ServiceProvider.Services.getCustomerService(); ReadingService rs = ServiceProvider.Services.getReadingService())
-        {
-            Customer customer = cs.getById(id);
-
-            if (customer == null)
-            {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
-            }
-
             Collection<Reading> readings = rs.getReadingsByCustomerId(customer.getId());
             cs.remove(customer);
-
-            //ToDo: ask about this
-            for (Reading reading: readings) {
+            for (Reading reading : readings) {
                 reading.setCustomer(null);
             }
-            Map<String, Object> customerWithReadings = new LinkedHashMap<>();
-            customerWithReadings.put("customer", customer);
-            customerWithReadings.put("readings", readings);
 
-            return Utils.mergeJsonString(customerWithReadings);
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("customer", customer);
+            response.put("readings", readings);
 
-        } catch (IOException | ReflectiveOperationException | SQLException e)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            logger.info("Customer deleted successfully: {}", customer);
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(response))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (IOException | ReflectiveOperationException | SQLException e) {
+            logger.error("Error deleting customer: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
         }
     }
 }

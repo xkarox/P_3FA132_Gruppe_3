@@ -19,14 +19,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.server.validator.CustomerWithReadingsJsonSchemaValidatorService;
-import dev.server.validator.ReadingJsonSchemaValidationService;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import dev.server.Server;
 
 import java.io.IOException;
@@ -97,7 +96,7 @@ public class CustomerControllerTest
     {
         String restartServer = System.getenv("SkipServerRestart");
         if (!Objects.equals(restartServer, "True"))
-            Server.startServer(" ");
+            Server.startServer("http://localhost:8080/");
 
         _httpClient = HttpClient.newHttpClient();
 
@@ -142,7 +141,7 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 
-        assertEquals(HttpStatus.CREATED.value(), response.statusCode(),"Should return status code 201 CREATED");
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.statusCode(),"Should return status code 201 CREATED");
         assertEquals(jsonString, response.body(), "Should return the same object send in request");
     }
 
@@ -164,7 +163,7 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Customer customer = _objMapper.readValue(Utils.unpackFromJsonString(response.body(), Customer.class), Customer.class);
 
-        assertEquals(HttpStatus.CREATED.value(), response.statusCode(), "Should return status code 201 CREATED");
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.statusCode(), "Should return status code 201 CREATED");
         assertEquals(customerWithoutId.getFirstName(), customer.getFirstName(), "First name should match");
         assertEquals(customerWithoutId.getLastName(), customer.getLastName(), "Last name should match");
         assertEquals(customerWithoutId.getBirthDate(), customer.getBirthDate(), "Birth date should match");
@@ -182,9 +181,9 @@ public class CustomerControllerTest
                 .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+        Map<String, String> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, String>>() {});
 
-        assertEquals(response.statusCode(), HttpStatus.BAD_REQUEST.value(), "Should return a 400 BAD REQUEST");
+        assertEquals(response.statusCode(), Response.Status.BAD_REQUEST.getStatusCode(), "Should return a 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid customer data provided");
     }
 
@@ -198,7 +197,7 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Should return a 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid customer data provided");
     }
 
@@ -217,7 +216,7 @@ public class CustomerControllerTest
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return a 500 Internal Server Error");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return a 500 Internal Server Error");
         assertEquals(ResponseMessages.ControllerInternalError.toString(), body.get("message"), "Message should be 'Internal Server IOError'");
     }
 
@@ -236,7 +235,7 @@ public class CustomerControllerTest
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Should return a 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be 'Invalid customer data provided'");
     }
 
@@ -265,7 +264,7 @@ public class CustomerControllerTest
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Status code should be 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Status code should be 200 OK");
         assertEquals(ResponseMessages.ControllerUpdateSuccess.toString(), response.body(), "Should return a message on success");
     }
 
@@ -283,7 +282,7 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should be Status Code 400 Bad Request");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Should be Status Code 400 Bad Request");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be Invalid customer data provided");
     }
 
@@ -300,7 +299,7 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Should return Status Code 404 Not Found");
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.statusCode(), "Should return Status Code 404 Not Found");
         assertEquals(ResponseMessages.ControllerNotFound.toString(), body.get("message"), "Message should be Customer not found in database");
     }
 
@@ -321,7 +320,7 @@ public class CustomerControllerTest
                 .build();
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return a 500 Internal Server Error");
         assertEquals(ResponseMessages.ControllerInternalError.toString(), body.get("message"), "Message should be 'Internal Server IOError'");
     }
 
@@ -341,8 +340,8 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Should return a 400 BAD REQUEST");
+        Map<String, String> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, String>>() {});
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Should return a 400 BAD REQUEST");
         assertEquals(ResponseMessages.ControllerBadRequest.toString(), body.get("message"), "Message should be 'Invalid customer data provided'");
     }
 
@@ -376,7 +375,7 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
 
         Collection<? extends IId> unpackedCustomer = Utils.unpackCollectionFromJsonString(response.body(), Customer.class);
 
@@ -398,8 +397,8 @@ public class CustomerControllerTest
                 .GET()
                 .build();
 
-        testThrownCustomerServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
-        testThrownCustomerServiceException(request, SQLException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownCustomerServiceException(request, IOException.class, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        testThrownCustomerServiceException(request, SQLException.class, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         //Reflection Exception
         ServiceProvider.Services = mock(InternalServiceProvider.class);
@@ -409,7 +408,7 @@ public class CustomerControllerTest
         when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 internal server error");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 internal server error");
 
     }
 
@@ -431,7 +430,7 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
 
         String customerJson = Utils.unpackFromJsonString(response.body(), Customer.class);
         Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
@@ -451,8 +450,8 @@ public class CustomerControllerTest
                 .GET()
                 .build();
 
-        testThrownCustomerServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
-        testThrownCustomerServiceException(request, SQLException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownCustomerServiceException(request, IOException.class, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        testThrownCustomerServiceException(request, SQLException.class, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         //Reflection Exception
         ServiceProvider.Services = mock(InternalServiceProvider.class);
@@ -462,7 +461,7 @@ public class CustomerControllerTest
         when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 internal server error");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 internal server error");
 
     }
 
@@ -523,7 +522,7 @@ public class CustomerControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK.value(), response.statusCode(), "Should return code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return code 200 OK");
 
         boolean invalidCustomerWithReadings = CustomerWithReadingsJsonSchemaValidatorService.getInstance().validate(response.body());
         assertFalse(invalidCustomerWithReadings, "customer with readings is not valid");
@@ -565,8 +564,8 @@ public class CustomerControllerTest
                 .DELETE()
                 .build();
 
-        testThrownCustomerServiceException(request, IOException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
-        testThrownCustomerServiceException(request, SQLException.class, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        testThrownCustomerServiceException(request, IOException.class, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        testThrownCustomerServiceException(request, SQLException.class, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         //Reflection Exception
         ServiceProvider.Services = mock(InternalServiceProvider.class);
@@ -576,7 +575,7 @@ public class CustomerControllerTest
         when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.statusCode(), "Should return status code 500 internal server error");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 internal server error");
 
     }
 }
