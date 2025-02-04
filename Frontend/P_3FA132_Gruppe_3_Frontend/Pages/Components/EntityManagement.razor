@@ -1,0 +1,232 @@
+@using System.Linq.Expressions
+@using System.Reflection
+@using System.Reflection.Metadata
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+
+@typeparam TItem where TItem : IBaseClass<TItem>
+
+<div class="@(IsItem ? "visible" : "hidden") change-component">
+<h3>@(IsItem ? Item!.Id.ToString() : "Unkown")</h3>
+@if (!EditMode)
+{
+    @foreach (var property in GetDisplayProperties())
+    {
+        {
+            <div>
+                <label for="@property.Name.ToLower()">@FormatPropertyName(property.Name)</label>
+                <span id="@property.Name.ToLower()">
+                    @(IsItem ? property.GetValue(Item) : "Unknown")
+                </span>
+            </div>
+        }
+    }
+
+    <div class="change-buttons">
+        <button @onclick="ToggleEditMode">
+            Edit
+        </button>
+        <button @onclick="Close">
+            Close
+        </button>
+    </div>
+}
+else
+{
+    @foreach (var property in GetDisplayProperties())
+    {
+        if (GetEditableProperties().Contains(property))
+        {
+            <div>
+                <label for="@property.Name.ToLower()">@FormatPropertyName(property.Name)</label>
+                @CreateInputForProperty(property)
+            </div>
+        }
+        else
+        {
+            <div>
+                <label for="@property.Name.ToLower()">@FormatPropertyName(property.Name)</label>
+                <span class="not-editable-property">@property.GetValue(Item)</span>
+            </div>
+        }
+    }
+
+    @if (Item?.Id != Guid.Empty)
+    {
+        <div>
+            <label for="delete">Delete @typeof(TItem).Name?</label>
+            <InputCheckbox id="delete" @bind-Value="DeleteItem"/>
+        </div>
+    }
+
+    <div class="change-buttons">
+        <button @onclick="ConfirmUpdate">Confirm</button>
+        <button @onclick="AbortUpdate">Abort</button>
+    </div>
+}
+</div>
+@code {
+    [Parameter] public TItem? Item { get; set; }
+    [Parameter] public bool EditMode { get; set; } = false;
+    [Parameter] public Func<Task>? ConfirmItemUpdate { get; set; }
+    [Parameter] public Func<Task>? AbortItemUpdate { get; set; }
+    [Parameter] public Func<Task>? DeleteCallback { get; set; }
+    [Parameter] public Func<Task>? CloseCallback { get; set; }
+    [Parameter] public IEnumerable<string> ExcludedProperties { get; set; } = new List<string>();
+    [Parameter] public IEnumerable<string> ReadOnlyProperties { get; set; } = new List<string>();
+    
+    private bool IsItem => Item != null;
+    private bool DeleteItem { get; set; } = false;
+
+    private IEnumerable<PropertyInfo> GetEditableProperties()
+    {
+        return typeof(TItem).GetProperties()
+            .Where(p => !IsExcludedProperty(p.Name) && !IsReadOnlyProperty(p.Name));
+    }
+    
+    private IEnumerable<PropertyInfo> GetDisplayProperties()
+    {
+        return typeof(TItem).GetProperties()
+            .Where(p => !IsExcludedProperty(p.Name));
+    }
+    
+    private bool IsExcludedProperty(string propertyName)
+    {
+        return ExcludedProperties.Contains(propertyName);
+    }
+
+    private string FormatPropertyName(string propertyName)
+    {
+        return string.Concat(propertyName.Select((x, i) => i > 0 && char.IsUpper(x) ? " " + x : x.ToString()));
+    }
+
+    private bool IsReadOnlyProperty(string propertyName)
+    {
+        return ReadOnlyProperties.Contains(propertyName);
+    }
+    
+    private RenderFragment CreateInputForProperty(PropertyInfo property)
+    {
+        return builder =>
+        {
+            var propertyValue = property.GetValue(Item);
+
+            if (property.PropertyType == typeof(string))
+            {
+                builder.OpenElement(0, "input");
+                builder.AddAttribute(1, "type", "text");
+                builder.AddAttribute(2, "value", propertyValue?.ToString());
+                builder.AddAttribute(3, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, 
+                    e => property.SetValue(Item, e.Value?.ToString())));
+                builder.CloseElement();
+            }
+            else if (property.PropertyType == typeof(DateOnly?))
+            {
+                builder.OpenElement(0, "input");
+                builder.AddAttribute(1, "type", "date");
+                builder.AddAttribute(2, "value", (propertyValue as DateOnly?)?.ToString("yyyy-MM-dd"));
+                builder.AddAttribute(3, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, 
+                    e => property.SetValue(Item, DateOnly.TryParse(e.Value?.ToString(), out var date) ? date : null)));
+                builder.CloseElement();
+            }
+            else if (property.PropertyType.IsEnum)
+            {
+                builder.OpenElement(0, "select");
+                builder.AddAttribute(1, "value", propertyValue?.ToString());
+                builder.AddAttribute(2, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, 
+                    e => property.SetValue(Item, Enum.Parse(property.PropertyType, e.Value?.ToString() ?? ""))));
+
+                foreach (var enumValue in Enum.GetValues(property.PropertyType))
+                {
+                    builder.OpenElement(3, "option");
+                    builder.AddAttribute(4, "value", enumValue.ToString());
+                    builder.AddContent(5, GetFormattedEnumValue(enumValue));
+                    builder.CloseElement();
+                }
+            
+                builder.CloseElement();
+            }
+            else if (property.PropertyType == typeof(bool))
+            {
+                builder.OpenElement(0, "input");
+                builder.AddAttribute(1, "type", "checkbox");
+                builder.AddAttribute(2, "checked", (bool?)propertyValue == true);
+                builder.AddAttribute(3, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this,
+                    e => property.SetValue(Item, e.Value?.ToString() == "true")));
+                builder.CloseElement();
+            }
+            else if (property.PropertyType == typeof(Guid))
+            {
+                builder.OpenElement(0, "input");
+                builder.AddAttribute(1, "type", "text");
+                builder.AddAttribute(2, "value", propertyValue?.ToString() ?? "");
+                builder.AddAttribute(3, "readonly", "true");
+                builder.CloseElement();
+            }
+            else
+            {
+                builder.OpenElement(0, "input");
+                builder.AddAttribute(1, "type", "text");
+                builder.AddAttribute(2, "value", propertyValue?.ToString() ?? "");
+                builder.AddAttribute(3, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, 
+                    e => property.SetValue(Item, Convert.ChangeType(e.Value, property.PropertyType))));
+                builder.CloseElement();
+            }
+        };
+    }
+    
+    private string GetFormattedEnumValue(object enumValue)
+    {
+        if (enumValue is KindOfMeter meterKind)
+        {
+            return meterKind + meterKind.ToEmoji();
+        }
+    
+        if (enumValue is Gender gender)
+        {
+            return gender.ToDescriptionString() + gender.ToEmoji();
+        }
+    
+        return enumValue.ToString();
+    }
+    
+    private void Reset()
+    {
+        EditMode = !EditMode;
+        DeleteItem = false;
+    }
+    
+    private void ToggleEditMode()
+    {
+        if (!IsItem) return;
+        Reset();
+        StateHasChanged();
+    }
+
+    private void ConfirmUpdate()
+    {
+        if (DeleteItem)
+        {
+            DeleteCallback?.Invoke();
+            Reset();
+            StateHasChanged();
+            return;
+        }
+        Reset();
+        ConfirmItemUpdate?.Invoke();
+        StateHasChanged();
+    }
+
+    private void AbortUpdate()
+    {
+        Reset();
+        AbortItemUpdate?.Invoke();
+        StateHasChanged();
+    }
+
+    private void Close()
+    {
+        CloseCallback?.Invoke();
+    }
+
+}

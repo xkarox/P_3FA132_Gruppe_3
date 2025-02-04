@@ -1,0 +1,15 @@
+<footer >
+    <p>&copy; @DateTime.Now.Year @Text</p>
+</footer>
+
+<style>
+    footer {
+        padding: 0.5rem;
+        text-align: center;
+    }
+</style>
+
+@code {
+    [Parameter] public string Text { get; set; }
+
+}

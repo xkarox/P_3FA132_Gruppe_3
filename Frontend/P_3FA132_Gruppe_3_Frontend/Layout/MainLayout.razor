@@ -1,0 +1,46 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <HeaderRow Text="Digital Property Management"></HeaderRow>
+    <div class="main">
+        <SideBar></SideBar>
+
+        <main class="content">
+            @Body
+        </main>
+    </div>
+
+    
+    <FooterRow Text="Made by Christopher Walther, Erik Mielke and Adrian Grzybek"></FooterRow>
+</div>
+
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+
+    .main {
+        display: flex;
+        flex: 1;
+    }
+
+    .content {
+        flex: 1;
+        padding: 1rem;
+    }
+
+    
+</style>
+
+@code {
+}

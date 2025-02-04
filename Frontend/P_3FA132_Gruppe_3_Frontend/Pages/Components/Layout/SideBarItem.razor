@@ -1,0 +1,57 @@
+<div class="SideBarItem">
+    <NavLink href="@Href" class="navLink">
+        <div class="icon-text-container">
+            @* <Iconify Icon="@IconName" class="iconify-icon"></Iconify> *@
+            <div class="iconify-icon">
+                @if (IconName.Equals("dashboard"))
+                {
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path  d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h4q.825 0 1.413.588T11 5v14q0 .825-.587 1.413T9 21zm10 0q-.825 0-1.412-.587T13 19v-5q0-.825.588-1.412T15 12h4q.825 0 1.413.588T21 14v5q0 .825-.587 1.413T19 21zm0-11q-.825 0-1.412-.587T13 8V5q0-.825.588-1.412T15 3h4q.825 0 1.413.588T21 5v3q0 .825-.587 1.413T19 10z"/>
+                    </svg>
+                }
+                
+                @if (IconName.Equals("customers"))
+                {
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path  d="M14 7V5h8v2zm0 4V9h8v2zm0 4v-2h8v2zm-6-1q-1.25 0-2.125-.875T5 11t.875-2.125T8 8t2.125.875T11 11t-.875 2.125T8 14m-6 6v-1.9q0-.525.25-1t.7-.75q1.125-.675 2.388-1.012T8 15t2.663.338t2.387 1.012q.45.275.7.75t.25 1V20z"/>
+                    </svg>
+                }
+                
+                @if (IconName.Equals("readings"))
+                {
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path  d="M5 19q-.825 0-1.412-.587T3 17V7q0-.825.588-1.412T5 5h1.325q.825 0 1.413.588T8.325 7v10q0 .825-.587 1.413T6.325 19zm6.325 0q-.825 0-1.412-.587T9.325 17V7q0-.825.588-1.412T11.325 5h1.325q.825 0 1.413.588T14.65 7v10q0 .825-.587 1.413T12.65 19zm6.325 0q-.825 0-1.412-.587T15.65 17V7q0-.825.588-1.412T17.65 5h1.325q.825 0 1.413.588T20.975 7v10q0 .825-.587 1.413T18.975 19z"/>
+                    </svg>
+                }
+                
+                @if (IconName.Equals("analytics"))
+                {
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path  d="M7 17h2v-5H7zm8 0h2V7h-2zm-4 0h2v-3h-2zm0-5h2v-2h-2zm-6 9q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21z"/>
+                    </svg>
+                }
+                
+                @if (IconName.Equals("Importexport"))
+                {
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path  d="m5.05 22.375l-1.4-1.425L6.6 18H4.35v-2H10v5.65H8v-2.225zM12 22v-8H4V4q0-.825.588-1.412T6 2h8l6 6v12q0 .825-.587 1.413T18 22zm1-13h5l-5-5l5 5l-5-5z" />
+                    </svg>
+                }
+            </div>
+            <p class="text">@Text</p>
+        </div>
+    </NavLink>
+</div>
+
+@code {
+    [Parameter]
+    public string Text { get; set; }
+    
+    [Parameter]
+    public string IconName { get; set; }
+
+    // [Parameter] public bool ShowText { get; set; } = false;
+    
+    [Parameter]
+    public string Href { get; set; }
+}

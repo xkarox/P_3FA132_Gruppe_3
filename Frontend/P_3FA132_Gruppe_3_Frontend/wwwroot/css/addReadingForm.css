@@ -1,0 +1,90 @@
+.addReadingForm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--bg-medium);
+    color: var(--text-color);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    width: 90%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.addReadingForm div {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.addReadingForm label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.addReadingForm input,
+.addReadingForm select,
+.addReadingForm textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--bg-light);
+    border: 1px solid var(--ui-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box; /* Ensures consistent width calculation */
+}
+
+
+.addReadingForm input:focus,
+.addReadingForm select:focus,
+.addReadingForm textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(179, 157, 219, 0.2);
+}
+
+.addReadingForm button {
+    background-color: var(--color-primary);
+    color: var(--text-color);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addReadingForm button:hover {
+    background-color: var(--color-secondary);
+}
+
+.addReadingForm button:last-child {
+    background-color: var(--bg-light);
+}
+
+.addReadingForm button:last-child:hover {
+    background-color: var(--color-tertiary);
+}
+
+.addReadingForm .button-container {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the left */
+    gap: 1rem; /* Add spacing between buttons */
+}
+
+@media (max-width: 768px) {
+    .addReadingForm {
+        padding: 1rem;
+        width: calc(100% - 2rem);
+        max-width: none;
+        gap: 1rem;
+    }
+}
+

@@ -1,0 +1,38 @@
+.SideBarItem {
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.SideBarItem:hover {
+    background-color: var(--bg-light);
+    transform: translateX(4px);
+} 
+
+.icon-text-container {   
+    display: flex; 
+    align-items: center; 
+    padding: 0.75rem;
+}
+ 
+.iconify-icon {
+    align-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+  
+.SideBarItem:hover .iconify-icon {
+    color: var(--color-tertiary);
+    transform: scale(1.1);
+}
+
+.text {
+    margin-left: 2rem;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: color 0.2s ease;
+}
+
+.SideBarItem:hover .text {
+    color: var(--color-primary);
+}
