@@ -55,12 +55,12 @@ jobs:
       - name: Configure database connection for CI
         run: |
           echo "Setting up database configuration for CI environment..."
-          echo "" >> config/properties.config.test
+          echo "" >> Backend/config/properties.config.test
           echo "runner.db.url=localhost:3306/homeautomation_test" >> config/properties.config.test
           echo "runner.db.user=root" >> config/properties.config.test
           echo "runner.db.pw=root" >> config/properties.config.test
           
-          echo "" >> config/properties.config
+          echo "" >> Backend/config/properties.config
           echo "runner.db.url=localhost:3306/homeautomation_test" >> config/properties.config
           echo "runner.db.user=root" >> config/properties.config
           echo "runner.db.pw=root" >> config/properties.config
@@ -86,4 +86,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: maven-artifacts
-            path: target/*.jar
+            path: Backend/target/*.jar
