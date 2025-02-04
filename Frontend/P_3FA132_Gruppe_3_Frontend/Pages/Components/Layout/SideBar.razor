@@ -1,0 +1,68 @@
+@inject IJSRuntime JSRuntime
+
+<nav class="sidebar">
+    <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
+    <SideBarItem Text="Customer Management" IconName="customers"  Href="/CustomerManagementView"/>
+    <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
+    <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
+    <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
+</nav>
+
+<style>
+    .sidebar {
+        width: 3.4rem;
+        padding: 1rem;
+        transition: width 0.3s ease-in-out;
+        overflow: hidden;
+    }
+    
+    .sidebar:hover {
+        width: 12rem;
+        transition: width 0.3s ease-in-out;
+    }
+</style>
+
+<script>
+    function initializeSidebar(dotNetHelper) {
+        const sidebar = document.getElementsByClassName("sidebar")[0];
+        sidebar.addEventListener('mouseenter', () => {
+            dotNetHelper.invokeMethodAsync('SetHoverState', true);
+        });
+        sidebar.addEventListener('mouseleave', () => {
+            dotNetHelper.invokeMethodAsync('SetHoverState', false);
+        });
+    }
+</script>
+
+@code {
+    private ElementReference _sidebarElement;
+    private bool _isHovered;
+    private DotNetObjectReference<SideBar> _dotNetRef = null!;
+
+    [JSInvokable]
+    public void SetHoverState(bool hoverState)
+    {
+        _isHovered = hoverState;
+        StateHasChanged();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("initializeSidebar", _dotNetRef);
+        }
+    }
+
+    public void Dispose()
+    {
+        _dotNetRef?.Dispose();
+    }
+
+    public Task callback()
+    {
+        Console.WriteLine("'clicked'");
+        return Task.CompletedTask;
+    }
+}

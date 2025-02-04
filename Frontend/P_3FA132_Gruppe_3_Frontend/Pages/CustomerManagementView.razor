@@ -1,0 +1,115 @@
+@page "/CustomerManagementView"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Pages.Components
+@inherits Blazing.Mvvm.Components.MvvmComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.CustomerManagementViewModel>
+@inject IJSRuntime Js
+@inject UtilityService UtilityService
+
+<h3>CustomerManagement</h3>
+<div class="overlay @(ViewModel.SelectedCustomer != null ? "visible" : "hidden")"></div>
+<EntityManagement
+    Item="ViewModel.SelectedCustomer"
+    AbortItemUpdate="async () => ViewModel.AbortCustomerUpdateCallbackCommand.Execute(null)"
+    ConfirmItemUpdate="async () => ViewModel.ConfirmCustomerUpdateCallbackCommand.Execute(null)"
+    CloseCallback="async () => ViewModel.CloseSelectedCustomerComponentCallbackCommand.Execute(null)"
+    DeleteCallback="async () => ViewModel.DeleteCustomerCallbackCommand.Execute(null)"
+    ExcludedProperties="ViewModel.ExcludedProperties"
+    ReadOnlyProperties="ViewModel.ReadOnlyProperties"
+/>
+
+<div class="overlay @(ViewModel.NewCustomer != null ? "visible" : "hidden")"></div>
+<EntityManagement
+    Item="ViewModel.NewCustomer"
+    AbortItemUpdate="async () => ViewModel.AbortNewCustomerCallbackCommand.Execute(null)"
+    ConfirmItemUpdate="async () => ViewModel.ConfirmNewCustomerCallbackCommand.Execute(null)"
+    CloseCallback="async () => ViewModel.AbortNewCustomerCallbackCommand.Execute(null)"
+    EditMode="@(ViewModel.NewCustomer != null)"
+    ReadOnlyProperties="ViewModel.ReadOnlyProperties"
+    ExcludedProperties="ViewModel.ExcludedProperties"
+/>
+
+<div class="grid-controls">
+    <button @onclick="() => ViewModel.ShowCustomerColumns.ShowId = !ViewModel.ShowCustomerColumns.ShowId">Toggle Id</button>
+    <button @onclick="() => ViewModel.ShowCustomerColumns.ShowFirstName = !ViewModel.ShowCustomerColumns.ShowFirstName">Toggle First Name</button>
+    <button @onclick="() => ViewModel.ShowCustomerColumns.ShowLastName = !ViewModel.ShowCustomerColumns.ShowLastName">Toggle Last Name</button>
+    <button @onclick="() => ViewModel.ShowCustomerColumns.ShowDateOfBirth = !ViewModel.ShowCustomerColumns.ShowDateOfBirth">Toggle Birth Date</button>
+    <button @onclick="() => ViewModel.ShowCustomerColumns.ShowGender = !ViewModel.ShowCustomerColumns.ShowGender">Toggle Gender</button>
+    <button @onclick="() => { ViewModel.NewCustomer = new Customer(); }" class="add-button"> Add Customer </button>
+</div>
+
+@* <div class="grid-controls add-button"> *@
+@* </div> *@
+
+<QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()">
+    @if (ViewModel.ShowCustomerColumns.ShowId)
+    {
+        <TemplateColumn Context="customer" Title="Id">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((customer.Id.ToString(), e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((customer.Id.ToString(), e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString(customer.Id.ToString())
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowCustomerColumns.ShowFirstName)
+    {
+        <TemplateColumn Context="customer" Title="First Name">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((customer.FirstName, e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((customer.FirstName, e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString(customer.FirstName)
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowCustomerColumns.ShowLastName)
+    {
+        <TemplateColumn Context="customer" Title="Last Name">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((customer.LastName, e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((customer.LastName, e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString(customer.LastName)
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowCustomerColumns.ShowDateOfBirth)
+    {
+        <TemplateColumn Context="customer" Title="Birth Date">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute(((customer.DateOfBirth ?? new DateOnly()).ToString(), e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute(((customer.DateOfBirth ?? new DateOnly()).ToString(), e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString((customer.DateOfBirth ?? new DateOnly()).ToString())
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowCustomerColumns.ShowGender)
+    {
+        <TemplateColumn Context="customer" Title="Gender">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji(), e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji(), e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString(customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji())
+            </span>
+        </TemplateColumn>
+    }
+    <TemplateColumn Context="customer">
+        <button @onclick="() => ViewModel.SelectCustomerCommand.Execute(customer)">
+            Select
+        </button>
+    </TemplateColumn>
+</QuickGrid>
+
+<div class="quickgrid-pagination">
+    <Paginator State="ViewModel.PaginationState" />
+</div>

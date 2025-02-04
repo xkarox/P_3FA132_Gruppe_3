@@ -1,0 +1,183 @@
+@page "/ReadingManagementView"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Pages.Components
+@inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ReadingManagementViewModel>
+@inject UtilityService UtilityService
+
+<h3>ReadingManagementView</h3>
+
+<div class="overlay @(ViewModel.NewReading != null ? "visible" : "hidden")"></div>
+<EntityManagement 
+    Item="ViewModel.NewReading"
+    AbortItemUpdate="async () => ViewModel.AbortNewReadingCallbackCommand.Execute(null)"
+    ConfirmItemUpdate="async () => ViewModel.ConfirmNewReadingCallbackCommand.Execute(null)"
+    EditMode="@(ViewModel.NewReading != null)"
+    ExcludedProperties="ViewModel.ExcludedProperties"
+    ReadOnlyProperties="ViewModel.ReadOnlyProperties"
+/>
+
+<div class="overlay @(ViewModel.SelectedReading != null ? "visible" : "hidden")"></div>
+<EntityManagement
+    Item="ViewModel.SelectedReading"
+    AbortItemUpdate="async () => ViewModel.AbortReadingUpdateCallbackCommand.Execute(null)"
+    ConfirmItemUpdate="async () => ViewModel.ConfirmReadingUpdateCallbackCommand.Execute(null)"
+    CloseCallback="async () => ViewModel.CloseSelectedReadingComponentCallbackCommand.Execute(null)"
+    DeleteCallback="async () => ViewModel.DeleteReadingCallbackCommand.Execute(null)"
+    ExcludedProperties="ViewModel.ExcludedProperties"
+    ReadOnlyProperties="ViewModel.ReadOnlyProperties"
+/>
+
+<div>
+    <EditForm Model="ViewModel.ReadingQuery" OnValidSubmit="ViewModel.QueryCommand.ExecuteAsync">
+        <InputSelect @bind-Value="ViewModel.ReadingQuery.Customer">
+            @if (ViewModel.Customers != null)
+                foreach (var customer in ViewModel.Customers)
+                {
+                    <option value="@customer.Id.ToString()">
+                        @(customer.FirstName + " " + customer.LastName)
+                    </option>
+                }
+        </InputSelect>
+        <InputDate TValue="DateOnly?" @bind-Value="ViewModel.ReadingQuery.Start"/>
+        <InputDate TValue="DateOnly?" @bind-Value="ViewModel.ReadingQuery.End"/>
+        <InputSelect TValue="KindOfMeter?" @bind-Value="ViewModel.ReadingQuery.KindOfMeter">
+            @foreach (var kind in Enum.GetValues<KindOfMeter>())
+            {
+                <option value="@kind">@kind</option>
+            }        
+        </InputSelect>
+        <button type="submit">Search</button>
+    </EditForm>
+</div>
+
+<div class="grid-controls">
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowId = !ViewModel.ShowReadingColumns.ShowId">Toggle Id</button>
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowCustomerId = !ViewModel.ShowReadingColumns.ShowCustomerId">Toggle CustomerId</button>
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowKindOfMeter = !ViewModel.ShowReadingColumns.ShowKindOfMeter">Toggle KindOfMeter</button>
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowDateOfReading = !ViewModel.ShowReadingColumns.ShowDateOfReading">Toggle DateOfReading</button>
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowMeterCount = !ViewModel.ShowReadingColumns.ShowMeterCount">Toggle MeterCount</button>
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowComment = !ViewModel.ShowReadingColumns.ShowComment">Toggle Comment</button>
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowMeterId = !ViewModel.ShowReadingColumns.ShowMeterId">Toggle MeterId</button>
+    <button @onclick="() => ViewModel.ShowReadingColumns.ShowSubstitute = !ViewModel.ShowReadingColumns.ShowSubstitute">Toggle Substitute</button>
+    <button @onclick="() => { ViewModel.NewReading = new Reading(){ CustomerId = Guid.Parse(ViewModel.ReadingQuery!.Customer) }; }" class="add-button"> Add Reading </button>
+</div>
+
+
+<QuickGrid Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState" Class="quickgrid">
+    @if (ViewModel.ShowReadingColumns.ShowId)
+    {
+        <TemplateColumn Context="reading" Title="Id">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.Id.ToString(), e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.Id.ToString(), e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString(reading.Id.ToString())
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowComment)
+    {
+        <TemplateColumn Context="reading" Title="Comment">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.Comment, e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.Comment, e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString(reading.Comment)
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowCustomerId)
+    {
+        <TemplateColumn Context="reading" Title="CustomerId">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.CustomerId.ToString(), e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.CustomerId.ToString(), e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @ViewModel.TruncateString(reading.CustomerId.ToString())
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowCustomer)
+    {
+        <TemplateColumn Context="reading" Title="Customer">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.CustomerName, e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.CustomerName, e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @reading.CustomerName
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowDateOfReading)
+    {
+        <TemplateColumn Context="reading" Title="DateOfReading">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.FormattedDate, e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.FormattedDate, e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @reading.FormattedDate
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowKindOfMeter)
+    {
+        <TemplateColumn Context="reading" Title="KindOfMeter">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.KindOfMeter.ToString(), e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.KindOfMeter.ToString(), e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @reading.KindOfMeter @reading.KindOfMeter.ToEmoji()
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowMeterCount)
+    {
+        <TemplateColumn Context="reading" Title="MeterCount">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.MeterCountWithUnit, e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.MeterCountWithUnit, e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @reading.MeterCountWithUnit
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowMeterId)
+    {
+        <TemplateColumn Context="reading" Title="MeterId">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.MeterId, e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.MeterId, e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @reading.MeterId
+            </span>
+        </TemplateColumn>
+    }
+    @if (ViewModel.ShowReadingColumns.ShowSubstitute)
+    {
+        <TemplateColumn Context="reading" Title="Substitute">
+            <span
+                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.Substitute.ToString(), e)); }"
+                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.Substitute.ToString(), e)); }"
+                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
+                class="clickable">
+                @reading.Substitute
+            </span>
+        </TemplateColumn>
+    }
+    <TemplateColumn Context="reading" Title="Actions">
+        <button @onclick="() => ViewModel.SelectReadingCommand.Execute(reading)">Select</button>
+    </TemplateColumn>
+</QuickGrid>
+<div class="quickgrid-pagination">
+    <Paginator State="ViewModel.PaginationState"/>
+</div>
