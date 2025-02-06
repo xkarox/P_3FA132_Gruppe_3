@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Net;
+﻿using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
+using P_3FA132_Gruppe_3_Frontend.Data.Services.Base;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using P_3FA132_Gruppe_3_Frontend.Data.Models;
-using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
-using P_3FA132_Gruppe_3_Frontend.Data.Services.Base;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services
 {
@@ -13,7 +10,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services
         public ReadingService(HttpClient httpClient) : base(httpClient, "readings")
         {
         }
-        
+
         public async Task<IEnumerable<Reading>> QueryReading(ReadingQuery query)
         {
 
@@ -24,8 +21,8 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services
                 var response = await _httpClient.GetAsync(uri);
                 if (response.IsSuccessStatusCode)
                 {
-                    var jsonData = await response.Content.ReadAsStringAsync();;
-                    var readings =  DeserializeReadings(jsonData!);
+                    var jsonData = await response.Content.ReadAsStringAsync(); ;
+                    var readings = DeserializeReadings(jsonData!);
                     return readings ?? Enumerable.Empty<Reading>();
                 }
             }

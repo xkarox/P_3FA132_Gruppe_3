@@ -7,7 +7,7 @@
         UNBEKANNT,
         WASSER
     }
-    
+
     public static class KindOfMeterExtensions
     {
         public static KindOfMeter ToKindOfMeter(this string kindOfMeterString)
@@ -21,7 +21,7 @@
                 _ => KindOfMeter.UNBEKANNT
             };
         }
-        
+
         public static string ToEmoji(this KindOfMeter kindOfMeter)
         {
             return kindOfMeter switch

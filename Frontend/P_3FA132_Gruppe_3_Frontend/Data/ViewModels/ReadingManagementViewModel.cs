@@ -1,12 +1,12 @@
-using System.Collections.ObjectModel;  
-using Blazing.Mvvm.ComponentModel;  
-using CommunityToolkit.Mvvm.ComponentModel;  
-using CommunityToolkit.Mvvm.Input;  
+using Blazing.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.AspNetCore.Components.Web;
-using P_3FA132_Gruppe_3_Frontend.Data.Models;  
-using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;  
-using P_3FA132_Gruppe_3_Frontend.Data.Services;  
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
+using P_3FA132_Gruppe_3_Frontend.Data.Services;
+using System.Collections.ObjectModel;
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
 public partial class ReadingManagementViewModel(
@@ -30,15 +30,17 @@ public partial class ReadingManagementViewModel(
 
     [ObservableProperty] private IEnumerable<Customer>? _customers;
 
-    [ObservableProperty] private IEnumerable<string> _excludedProperties =
+    [ObservableProperty]
+    private IEnumerable<string> _excludedProperties =
     [
         "Customer",
         "CustomerName",
         "FormattedDate",
         "MeterCountWithUnit"
     ];
-    
-    [ObservableProperty] private IEnumerable<string> _readOnlyProperties =
+
+    [ObservableProperty]
+    private IEnumerable<string> _readOnlyProperties =
     [
         "CustomerId",
         "Id"
@@ -93,7 +95,7 @@ public partial class ReadingManagementViewModel(
             SelectedReading = null;
         }
     }
-    
+
     [RelayCommand]
     private void AbortReadingUpdateCallback()
     {
@@ -105,7 +107,7 @@ public partial class ReadingManagementViewModel(
     {
         SelectedReading = null;
     }
-    
+
     [RelayCommand]
     private async Task DeleteReadingCallback()
     {
@@ -117,7 +119,7 @@ public partial class ReadingManagementViewModel(
             SelectedReading = null;
         }
     }
-    
+
     [RelayCommand]
     private async Task ConfirmNewReadingCallback()
     {
@@ -128,7 +130,7 @@ public partial class ReadingManagementViewModel(
             if (customer == null) return;
             NewReading.Customer = customer;
             NewReading.DateOfReading ??= new DateOnly();
-            
+
             var returnedReading = await readingService.Add(NewReading);
             if (returnedReading != null)
             {
@@ -137,33 +139,33 @@ public partial class ReadingManagementViewModel(
             NewReading = null;
         }
     }
-    
+
     [RelayCommand]
     private void AbortNewReadingCallback()
     {
         NewReading = null;
     }
-    [RelayCommand] 
+    [RelayCommand]
     private async Task CopyValue((string value, MouseEventArgs e) parameters)
     {
         await utilityService.CopyToClipboard(
             parameters.value, parameters.e.ClientX, parameters.e.ClientY);
     }
-    
-    [RelayCommand] 
+
+    [RelayCommand]
     private async Task ShowFullString((string value, MouseEventArgs e) parameters)
     {
-        if(parameters.value.Length >= MaxStringLength)
+        if (parameters.value.Length >= MaxStringLength)
             await utilityService.ShowNotificationHover(
                 parameters.value, parameters.e.ClientX, parameters.e.ClientY);
     }
-    
-    [RelayCommand] 
+
+    [RelayCommand]
     private async Task RemoveFullStringNotification()
     {
         await utilityService.RemoveNotificationHover();
     }
-    
+
     public string TruncateString(string value)
     {
         if (string.IsNullOrEmpty(value)) return value;

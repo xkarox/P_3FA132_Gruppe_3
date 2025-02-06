@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Threading.Tasks;
 
 public class UtilityService(IJSRuntime jsRuntime)
 {

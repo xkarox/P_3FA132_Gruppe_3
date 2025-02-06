@@ -47,7 +47,7 @@ public class CustomerControllerTest
 {
     private static final Logger log = LoggerFactory.getLogger(CustomerControllerTest.class);
     private DatabaseConnection _connection;
-    private String _url = "http://0.0.0.0:8080/customers";
+    private final String _url = "http://0.0.0.0:8080/customers";
     private HttpClient _httpClient;
     private Customer _customer;
     private ObjectMapper _objMapper;
