@@ -28,7 +28,6 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 
         public async Task<IEnumerable<T>?> GetAll()
         {
-            // ToDo: Throw if Reading -> Just Customer implemented
             return await GetObjects(HttpMethod.GETALL);
         }
 
@@ -41,15 +40,14 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 
         private async Task<T?> GetObject(T item, HttpMethod methode)
         {
-            byte[] itemBytes = Encoding.UTF8.GetBytes(item.ToJson());
             HttpResponseMessage response;
             switch (methode)
             {
                 case HttpMethod.POST:
-                    response = await _httpClient.PostAsync(_endpointUrl, new ByteArrayContent(itemBytes));
+                    response = await _httpClient.PostAsync(_endpointUrl, new ByteArrayContent(GetBytes(item)));
                     break;
                 case HttpMethod.PUT:
-                    response = await _httpClient.PutAsync(_endpointUrl, new ByteArrayContent(itemBytes));
+                    response = await _httpClient.PutAsync(_endpointUrl, new ByteArrayContent(GetBytes(item)));
                     break;
                 case HttpMethod.GET:
                     response = await _httpClient.GetAsync($"{_endpointUrl}/{item.Id}");
@@ -87,6 +85,11 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
                 return default;
             var responseText = await response.Content.ReadAsStringAsync();
             return T.LoadJsonList(responseText);
+        }
+
+        private byte[] GetBytes(T item)
+        {
+            return Encoding.UTF8.GetBytes(item.ToJson());
         }
     }
 }

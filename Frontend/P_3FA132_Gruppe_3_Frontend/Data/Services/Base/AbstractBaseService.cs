@@ -29,7 +29,6 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
         protected Uri BuildUri(string relativePath, IEnumerable<KeyValuePair<string, object>> queryParams)
         {
             var queryParameterString = BuildQueryParameters(queryParams);
-            
             var builder = new UriBuilder(_baseUrl)
             {
                 Path = relativePath,

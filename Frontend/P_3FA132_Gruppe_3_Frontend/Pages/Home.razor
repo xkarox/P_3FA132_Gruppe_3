@@ -19,6 +19,7 @@ Welcome to your new app.
 <button @onclick="GetReading">Get Reading</button>
 <button @onclick="UpdateReading">UpdateReading</button>
 <button @onclick="GetAllCustomers">GetAllCustomers</button>
+<button @onclick="GetAllReadings">GetAllCustomers</button>
 
 @if (!string.IsNullOrEmpty(message))
 {
@@ -146,6 +147,12 @@ Welcome to your new app.
     private async Task GetAllCustomers()
     {
         List<Customer> res = (List<Customer>)await CustomerService.GetAll();
+        message = res.Count.ToString();
+    }
+
+    private async Task GetAllReadings()
+    {
+        List<Reading> res = (List<Reading>)await ReadingService.GetAll();
         message = res.Count.ToString();
     }
 }

@@ -3,6 +3,7 @@ using System.Text;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 {
@@ -78,14 +79,21 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
             return reading;
         }
 
+        public static IEnumerable<Reading> LoadJsonList(string jsonData)
+        {
+            using var document = JsonDocument.Parse(jsonData);
+            var root = document.RootElement.GetProperty("readings").ToString();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
+            };
+            return JsonSerializer.Deserialize<List<Reading>>(root, options);
+        }
+
         public Reading Copy()
         {
             return (Reading) this.MemberwiseClone();
-        }
-
-        public static IEnumerable<Reading> LoadJsonList(string jsonData)
-        {
-            throw new NotImplementedException();
         }
     }
 }
