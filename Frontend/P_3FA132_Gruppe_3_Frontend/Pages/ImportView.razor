@@ -1,0 +1,27 @@
+@page "/ImportView"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ImportViewModel>
+
+<PageTitle>Import</PageTitle>
+<h3>ImportExportView</h3>
+
+<p>Select your customer or reading file you want to upload...</p>
+<InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync"></InputFile>
+
+<div>
+    <button @onclick="ViewModel.UploadFileCommand.ExecuteAsync">Upload</button>
+    <button @onclick="ViewModel.DeleteFileCommand.ExecuteAsync">Delete</button>
+</div>
+
+<QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()">
+    <TemplateColumn Context="customer" Title="Id">
+        test
+    </TemplateColumn>
+</QuickGrid>
+
+
+@code {
+
+
+}
