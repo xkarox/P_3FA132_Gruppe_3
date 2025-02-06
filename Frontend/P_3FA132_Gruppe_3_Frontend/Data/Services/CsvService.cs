@@ -14,25 +14,11 @@ public class CsvService
         _httpClient = httpClient;
     }
 
-    public async Task<IEnumerable<List<string>>> UploadCsvFileAsync(IBrowserFile file)
+    public async Task<IEnumerable<List<string>>> UploadCsvFileAsync(string csvContent)
     {
-        if (file == null)
-            throw new ArgumentNullException(nameof(file));
+        var response = await _httpClient.PostAsJsonAsync(_baseUrl, csvContent);
+        response.EnsureSuccessStatusCode();
 
-        using var content = new MultipartFormDataContent();
-        var fileStream = file.OpenReadStream();
-        var streamContent = new StreamContent(fileStream);
-        streamContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
-
-        content.Add(streamContent, "file", file.Name);
-
-        var response = await _httpClient.PostAsync(_baseUrl, content);
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception($"Fehler beim Hochladen: {response.StatusCode}");
-
-        var result = await response.Content.ReadFromJsonAsync<IEnumerable<List<string>>>();
-
-        return result ?? Enumerable.Empty<List<string>>();
+        return await response.Content.ReadFromJsonAsync<IEnumerable<List<string>>>() ?? new List<List<string>>();
     }
 }
