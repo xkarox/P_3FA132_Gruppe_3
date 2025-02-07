@@ -4,7 +4,7 @@
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ImportViewModel>
 
 <PageTitle>Import</PageTitle>
-<h3>ImportExportView</h3>
+<h3>ImportView</h3>
 
 <p>Select your customer or reading file you want to upload...</p>
 <InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync"></InputFile>
@@ -14,12 +14,27 @@
     <button @onclick="ViewModel.DeleteFileCommand.ExecuteAsync">Delete</button>
 </div>
 
-<QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()">
-    <TemplateColumn Context="customer" Title="Id">
-        test
+<QuickGrid TGridItem="Reading" Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
+    <TemplateColumn Context="reading" Title="Date of reading">
+        <span>
+            @reading.DateOfReading
+        </span>
     </TemplateColumn>
-</QuickGrid>
+    <TemplateColumn Context="reading" Title="Meter count">
+            <span>
+                @reading.MeterCount
+            </span>
+    </TemplateColumn>
+    <TemplateColumn Context="reading" Title="Comment">
+        <span>
+            @reading.Comment
+        </span>
+    </TemplateColumn>
 
+</QuickGrid>
+<div class="quickgrid-pagination">
+    <Paginator State="ViewModel.PaginationState" />
+</div>
 
 @code {
 
