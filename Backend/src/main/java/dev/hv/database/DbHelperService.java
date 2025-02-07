@@ -1,5 +1,6 @@
 package dev.hv.database;
 
+import dev.hv.model.classes.AuthenticationInformation;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.hv.model.interfaces.IDbItem;
@@ -20,6 +21,7 @@ public class DbHelperService
         {
             add(new Customer());
             add(new Reading());
+            add(new AuthenticationInformation());
         }
     };
 

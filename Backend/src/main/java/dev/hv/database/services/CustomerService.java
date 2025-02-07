@@ -2,6 +2,7 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
+import dev.hv.model.classes.AuthenticationInformation;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 
@@ -43,6 +44,9 @@ public class CustomerService extends AbstractBaseService<Customer>
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
 
+        AuthInformationService authInformationService = new AuthInformationService(this._dbConnection);
+        authInformationService.addNew(item);
+
         return item;
     }
 
@@ -65,6 +69,7 @@ public class CustomerService extends AbstractBaseService<Customer>
 
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
+
         return item;
     }
 
@@ -87,6 +92,9 @@ public class CustomerService extends AbstractBaseService<Customer>
 
             this._dbConnection.executePreparedStatementCommand(stmt);
         }
+
+        AuthInformationService authInformationService = new AuthInformationService(this._dbConnection);
+        authInformationService.remove(new AuthenticationInformation(customerId));
     }
 
     @Override
