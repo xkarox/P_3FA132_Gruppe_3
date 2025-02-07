@@ -2,6 +2,7 @@
 
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Pages.Components
 @inject DatabaseService DatabaseService
 @inject CustomerService CustomerService
 @inject ReadingService ReadingService
@@ -19,6 +20,7 @@ Welcome to your new app.
 <button @onclick="GetReading">Get Reading</button>
 <button @onclick="UpdateReading">UpdateReading</button>
 <button @onclick="GetAllCustomers">GetAllCustomers</button>
+
 
 @if (!string.IsNullOrEmpty(message))
 {

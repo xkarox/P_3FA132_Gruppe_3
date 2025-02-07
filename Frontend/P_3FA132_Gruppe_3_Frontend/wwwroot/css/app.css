@@ -11,6 +11,11 @@
     --border-radius: 8px;/* Nearly black - Background */
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+
 .visible {
     display: initial !important;
 }

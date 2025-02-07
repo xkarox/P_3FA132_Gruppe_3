@@ -1,0 +1,77 @@
+.auth-component{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--bg-medium);
+    color: var(--text-color);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    min-width: 30%;
+    max-width: 600px;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.auth-component div {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.auth-component label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.auth-component div span,
+.auth-component div input,
+.auth-component div select,
+.auth-component div textarea
+{
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--bg-light);
+    border: 1px solid var(--ui-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box; /* Ensures consistent width calculation */
+}
+
+
+.auth-component div span:focus,
+.auth-component div input:focus,
+.auth-component div select:focus,
+.auth-component div textarea:focus
+{
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(179, 157, 219, 0.2);
+}
+
+.auth-component button
+{
+    margin: 0.5rem;
+}
+
+.auth-component .change-buttons
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+.auth-component .not-editable-property
+{
+    color: #6c757d;
+}
