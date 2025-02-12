@@ -14,24 +14,60 @@
     <button @onclick="ViewModel.DeleteFileCommand.ExecuteAsync">Delete</button>
 </div>
 
-<QuickGrid TGridItem="Reading" Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
-    <TemplateColumn Context="reading" Title="Date of reading">
-        <span>
-            @reading.DateOfReading
-        </span>
-    </TemplateColumn>
-    <TemplateColumn Context="reading" Title="Meter count">
+
+@if (ViewModel.IsReadingCsv)
+{
+    <QuickGrid TGridItem="Reading" Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
+        <TemplateColumn Context="reading" Title="Date of reading">
+            <span>
+                @reading.DateOfReading
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="reading" Title="Meter count">
             <span>
                 @reading.MeterCount
             </span>
-    </TemplateColumn>
-    <TemplateColumn Context="reading" Title="Comment">
-        <span>
-            @reading.Comment
-        </span>
-    </TemplateColumn>
+        </TemplateColumn>
+        <TemplateColumn Context="reading" Title="Comment">
+            <span>
+                @reading.Comment
+            </span>
+        </TemplateColumn>
+    </QuickGrid>
+}
 
-</QuickGrid>
+@if (ViewModel.IsCustomerCsv)
+{
+    <QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState">
+        <TemplateColumn Context="customer" Title="UUID">
+            <span>
+                @customer.Id
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Gender">
+            <span>
+                @customer.Gender
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="First name">
+            <span>
+                @customer.FirstName
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Last name">
+            <span>
+                @customer.LastName
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Date of birth">
+            <span>
+                @customer.DateOfBirth
+            </span>
+        </TemplateColumn>
+
+    </QuickGrid>
+}
+
 <div class="quickgrid-pagination">
     <Paginator State="ViewModel.PaginationState" />
 </div>

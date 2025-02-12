@@ -22,8 +22,10 @@ public class CsvController
     @Path("/values")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response formatValues(String csvContent) {
-        try {
+    public Response formatValues(String csvContent)
+    {
+        try
+        {
             CsvParser parser = new CsvParser(csvContent);
             Iterable<List<String>> values = parser.getValues();
 
@@ -35,7 +37,8 @@ public class CsvController
                     .type(MediaType.APPLICATION_JSON)
                     .entity(json)
                     .build();
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
 
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while processing the CSV file: " + e.getMessage())
@@ -45,22 +48,58 @@ public class CsvController
 
     @POST
     @Path("/header")
-    public Response formatHeader(String csvContent) throws IOException
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response formatHeader(String csvContent)
     {
-        CsvParser parser = new CsvParser(csvContent);
-        Iterable<String> values = parser.getHeader();
+        try
+        {
+            CsvParser parser = new CsvParser(csvContent);
+            Iterable<String> values = parser.getHeader();
 
-        return Response.ok(values).build();
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(values);
+            System.out.print(json);
+
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
+                    .build();
+        } catch (IOException e)
+        {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
+                    .build();
+        }
+
     }
 
     @POST
     @Path("/metaData")
-    public Response formatMetaData(String csvContent) throws IOException
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response formatMetaData(String csvContent)
     {
-        CsvParser parser = new CsvParser(csvContent);
-        Iterable<Map<String, String>> values = parser.getMetaData();
+        try
+        {
+            CsvParser parser = new CsvParser(csvContent);
+            Iterable<Map<String, String>> values = parser.getMetaData();
 
-        return Response.ok(values).build();
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(values);
+            System.out.print(json);
+
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
+                    .build();
+        } catch (IOException e)
+        {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
+                    .build();
+        }
+
     }
 
 }

@@ -29,16 +29,18 @@ public class CsvService
     public async Task<IEnumerable<string>> FormatHeader(string csvContent)
     {
         const string path = "/header";
-        var response = await _httpClient.PostAsJsonAsync(BaseUrl + path, csvContent);
+        var content = new StringContent(csvContent, Encoding.UTF8, "text/plain");
+        var response = await _httpClient.PostAsync(BaseUrl + path, content);
         response.EnsureSuccessStatusCode();
         
         return await response.Content.ReadFromJsonAsync<IEnumerable<string>>() ?? new List<string>();
     }
 
-    public async Task<IEnumerable<Dictionary<string, string>>> FormatMetaData(string csContent)
+    public async Task<IEnumerable<Dictionary<string, string>>> FormatMetaData(string csvContent)
     {
         const string path = "/metaData";
-        var response = await _httpClient.PostAsJsonAsync(BaseUrl + path, csContent);
+        var content = new StringContent(csvContent, Encoding.UTF8, "text/plain");
+        var response = await _httpClient.PostAsync(BaseUrl + path, content);
         response.EnsureSuccessStatusCode();
         
         return await response.Content.ReadFromJsonAsync<IEnumerable<Dictionary<string, string>>>() ?? new List<Dictionary<string, string>>();

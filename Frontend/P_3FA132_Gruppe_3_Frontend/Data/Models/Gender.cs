@@ -32,5 +32,16 @@
                 _ => "Unknown"
             };
         }
+
+        public static Gender ToGender(this string gender)
+        {
+            return gender switch
+            {
+                "Herr" => Gender.M,
+                "Frau" => Gender.W,
+                "k.A." => Gender.U,
+                _ => Gender.U
+            };
+        }
     }
 }
