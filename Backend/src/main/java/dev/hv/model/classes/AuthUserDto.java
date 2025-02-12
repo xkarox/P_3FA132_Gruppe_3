@@ -1,7 +1,10 @@
 package dev.hv.model.classes;
 
+import java.util.UUID;
+
 public class AuthUserDto
 {
+    private UUID userId;
     private String username;
     private String password;
 
@@ -28,4 +31,8 @@ public class AuthUserDto
     {
         this.password = password;
     }
+
+    public UUID getUserId() { return userId; }
+
+    public void setUserId(UUID userId) { this.userId = userId; }
 }

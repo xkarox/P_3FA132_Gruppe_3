@@ -4,7 +4,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.intefaces.IDatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.IId;
+import dev.hv.model.interfaces.IId;
 import dev.hv.model.decorator.FieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 

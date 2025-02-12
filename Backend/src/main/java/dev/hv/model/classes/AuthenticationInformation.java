@@ -1,8 +1,7 @@
 package dev.hv.model.classes;
 
-import dev.hv.model.IAuthInformation;
-import dev.hv.model.IId;
-import dev.hv.model.decorator.IFieldInfo;
+import dev.hv.model.interfaces.IAuthInformation;
+import dev.hv.model.interfaces.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 
 import java.io.IOException;
@@ -25,10 +24,18 @@ public class AuthenticationInformation implements IAuthInformation
         this._userId = id;
     }
 
-    public AuthenticationInformation(UUID userId, String username, String password) {
+    public AuthenticationInformation(UUID userId, String username, String password)
+    {
         this._userId = userId;
         this._username = username;
         this._password = password;
+    }
+
+    public AuthenticationInformation(AuthUserDto user)
+    {
+        this._userId = user.getUserId();
+        this._username = user.getUsername();
+        this._password = user.getPassword();
     }
 
     public String getUsername() {

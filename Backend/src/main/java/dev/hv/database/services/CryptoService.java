@@ -1,7 +1,10 @@
 package dev.hv.database.services;
 
 import dev.hv.database.DbHelperService;
+import dev.hv.database.provider.InternalServiceProvider;
+import dev.hv.model.classes.AuthenticationInformation;
 import dev.hv.model.classes.Customer;
+import dev.provider.ServiceProvider;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -10,6 +13,7 @@ import java.io.IOException;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Random;
 
@@ -19,18 +23,30 @@ public class CryptoService
     private static final long EXPIRATION_TIME = 3600000; // 1 Hour
     private static final Random random = new Random();
 
-    public static String CreateNewUsername(Customer customer)
+    public static String CreateNewUsername(Customer customer) throws SQLException, IOException, ReflectiveOperationException
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(customer.getFirstName());
-        sb.append("_");
-        sb.append(random.nextInt(1000));
-        sb.append("_");
-        sb.append(customer.getLastName());
-        sb.append("_");
-        sb.append(random.nextInt(1000));
+        try(AuthInformationService authService = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection()))
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append(customer.getFirstName());
+                sb.append("_");
+                sb.append(random.nextInt(1000));
+                sb.append("_");
+                sb.append(customer.getLastName());
+                sb.append("_");
+                sb.append(random.nextInt(1000));
 
-        return sb.toString().toLowerCase();
+                var userName = sb.toString().toLowerCase();
+                if (authService.DisplayNameAvailable(userName))
+                {
+                    return userName;
+                }
+
+            }
+        }
+        throw new RuntimeException("Could not create a new username.");
     }
 
     public static String hashStringWithSalt(String input)

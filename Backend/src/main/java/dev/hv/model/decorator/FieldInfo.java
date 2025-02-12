@@ -1,6 +1,7 @@
 package dev.hv.model.decorator;
 
 import dev.hv.model.interfaces.IDbItem;
+import dev.hv.model.interfaces.IFieldInfo;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

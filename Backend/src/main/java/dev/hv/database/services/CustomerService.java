@@ -44,9 +44,6 @@ public class CustomerService extends AbstractBaseService<Customer>
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
 
-        AuthInformationService authInformationService = new AuthInformationService(this._dbConnection);
-        authInformationService.addNew(item);
-
         return item;
     }
 

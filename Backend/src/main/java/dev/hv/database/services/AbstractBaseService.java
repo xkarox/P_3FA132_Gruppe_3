@@ -4,7 +4,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.intefaces.IBasicCrud;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.IId;
+import dev.hv.model.interfaces.IId;
 import dev.hv.model.interfaces.IDbItem;
 
 import java.io.IOException;

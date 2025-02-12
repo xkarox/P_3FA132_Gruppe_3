@@ -22,7 +22,7 @@ public class AuthInformationService extends AbstractBaseService<AuthenticationIn
         super(dbConnection, null, AuthenticationInformation.class);
     }
 
-    public static AuthenticationInformation CreateNewAuthInformation(Customer customer)
+    public static AuthenticationInformation CreateNewAuthInformation(Customer customer) throws ReflectiveOperationException, SQLException, IOException
     {
         return new AuthenticationInformation(customer.getId(), CryptoService.CreateNewUsername(customer), null);
     }
@@ -51,7 +51,7 @@ public class AuthInformationService extends AbstractBaseService<AuthenticationIn
         return item;
     }
 
-    public AuthenticationInformation addNew(Customer customer) throws SQLException
+    public AuthenticationInformation addBlankUser(Customer customer) throws SQLException, ReflectiveOperationException, IOException
     {
         if (customer == null)
             throw new IllegalArgumentException("Customer is null and cannot be inserted.");
@@ -88,6 +88,16 @@ public class AuthInformationService extends AbstractBaseService<AuthenticationIn
         }
 
         return item;
+    }
+
+    public boolean DisplayNameAvailable(String displayName) throws ReflectiveOperationException, SQLException, IOException
+    {
+        return this.getAll().stream().noneMatch(x -> x.getUsername().equals(displayName));
+    }
+
+    public AuthenticationInformation getUserByName(String userName) throws ReflectiveOperationException, SQLException, IOException
+    {
+        return this.getAll().stream().filter(x -> x.getUsername().equals(userName)).findFirst().orElse(null);
     }
 
     @Override

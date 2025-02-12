@@ -2,7 +2,7 @@ package dev.server.controller;
 
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.IReading;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;

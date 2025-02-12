@@ -1,8 +1,8 @@
 package dev.hv.model.classes;
 
 import dev.hv.ResponseMessages;
-import dev.hv.model.ICustomer;
-import dev.hv.model.decorator.IFieldInfo;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
