@@ -225,7 +225,6 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
     public <T extends IDbItem & IId> List<T> getAllObjectsFromDbTableWithFilter(Class<T> classInfo, String sqlWhereClause) throws ReflectiveOperationException, SQLException, IOException
     {
         return getObjectsFromDbTable(classInfo, sqlWhereClause);
-
     }
 
     @Override

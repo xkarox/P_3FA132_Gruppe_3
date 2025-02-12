@@ -2,7 +2,7 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.classes.AuthenticationInformation;
+import dev.hv.model.classes.AuthenticationUser;
 import dev.hv.model.classes.Customer;
 
 import java.io.IOException;
@@ -10,30 +10,30 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 
-public class AuthInformationService extends AbstractBaseService<AuthenticationInformation>
+public class AuthInformationService extends AbstractBaseService<AuthenticationUser>
 {
     public AuthInformationService(DatabaseConnection dbConnection, InternalServiceProvider provider)
     {
-        super(dbConnection, provider, AuthenticationInformation.class);
+        super(dbConnection, provider, AuthenticationUser.class);
     }
 
     public AuthInformationService(DatabaseConnection dbConnection)
     {
-        super(dbConnection, null, AuthenticationInformation.class);
+        super(dbConnection, null, AuthenticationUser.class);
     }
 
-    public static AuthenticationInformation CreateNewAuthInformation(Customer customer) throws ReflectiveOperationException, SQLException, IOException
+    public static AuthenticationUser CreateNewAuthInformation(Customer customer) throws ReflectiveOperationException, SQLException, IOException
     {
-        return new AuthenticationInformation(customer.getId(), CryptoService.CreateNewUsername(customer), null);
+        return new AuthenticationUser(customer.getId(), CryptoService.CreateNewUsername(customer), null);
     }
 
-    public AuthenticationInformation getByUserName(String userName) throws ReflectiveOperationException, SQLException, IOException
+    public AuthenticationUser getByUserName(String userName) throws ReflectiveOperationException, SQLException, IOException
     {
         return this.getAll().stream().filter(x -> x.getUsername().equals(userName)).findFirst().orElse(null);
     }
 
     @Override
-    public AuthenticationInformation add(AuthenticationInformation item) throws ReflectiveOperationException, SQLException, IOException
+    public AuthenticationUser add(AuthenticationUser item) throws ReflectiveOperationException, SQLException, IOException
     {
         if (item == null)
             throw new IllegalArgumentException("AuthItem is null and cannot be inserted.");
@@ -51,12 +51,12 @@ public class AuthInformationService extends AbstractBaseService<AuthenticationIn
         return item;
     }
 
-    public AuthenticationInformation addBlankUser(Customer customer) throws SQLException, ReflectiveOperationException, IOException
+    public AuthenticationUser addBlankUser(Customer customer) throws SQLException, ReflectiveOperationException, IOException
     {
         if (customer == null)
             throw new IllegalArgumentException("Customer is null and cannot be inserted.");
 
-        AuthenticationInformation item = CreateNewAuthInformation(customer);
+        AuthenticationUser item = CreateNewAuthInformation(customer);
 
         String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
                 " (id, username, password) VALUES (?, ?, ?);";
@@ -72,7 +72,7 @@ public class AuthInformationService extends AbstractBaseService<AuthenticationIn
     }
 
     @Override
-    public AuthenticationInformation update(AuthenticationInformation item) throws SQLException
+    public AuthenticationUser update(AuthenticationUser item) throws SQLException
     {
         if (item == null)
             throw new IllegalArgumentException("AuthItem is null and cannot be inserted.");
@@ -95,7 +95,7 @@ public class AuthInformationService extends AbstractBaseService<AuthenticationIn
         return this.getAll().stream().noneMatch(x -> x.getUsername().equals(displayName));
     }
 
-    public AuthenticationInformation getUserByName(String userName) throws ReflectiveOperationException, SQLException, IOException
+    public AuthenticationUser getUserByName(String userName) throws ReflectiveOperationException, SQLException, IOException
     {
         return this.getAll().stream().filter(x -> x.getUsername().equals(userName)).findFirst().orElse(null);
     }

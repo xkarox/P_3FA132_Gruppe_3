@@ -5,9 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.AuthInformationService;
 import dev.hv.database.services.CryptoService;
-import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.AuthUserDto;
-import dev.hv.model.classes.AuthenticationInformation;
+import dev.hv.model.classes.AuthenticationUser;
 import dev.provider.ServiceProvider;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -43,7 +42,7 @@ public class AuthenticationController
         try (AuthInformationService as = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection()))
         {
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);
-            AuthenticationInformation authInfo = as.getByUserName(user.getUsername());
+            AuthenticationUser authInfo = as.getByUserName(user.getUsername());
 
             if (authInfo == null || authInfo.getPassword() == null || user.getPassword() == null)
             {
@@ -88,7 +87,7 @@ public class AuthenticationController
                 return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
             }
 
-            AuthenticationInformation newAuthInfo = new AuthenticationInformation(user);
+            AuthenticationUser newAuthInfo = new AuthenticationUser(user);
             as.add(newAuthInfo);
 
             return Response.status(Response.Status.CREATED).build();
@@ -136,7 +135,7 @@ public class AuthenticationController
         logger.info("Received request to update user: {}", userBody);
         try (AuthInformationService as = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection())){
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);
-            AuthenticationInformation authInfo = as.getByUserName(user.getUsername());
+            AuthenticationUser authInfo = as.getByUserName(user.getUsername());
             if (authInfo == null){
                 logger.info("User not found");
                 return createErrorResponse(Response.Status.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());

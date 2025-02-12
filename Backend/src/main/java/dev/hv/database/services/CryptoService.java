@@ -1,8 +1,6 @@
 package dev.hv.database.services;
 
 import dev.hv.database.DbHelperService;
-import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.classes.AuthenticationInformation;
 import dev.hv.model.classes.Customer;
 import dev.provider.ServiceProvider;
 import io.jsonwebtoken.Jwts;

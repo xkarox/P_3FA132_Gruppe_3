@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class AuthenticationInformation implements IAuthInformation
+public class AuthenticationUser implements IAuthInformation
 {
     @IFieldInfo(fieldName = "userId", fieldType = String.class)
     private UUID _userId;
@@ -18,20 +18,20 @@ public class AuthenticationInformation implements IAuthInformation
     private String _password;
 
 
-    public AuthenticationInformation() { }
+    public AuthenticationUser() { }
 
-    public AuthenticationInformation(UUID id) {
+    public AuthenticationUser(UUID id) {
         this._userId = id;
     }
 
-    public AuthenticationInformation(UUID userId, String username, String password)
+    public AuthenticationUser(UUID userId, String username, String password)
     {
         this._userId = userId;
         this._username = username;
         this._password = password;
     }
 
-    public AuthenticationInformation(AuthUserDto user)
+    public AuthenticationUser(AuthUserDto user)
     {
         this._userId = user.getUserId();
         this._username = user.getUsername();

@@ -2,7 +2,7 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.classes.AuthenticationInformation;
+import dev.hv.model.classes.AuthenticationUser;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 
@@ -91,7 +91,7 @@ public class CustomerService extends AbstractBaseService<Customer>
         }
 
         AuthInformationService authInformationService = new AuthInformationService(this._dbConnection);
-        authInformationService.remove(new AuthenticationInformation(customerId));
+        authInformationService.remove(new AuthenticationUser(customerId));
     }
 
     @Override

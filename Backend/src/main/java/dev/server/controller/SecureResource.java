@@ -1,9 +1,11 @@
 package dev.server.controller;
 
+import dev.server.Annotations.Secured;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+@Secured
 @Path("/secure")
 @Produces(MediaType.APPLICATION_JSON)
 public class SecureResource {
