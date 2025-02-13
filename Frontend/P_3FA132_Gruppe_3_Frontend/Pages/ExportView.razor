@@ -1,6 +1,34 @@
 ﻿@page "/ExportView"
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Services
+@inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ExportViewModel>
+@inject IJSRuntime JSRuntime
+@inject CsvService csvService
+@inject CustomerService customerService
+
 <h3>ExportView</h3>
 
+<button @onclick="Call">export customer with readings</button>
+
 @code {
+
+    private IEnumerable<Customer>? _customers;
     
+    protected override async Task OnInitializedAsync()
+        
+    {
+        await base.OnInitializedAsync();
+        _customers = await customerService.GetAll();
+        
+        
+    }
+    
+    private async Task Call()
+    {
+        // string test = await csvService.CreateReadingCsvFromCustomer(_customers.First());
+
+        // string fileName = "output.csv";
+        
+        await JSRuntime.InvokeVoidAsync("downloadCsv", null, null);
+    }
 }

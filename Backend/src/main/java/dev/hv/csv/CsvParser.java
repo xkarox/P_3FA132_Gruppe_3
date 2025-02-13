@@ -1,6 +1,13 @@
 package dev.hv.csv;
 
+import dev.hv.database.services.CustomerService;
+import dev.hv.database.services.ReadingService;
+import dev.hv.model.classes.Customer;
+import dev.hv.model.classes.Reading;
+import dev.provider.ServiceProvider;
+
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 public class CsvParser
@@ -43,11 +50,16 @@ public class CsvParser
     }
 
     private String csvContent;
+    private CustomerService cs;
+    private ReadingService rs;
 
-    public CsvParser(String csvContent) throws IOException
+    public CsvParser() throws IOException
     {
-        CsvFormatter formatter = new CsvFormatter();
-        this.csvContent = formatter.formatFile(csvContent);
+
+    }
+
+    public void setCsvContent(String csvContent) {
+        this.csvContent = csvContent;
     }
 
     public Iterable<List<String>> getValues() {
@@ -143,6 +155,27 @@ public class CsvParser
             }
         }
         return "";
+    }
+
+    public String createReadingsCsvFromCustomer(Customer customer) throws SQLException, IOException, ReflectiveOperationException
+    {
+        this.cs = ServiceProvider.Services.getCustomerService();
+        this.rs = ServiceProvider.Services.getReadingService();
+        String readingHeader = "Datum;Zählerstand in m³;Kommentar\n";
+        String readingMetaData = "Kunde;" + customer.getId() + "\n" + "Zählernummer;123";
+        String readingValues = "";
+        String readingCsv = "";
+        List<Reading> readings = this.rs.getReadingsByCustomerId(customer.getId());
+        for (int i = 0; i < readings.size(); i++) {
+            readingValues += readings.get(i).getDateOfReading().toString();
+            readingValues += ";";
+            readingValues += readings.get(i).getMeterCount().toString();
+            readingValues += ";";
+            readingValues += readings.get(i).getComment();
+            readingValues += "\n";
+        }
+        readingCsv += readingMetaData + readingHeader + readingValues;
+        return readingCsv;
     }
 
 }

@@ -1,7 +1,9 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Components.Forms;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services;
 
@@ -44,9 +46,17 @@ public class CsvService
         response.EnsureSuccessStatusCode();
         
         return await response.Content.ReadFromJsonAsync<IEnumerable<Dictionary<string, string>>>() ?? new List<Dictionary<string, string>>();
-        
-        
     }
-    
+
+    public async Task<string> CreateReadingCsvFromCustomer(Customer customer)
+    {
+        const string path = "/createReadingCsvFromCustomer";
+        string json = customer.ToJson(false);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync(BaseUrl + path, content);
+        response.EnsureSuccessStatusCode();
+        
+        return await response.Content.ReadAsStringAsync();
+    }
     
 }
