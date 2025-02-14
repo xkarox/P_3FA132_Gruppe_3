@@ -5,9 +5,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.database.services.ReadingService;
-import dev.hv.model.ICustomer;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
@@ -92,7 +91,7 @@ public class DatabaseControllerTest
     void tearDown()
     {
         Server.stopServer();
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);;
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
     }
 
     @Test

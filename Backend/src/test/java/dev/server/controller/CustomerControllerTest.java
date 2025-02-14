@@ -2,17 +2,18 @@ package dev.server.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
-import dev.hv.model.IId;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.IId;
+import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.model.classes.Customer;
-import dev.hv.model.ICustomer.Gender;
+import dev.hv.model.interfaces.ICustomer.Gender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dev.server.Server;
@@ -47,7 +49,7 @@ public class CustomerControllerTest
 {
     private static final Logger log = LoggerFactory.getLogger(CustomerControllerTest.class);
     private DatabaseConnection _connection;
-    private String _url = "http://0.0.0.0:8080/customers";
+    private final String _url = "http://0.0.0.0:8080/customers";
     private HttpClient _httpClient;
     private Customer _customer;
     private ObjectMapper _objMapper;

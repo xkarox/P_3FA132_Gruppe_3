@@ -1,6 +1,4 @@
-package dev.hv.model;
-
-import dev.hv.model.interfaces.IDbItem;
+package dev.hv.model.interfaces;
 
 import java.time.LocalDate;
 

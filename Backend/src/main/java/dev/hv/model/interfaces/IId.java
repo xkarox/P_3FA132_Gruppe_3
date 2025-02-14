@@ -1,4 +1,4 @@
-package dev.hv.model;
+package dev.hv.model.interfaces;
 
 import java.util.UUID;
 

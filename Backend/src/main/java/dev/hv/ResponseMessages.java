@@ -16,6 +16,7 @@ public enum ResponseMessages
     ControllerBadRequest("Invalid data provided"),
     ControllerNotFound("Resource not found"),
     ControllerInternalError("Internal Server IOError"),
+    ControllerUnauthorized("Unauthorized access"),
 
     // Controller status messages
     ControllerUpdateSuccess("Resource successfully updated"),

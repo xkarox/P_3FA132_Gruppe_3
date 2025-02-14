@@ -1,4 +1,4 @@
-package dev.hv.model.decorator;
+package dev.hv.model.interfaces;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

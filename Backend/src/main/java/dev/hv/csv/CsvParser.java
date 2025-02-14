@@ -42,7 +42,7 @@ public class CsvParser
         }
     }
 
-    private String csvContent;
+    private final String csvContent;
 
     public CsvParser(String csvContent) throws IOException
     {

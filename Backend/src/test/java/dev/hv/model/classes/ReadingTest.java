@@ -1,9 +1,9 @@
 package dev.hv.model.classes;
 
 import dev.hv.ResponseMessages;
-import dev.hv.model.ICustomer;
-import dev.hv.model.ICustomer.Gender;
-import dev.hv.model.IReading.KindOfMeter;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.ICustomer.Gender;
+import dev.hv.model.interfaces.IReading.KindOfMeter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

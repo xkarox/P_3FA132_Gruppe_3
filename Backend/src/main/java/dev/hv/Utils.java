@@ -1,10 +1,7 @@
 package dev.hv;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import dev.hv.model.IId;
+import dev.hv.model.interfaces.IId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -23,14 +20,12 @@ public class Utils
     {
         if (!result.equals(expectedValue))
         {
-            StringBuilder strBuilder = new StringBuilder();
-            strBuilder.append("Expected: ");
-            strBuilder.append(expectedValue);
-            strBuilder.append(", but got: ");
-            strBuilder.append(result);
-            strBuilder.append(" | ");
-            strBuilder.append(errorMessage.toString());
-            String resultString = strBuilder.toString();
+            String resultString = "Expected: " +
+                    expectedValue +
+                    ", but got: " +
+                    result +
+                    " | " +
+                    errorMessage.toString();
             throw new IllegalArgumentException(resultString);
         }
     }
