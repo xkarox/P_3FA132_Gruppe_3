@@ -8,6 +8,8 @@ import dev.provider.ServiceProvider;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CsvParser
@@ -159,23 +161,62 @@ public class CsvParser
 
     public String createReadingsCsvFromCustomer(Customer customer) throws SQLException, IOException, ReflectiveOperationException
     {
-        this.cs = ServiceProvider.Services.getCustomerService();
         this.rs = ServiceProvider.Services.getReadingService();
-        String readingHeader = "Datum;Zählerstand in m³;Kommentar\n";
-        String readingMetaData = "Kunde;" + customer.getId() + "\n" + "Zählernummer;123";
+
         String readingValues = "";
-        String readingCsv = "";
+        String readingMetaData = "Kunde;" + customer.getId() + "\n" + "Zählernummer;";
         List<Reading> readings = this.rs.getReadingsByCustomerId(customer.getId());
         for (int i = 0; i < readings.size(); i++) {
-            readingValues += readings.get(i).getDateOfReading().toString();
+            if (readings.get(i).getDateOfReading() != null) {
+                LocalDate date = LocalDate.parse(readings.get(i).getDateOfReading().toString());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                String formattedDate = date.format(formatter);
+                readingValues += formattedDate;
+            }
             readingValues += ";";
             readingValues += readings.get(i).getMeterCount().toString();
             readingValues += ";";
-            readingValues += readings.get(i).getComment();
+            if (readings.get(i).getComment() != null) {
+                readingValues += readings.get(i).getComment();
+            }
+            else {
+                readingValues += "";
+            }
+
             readingValues += "\n";
         }
+        readingMetaData += readings.get(0).getMeterId();
+        readingMetaData += "\n";
+
+        String readingHeader = "Datum;Zählerstand in m³;Kommentar\n";
+        String readingCsv = "";
         readingCsv += readingMetaData + readingHeader + readingValues;
         return readingCsv;
+    }
+
+    public String createAllCustomerCsv() throws SQLException, IOException, ReflectiveOperationException
+    {
+        String customerHeader = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n";
+        String customerValues = "";
+        this.cs = ServiceProvider.Services.getCustomerService();
+
+        List<Customer> customers = this.cs.getAll();
+        for (int i = 0; i < customers.size(); i++) {
+            customerValues += customers.get(i).getId() + ",";
+            customerValues += customers.get(i).getGender() + ",";
+            customerValues += customers.get(i).getFirstName() + ",";
+            customerValues += customers.get(i).getLastName() + ",";
+            if (customers.get(i).getBirthDate() != null) {
+                customerValues += customers.get(i).getBirthDate() + "\n";
+            }
+            else {
+                customerValues += "\n";
+            }
+
+        }
+        String customerCsv = "";
+        customerCsv = customerHeader + customerValues;
+        return customerCsv;
     }
 
 }

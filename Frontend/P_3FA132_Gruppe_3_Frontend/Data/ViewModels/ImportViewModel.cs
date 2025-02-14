@@ -10,7 +10,9 @@ using P_3FA132_Gruppe_3_Frontend.Data.Services;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
-public partial class ImportViewModel(CsvService csvService) : ViewModelBase
+public partial class ImportViewModel(CsvService csvService,
+    ReadingService readingService,
+    CustomerService customerService) : ViewModelBase
 {
     [ObservableProperty] private ObservableCollection<Customer> _customers = [];
 
@@ -98,8 +100,24 @@ public partial class ImportViewModel(CsvService csvService) : ViewModelBase
 
 
     [RelayCommand]
-    private async Task UploadFile()
+    private async Task Upload()
     {
+        if (isCustomerCsv)
+        {
+            for (int i = 0; i < _customers.Count; i++)
+            {
+                await customerService.Add(_customers[i]);
+            }
+            
+        }
+        else if (isReadingCsv)
+        {
+            for (int i = 0; i < _readings.Count; i++)
+            {
+                await readingService.Add(_readings[i]);
+            }
+        }
+        
     }
 
     [RelayCommand]

@@ -9,11 +9,6 @@
 <p>Select your customer or reading file you want to upload...</p>
 <InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync"></InputFile>
 
-<div>
-    <button @onclick="ViewModel.UploadFileCommand.ExecuteAsync">Upload</button>
-    <button @onclick="ViewModel.DeleteFileCommand.ExecuteAsync">Delete</button>
-</div>
-
 
 @if (ViewModel.IsReadingCsv)
 {
@@ -67,6 +62,8 @@
 
     </QuickGrid>
 }
+
+<button @onclick="ViewModel.UploadCommand.ExecuteAsync">Upload</button>
 
 <div class="quickgrid-pagination">
     <Paginator State="ViewModel.PaginationState" />

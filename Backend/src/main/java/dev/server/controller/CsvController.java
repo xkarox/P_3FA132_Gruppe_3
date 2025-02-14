@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.Utils;
 import dev.hv.csv.CsvFormatter;
 import dev.hv.csv.CsvParser;
+import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -35,7 +33,7 @@ public class CsvController
         {
             CsvParser parser = new CsvParser();
             CsvFormatter formatter = new CsvFormatter();
-            formatter.formatFile(csvContent);
+            parser.setCsvContent(formatter.formatFile(csvContent));
             Iterable<List<String>> values = parser.getValues();
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -65,7 +63,7 @@ public class CsvController
         {
             CsvParser parser = new CsvParser();
             CsvFormatter formatter = new CsvFormatter();
-            formatter.formatFile(csvContent);
+            parser.setCsvContent(formatter.formatFile(csvContent));
             Iterable<String> values = parser.getHeader();
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -95,7 +93,7 @@ public class CsvController
         {
             CsvParser parser = new CsvParser();
             CsvFormatter formatter = new CsvFormatter();
-            formatter.formatFile(csvContent);
+            parser.setCsvContent(formatter.formatFile(csvContent));
             Iterable<Map<String, String>> values = parser.getMetaData();
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -126,6 +124,25 @@ public class CsvController
             CsvParser parser = new CsvParser();
             Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
             String csvData = parser.createReadingsCsvFromCustomer(customer);
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(csvData)
+                    .build();
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/createAllCustomersCsv")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response createAllCustomersCsv() {
+        try {
+            CsvParser parser = new CsvParser();
+            String csvData = parser.createAllCustomerCsv();
             return Response.status(Response.Status.OK)
                     .type(MediaType.TEXT_PLAIN)
                     .entity(csvData)
