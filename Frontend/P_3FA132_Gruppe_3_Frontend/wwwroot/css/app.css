@@ -8,7 +8,7 @@
     --color-tertiary: #D1C4E9;  /* Softer Amethyst - Tertiary accent */
     --bg-dark: #121212;
     
-    --border-radius: 8px;/* Nearly black - Background */
+    --border-radius: 8px;
 }
 
 .visible {
@@ -31,6 +31,13 @@
 
 .clickable {
     cursor: pointer;
+}
+
+.card {
+    border: 1px solid var(--color-primary);
+    background-color: var(--bg-medium);
+    color: var(--color-primary);
+    border-radius: var(--border-radius);
 }
 
 svg path {
