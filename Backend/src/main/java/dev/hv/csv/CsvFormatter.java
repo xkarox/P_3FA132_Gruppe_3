@@ -21,6 +21,7 @@ public class CsvFormatter
             while (scanner.hasNextLine())
             {
                 String line = scanner.nextLine();
+                line = line.replace("\"", "");
 
                 if (line.trim().isEmpty() || line.matches(regex))
                 {

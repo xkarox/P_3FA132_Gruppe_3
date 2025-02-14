@@ -5,9 +5,12 @@ import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>
@@ -97,5 +100,24 @@ public class CustomerService extends AbstractBaseService<Customer>
             this._provider.releaseDbConnection(this._dbConnection);
             this._provider.releaseCustomerService(this);
         }
+    }
+
+    public Collection<Customer> queryCustomers(Optional<String> firstName,
+                                               Optional<String> lastName) throws ReflectiveOperationException, SQLException, IOException
+    {
+        StringBuilder whereClauseBuilder = new StringBuilder("WHERE ");
+
+
+        firstName.ifPresent(firstN ->
+                whereClauseBuilder.append("firstName = '").append(firstN).append("'"));
+
+        if (firstName.isPresent() && lastName.isPresent()) {
+            whereClauseBuilder.append(" AND ");
+        }
+
+        lastName.ifPresent(lastN ->
+                whereClauseBuilder.append("lastName = '").append(lastN).append("'"));
+
+        return this._dbConnection.getAllObjectsFromDbTableWithFilter(Customer.class, whereClauseBuilder.toString());
     }
 }
