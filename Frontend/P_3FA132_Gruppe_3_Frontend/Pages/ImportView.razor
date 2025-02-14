@@ -7,30 +7,49 @@
 <h3>ImportView</h3>
 
 <p>Select your customer or reading file you want to upload...</p>
-<InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync"></InputFile>
+<!--
+<InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync">
+    
+</InputFile>
+
+-->
+    <EditForm Model="ViewModel.CustomerQuery" OnValidSubmit="ViewModel.QueryCommand.ExecuteAsync">
+        <InputText @bind-Value="ViewModel.CustomerQuery.FirstName">
+
+        </InputText>
+        <button type="submit">Search</button>
+    </EditForm>
+
+<QuickGrid Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState" Class="quickgrid">
+    <TemplateColumn Context="customer" Title="firstName">
+            <span>
+                @customer.FirstName
+            </span>
+    </TemplateColumn>
+</QuickGrid>
 
 
-@if (ViewModel.IsReadingCsv)
-{
-    <QuickGrid TGridItem="Reading" Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
-        <TemplateColumn Context="reading" Title="Date of reading">
-            <span>
-                @reading.DateOfReading
-            </span>
-        </TemplateColumn>
-        <TemplateColumn Context="reading" Title="Meter count">
-            <span>
-                @reading.MeterCount
-            </span>
-        </TemplateColumn>
-        <TemplateColumn Context="reading" Title="Comment">
-            <span>
-                @reading.Comment
-            </span>
-        </TemplateColumn>
-    </QuickGrid>
-}
+<!--
+<QuickGrid TGridItem="Reading" Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
+    <TemplateColumn Context="reading" Title="Date of reading">
+        <span>
+            @reading.DateOfReading
+        </span>
+    </TemplateColumn>
+    <TemplateColumn Context="reading" Title="Meter count">
+        <span>
+            @reading.MeterCount
+        </span>
+    </TemplateColumn>
+    <TemplateColumn Context="reading" Title="Comment">
+        <span>
+            @reading.Comment
+        </span>
+    </TemplateColumn>
+</QuickGrid>
+-->
 
+<!--
 @if (ViewModel.IsCustomerCsv)
 {
     <QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState">
@@ -66,8 +85,9 @@
 <button @onclick="ViewModel.UploadCommand.ExecuteAsync">Upload</button>
 
 <div class="quickgrid-pagination">
-    <Paginator State="ViewModel.PaginationState" />
+    <Paginator State="ViewModel.PaginationState"/>
 </div>
+-->
 
 @code {
 

@@ -2,6 +2,7 @@
 using Blazing.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;
@@ -26,14 +27,40 @@ public partial class ImportViewModel(CsvService csvService,
 
     private readonly int numberOfCustomerHeaderValues = 5;
     private readonly int numberOfReadingHeaderValues = 3;
+    
+    [ObservableProperty] 
+    private Guid? _selectedCustomerId;
+
+    [ObservableProperty] private Customer? _selectedCustomer;
+    
+    [ObservableProperty] private CustomerQuery? _customerQuery;
 
 
-    public override void OnInitialized()
+    public override async void OnInitialized()
     {
-        base.OnInitialized();
-
+        Customers = new ObservableCollection<Customer>();
         PaginationState = new PaginationState { ItemsPerPage = 10 };
-        Console.WriteLine(PaginationState);
+        CustomerQuery = new CustomerQuery();
+        // Customers = await customerService.GetAll() ?? new List<Customer>();
+        
+        // var customers = await customerService.GetAll() ?? new List<Customer>();
+        
+        /*
+        Customers =
+            new ObservableCollection<Customer>(
+                customers.OrderByDescending(r => r.FirstName));
+
+*/
+        
+        
+    }
+    
+    [RelayCommand]
+    private async Task Query()
+    {
+        var customers = await customerService.QueryCustomer(CustomerQuery);
+       Customers = new ObservableCollection<Customer>(
+           customers.OrderByDescending(r => r.LastName));
     }
 
     [RelayCommand]
@@ -121,7 +148,13 @@ public partial class ImportViewModel(CsvService csvService,
     }
 
     [RelayCommand]
-    private async Task DeleteFile()
+    private void OnCustomerSelected(ChangeEventArgs e)
     {
+        if (Guid.TryParse(e.Value?.ToString(), out var id))
+        {
+            SelectedCustomerId = id;
+            SelectedCustomer = Customers.FirstOrDefault(c => c.Id == id);
+        }
     }
+    
 }
