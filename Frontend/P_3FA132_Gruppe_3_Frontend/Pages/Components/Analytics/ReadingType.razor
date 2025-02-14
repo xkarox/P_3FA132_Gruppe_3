@@ -1,0 +1,38 @@
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes.Analytics
+
+<div class="reading-type-donut-widget card chart">
+    <ApexChart TItem="ReadingTypeData" Title="Meter Readings" Options="Options">
+        <ApexPointSeries TItem="ReadingTypeData"
+                         Items="@Items"
+                         SeriesType="SeriesType.Bar"
+                         Name="Meter Count"
+                         XValue="r => r.Type.ToEmoji()"
+                         YValue="r => (decimal?)r.Value" />
+    </ApexChart>    
+</div>
+
+@code {
+    [EditorRequired] [Parameter] public List<ReadingTypeData> Items { get; set; }
+    
+    private ApexChartOptions<ReadingTypeData> Options { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        Options = new ApexChartOptions<ReadingTypeData>()
+        {
+            Chart = new Chart 
+            {
+                Background = "transparent",
+            },
+            Fill = new Fill
+            {
+                Type = new List<FillType> { FillType.Solid },
+                Opacity = 1
+            }
+        };
+
+    }
+
+}

@@ -22,6 +22,7 @@ builder.Services.AddScoped<ReadingService>();
 
 builder.Services.AddScoped<UtilityService>();
 
+
 // Register MVVM 
 builder.Services.AddMvvm(options =>
 { 
@@ -33,7 +34,7 @@ builder.Services.AddApexCharts(e =>
     e.GlobalOptions = new ApexChartBaseOptions
     {
         Debug = true,
-        Theme = new Theme { Palette = PaletteType.Palette10 }
+        Theme = new Theme { Palette = PaletteType.Palette10, Mode = Mode.Dark }
     };
 });
 await builder.Build().RunAsync();

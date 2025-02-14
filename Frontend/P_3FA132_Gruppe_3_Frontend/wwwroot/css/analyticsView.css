@@ -1,0 +1,9 @@
+.reading-type-donut {
+    width: 45rem;
+    color: var(--color-primary)
+}
+
+.apexcharts-svg
+{
+    background: none;
+}

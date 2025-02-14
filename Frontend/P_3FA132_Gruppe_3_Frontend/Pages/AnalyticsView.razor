@@ -1,9 +1,17 @@
 @page "/AnalyticsView"
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @inherits Blazing.Mvvm.Components.MvvmComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.AnalyticsViewModel>
 
 <h3>AnalyticsView</h3>
-<Count TValue="int" Title="Customer Count" Value="269"></Count>
-
-@code {
-    
+<div class="customer-count">
+    <Count TValue="int" Title="Customer Count" Value="ViewModel.CustomerCount"></Count>
+</div>
+<div class="reading-count">
+    <Count TValue="int" Title="Reading Count" Value="269"></Count>
+</div>
+@if (ViewModel.Readings != null)
+{
+    <div class="reading-type-donut">
+        <ReadingType Items="ViewModel.ReadingData"></ReadingType>
+    </div>
 }

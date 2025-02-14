@@ -16,8 +16,8 @@
             {
                 "HEIZUNG" => KindOfMeter.HEIZUNG,
                 "STROM" => KindOfMeter.STROM,
-                "UNBEKANNT" => KindOfMeter.UNBEKANNT,
                 "WASSER" => KindOfMeter.WASSER,
+                "UNBEKANNT" => KindOfMeter.UNBEKANNT,
                 _ => KindOfMeter.UNBEKANNT
             };
         }
