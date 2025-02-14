@@ -34,8 +34,6 @@ public class CustomerServiceTest
 {
     private Customer _testCustomer;
     private Reading _testReading;
-    private CustomerService _customerService;
-    private ReadingService _readingService;
 
     @BeforeAll
     static void OneTimeSetup() throws IOException
@@ -56,10 +54,12 @@ public class CustomerServiceTest
                 ICustomer.Gender.M);
         this._testReading = new Reading(UUID.randomUUID(), "", this._testCustomer.getId(), null, LocalDate.now(),
                 IReading.KindOfMeter.HEIZUNG, 1.69, "90-238-01sdf", false);
-        DatabaseConnection _databaseConnection = new DatabaseConnection();
-        _databaseConnection.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
-        _databaseConnection.removeAllTables();
-        _databaseConnection.createAllTables();
+
+        try(DatabaseConnection dbCon = ServiceProvider.Services.getDatabaseConnection()){
+            dbCon.openConnection(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
+            dbCon.removeAllTables();
+            dbCon.createAllTables();
+        }
     }
 
     @Test

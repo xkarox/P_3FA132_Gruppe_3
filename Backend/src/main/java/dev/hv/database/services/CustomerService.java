@@ -2,9 +2,10 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.classes.AuthenticationUser;
+import dev.hv.model.classes.Authentification.AuthUser;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
+import dev.provider.ServiceProvider;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -90,8 +91,10 @@ public class CustomerService extends AbstractBaseService<Customer>
             this._dbConnection.executePreparedStatementCommand(stmt);
         }
 
-        AuthInformationService authInformationService = new AuthInformationService(this._dbConnection);
-        authInformationService.remove(new AuthenticationUser(customerId));
+        try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
+            if (authUserService.checkIfAuthDatabaseExists())
+                authUserService.remove(new AuthUser(customerId));
+        }
     }
 
     @Override

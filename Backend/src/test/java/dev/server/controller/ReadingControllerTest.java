@@ -138,7 +138,7 @@ public class ReadingControllerTest
         String restartServer = System.getenv("SkipServerRestart");
         if (!Objects.equals(restartServer, "True"))
             Server.stopServer();
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);;
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
     }
 
     @Test
@@ -518,12 +518,11 @@ public class ReadingControllerTest
         LocalDate startDate = LocalDate.of(2000, 11, 2);
         LocalDate endDate = LocalDate.of(2999, 11, 2);
 
-        String url = new StringBuilder(_url)
-                .append("?customer=").append(customer.getId())
-                .append("&start=").append(startDate)
-                .append("&end=").append(endDate)
-                .append("&kindOfMeter=1")
-                .toString();
+        String url = _url +
+                "?customer=" + customer.getId() +
+                "&start=" + startDate +
+                "&end=" + endDate +
+                "&kindOfMeter=1";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -546,9 +545,9 @@ public class ReadingControllerTest
     void getReadingsStartDateFormatDoesntMatch() throws IOException, InterruptedException
     {
         String startDateWrongFormat = "10000-69-69";
-        String url = new StringBuilder(_url)
-                .append("?start=").append(startDateWrongFormat)
-                .append("&kindOfMeter=1").toString();
+        String url = _url +
+                "?start=" + startDateWrongFormat +
+                "&kindOfMeter=1";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -566,9 +565,9 @@ public class ReadingControllerTest
     {
 
         String startDateWrongFormat = "10000-69-69";
-        String url = new StringBuilder(_url)
-                .append("?end=").append(startDateWrongFormat)
-                .append("&kindOfMeter=1").toString();
+        String url = _url +
+                "?end=" + startDateWrongFormat +
+                "&kindOfMeter=1";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -584,9 +583,9 @@ public class ReadingControllerTest
     @Test
     void getReadingsInvalidKindOfMeter() throws IOException, InterruptedException
     {
-        String url = new StringBuilder(_url)
-                .append("?end=").append(LocalDate.of(2024, 12, 13))
-                .append("&kindOfMeter=69").toString();
+        String url = _url +
+                "?end=" + LocalDate.of(2024, 12, 13) +
+                "&kindOfMeter=69";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -605,9 +604,9 @@ public class ReadingControllerTest
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         when(ServiceProvider.Services.getReadingService()).thenThrow(IOException.class);
 
-        String url = new StringBuilder(_url)
-                .append("?start=").append(LocalDate.now())
-                .append("&kindOfMeter=1").toString();
+        String url = _url +
+                "?start=" + LocalDate.now() +
+                "&kindOfMeter=1";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))

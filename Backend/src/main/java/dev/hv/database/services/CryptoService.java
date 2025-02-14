@@ -14,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 public class CryptoService
 {
@@ -23,20 +24,19 @@ public class CryptoService
 
     public static String CreateNewUsername(Customer customer) throws SQLException, IOException, ReflectiveOperationException
     {
-        try(AuthInformationService authService = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection()))
+        try(AuthUserService authService = ServiceProvider.getAuthUserService())
         {
             for (int i = 0; i < 5; i++)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.append(customer.getFirstName());
-                sb.append("_");
-                sb.append(random.nextInt(1000));
-                sb.append("_");
-                sb.append(customer.getLastName());
-                sb.append("_");
-                sb.append(random.nextInt(1000));
+                String sb = customer.getFirstName() +
+                        "_" +
+                        random.nextInt(1000) +
+                        "_" +
+                        customer.getLastName() +
+                        "_" +
+                        random.nextInt(1000);
 
-                var userName = sb.toString().toLowerCase();
+                var userName = sb.toLowerCase();
                 if (authService.DisplayNameAvailable(userName))
                 {
                     return userName;
@@ -79,9 +79,9 @@ public class CryptoService
         return hashStringWithSalt(input).equals(hashedInput);
     }
 
-    public static String generateToken(String username) {
+    public static String generateToken(UUID id) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(id.toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key)

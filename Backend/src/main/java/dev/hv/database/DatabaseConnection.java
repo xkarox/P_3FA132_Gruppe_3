@@ -4,6 +4,8 @@ import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.intefaces.IDatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
+import dev.hv.model.classes.Authentification.AuthUser;
+import dev.hv.model.classes.Authentification.AuthUserPermissions;
 import dev.hv.model.interfaces.IId;
 import dev.hv.model.decorator.FieldInfo;
 import dev.hv.model.interfaces.IDbItem;
@@ -69,11 +71,25 @@ public class DatabaseConnection implements IDatabaseConnection, AutoCloseable
         return this.openConnection(DbHelperService.loadProperties());
     }
 
-
     @Override
     public void createAllTables() throws SQLException
     {
-        List<String> tablesCommands = this._helperService.createSqlTableSchemaCommands();
+        createTables(this._helperService.createSqlTableSchemaCommands());
+    }
+
+    public void createAllTablesWithAuth() throws SQLException
+    {
+        var tables = new ArrayList<IDbItem>(){
+            {
+                add(new AuthUser());
+                add(new AuthUserPermissions());
+            }
+        };
+        createTables(this._helperService.createSqlTableSchemaCommands(tables));
+    }
+
+    private void createTables(List<String> tablesCommands) throws SQLException
+    {
         for (String createTableCommand : tablesCommands)
         {
             executeSqlUpdateCommand(createTableCommand, 0);

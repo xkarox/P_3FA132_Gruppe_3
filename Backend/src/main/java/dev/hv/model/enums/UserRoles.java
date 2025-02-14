@@ -1,6 +1,6 @@
 package dev.hv.model.enums;
 
-public enum UserRolesEnum
+public enum UserRoles
 {
     ADMIN,
     USER

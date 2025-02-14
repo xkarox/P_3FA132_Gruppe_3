@@ -20,14 +20,12 @@ public class Utils
     {
         if (!result.equals(expectedValue))
         {
-            StringBuilder strBuilder = new StringBuilder();
-            strBuilder.append("Expected: ");
-            strBuilder.append(expectedValue);
-            strBuilder.append(", but got: ");
-            strBuilder.append(result);
-            strBuilder.append(" | ");
-            strBuilder.append(errorMessage.toString());
-            String resultString = strBuilder.toString();
+            String resultString = "Expected: " +
+                    expectedValue +
+                    ", but got: " +
+                    result +
+                    " | " +
+                    errorMessage.toString();
             throw new IllegalArgumentException(resultString);
         }
     }

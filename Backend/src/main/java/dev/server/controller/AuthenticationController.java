@@ -3,19 +3,21 @@ package dev.server.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.ResponseMessages;
-import dev.hv.database.services.AuthInformationService;
+import dev.hv.database.services.AuthUserService;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.database.services.CryptoService;
-import dev.hv.model.classes.AuthUserDto;
-import dev.hv.model.classes.AuthenticationUser;
+import dev.hv.model.classes.Authentification.AuthUserDto;
+import dev.hv.model.classes.Authentification.AuthUser;
 import dev.provider.ServiceProvider;
+import dev.server.Annotations.Secured;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.sql.SQLException;
+
 import static dev.hv.Utils.createErrorResponse;
 
 @Path("/auth")
@@ -25,12 +27,10 @@ public class AuthenticationController
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     // ToDo: Secure other endpoints with JWT
-    // ToDo: Admin pw -> config
-    // ToDo: User roles & enum
-    // ToDo: Add user id in MDR ?
     // ToDo: Add static master key for crypto service
     // ToDo: Add schema validation for user
-    // ToDo: Add check on change / update for user account
+    // ToDo: remove internal service provider
+    // ToDo: endpoint dokumentation
 
     @POST
     @Path("/login")
@@ -39,10 +39,10 @@ public class AuthenticationController
     public Response login(String userBody) throws JsonProcessingException
     {
         logger.info("Received request to login user: {}", userBody);
-        try (AuthInformationService as = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection()))
+        try (AuthUserService as = ServiceProvider.getAuthUserService())
         {
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);
-            AuthenticationUser authInfo = as.getByUserName(user.getUsername());
+            AuthUser authInfo = as.getByUserName(user.getUsername());
 
             if (authInfo == null || authInfo.getPassword() == null || user.getPassword() == null)
             {
@@ -58,7 +58,7 @@ public class AuthenticationController
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
-            String token = CryptoService.generateToken(user.getUsername());
+            String token = CryptoService.generateToken(authInfo.getId());
             return Response.ok(token).build();
         } catch (SQLException | ReflectiveOperationException e)
         {
@@ -72,13 +72,18 @@ public class AuthenticationController
     }
 
     @POST
+    @Secured
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response register(String userBody) throws JsonProcessingException
     {
         logger.info("Received request to register user: {}", userBody);
-        try (AuthInformationService as = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection()))
+
+        if (!AuthorisationService.IsUserAdmin(logger))
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+
+        try (AuthUserService as = ServiceProvider.getAuthUserService())
         {
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);
             if (as.getByUserName(user.getUsername()) != null)
@@ -87,7 +92,7 @@ public class AuthenticationController
                 return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
             }
 
-            AuthenticationUser newAuthInfo = new AuthenticationUser(user);
+            AuthUser newAuthInfo = new AuthUser(user);
             as.add(newAuthInfo);
 
             return Response.status(Response.Status.CREATED).build();
@@ -102,12 +107,17 @@ public class AuthenticationController
     }
 
     @DELETE
+    @Secured
     @Path("/{userName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("userName") String userName) throws JsonProcessingException
     {
         logger.info("Received request to delete user: {}", userName);
-        try (AuthInformationService as = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection())){
+
+        if (!AuthorisationService.IsUserAdmin(logger))
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+
+        try (AuthUserService as = ServiceProvider.getAuthUserService()){
             var user = as.getByUserName(userName);
             if (user == null){
                 logger.info("User not found");
@@ -129,13 +139,18 @@ public class AuthenticationController
     }
 
     @PUT
+    @Secured
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateUser(String userBody) throws JsonProcessingException
     {
         logger.info("Received request to update user: {}", userBody);
-        try (AuthInformationService as = new AuthInformationService(ServiceProvider.Services.getDatabaseConnection())){
+
+        if (!AuthorisationService.IsUserAdmin(logger))
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+
+        try (AuthUserService as = ServiceProvider.getAuthUserService()){
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);
-            AuthenticationUser authInfo = as.getByUserName(user.getUsername());
+            AuthUser authInfo = as.getByUserName(user.getUsername());
             if (authInfo == null){
                 logger.info("User not found");
                 return createErrorResponse(Response.Status.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());

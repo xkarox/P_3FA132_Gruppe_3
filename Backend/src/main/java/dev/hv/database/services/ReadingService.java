@@ -66,7 +66,6 @@ public class ReadingService extends AbstractBaseService<Reading>
         return item;
     }
 
-
     public List<Reading> getReadingsByCustomerId(UUID id) throws ReflectiveOperationException, SQLException, IOException
     {
         var result = this._dbConnection.getAllObjectsFromDbTableWithFilter(Reading.class, String.format("WHERE customerId = '%s'", id));

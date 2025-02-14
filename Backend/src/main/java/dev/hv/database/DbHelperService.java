@@ -1,6 +1,5 @@
 package dev.hv.database;
 
-import dev.hv.model.classes.AuthenticationUser;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.hv.model.interfaces.IDbItem;
@@ -21,7 +20,6 @@ public class DbHelperService
         {
             add(new Customer());
             add(new Reading());
-            add(new AuthenticationUser());
         }
     };
 
@@ -36,9 +34,17 @@ public class DbHelperService
 
     public List<String> createSqlTableSchemaCommands()
     {
+        return createSqlTableSchemaCommands(new ArrayList<>());
+    }
+
+    public List<String> createSqlTableSchemaCommands(List<IDbItem> additionalTables)
+    {
         List<String> commands = new ArrayList<>();
 
-        for (IDbItem table : _tables)
+        List<IDbItem> allTables = _tables;
+        allTables.addAll(additionalTables);
+
+        for (IDbItem table : allTables)
         {
             String columnDefinition = table.getSerializedStructure();
             String tableName = table.getSerializedTableName();

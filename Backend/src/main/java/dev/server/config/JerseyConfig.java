@@ -1,10 +1,7 @@
 package dev.server.config;
 
 import dev.server.controller.*;
-import dev.server.filter.CORSFilter;
-import dev.server.filter.JwtFilter;
-import dev.server.filter.LoggingFilter;
-import dev.server.filter.RequestIdFilter;
+import dev.server.filter.*;
 import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
@@ -20,7 +17,6 @@ public class JerseyConfig extends ResourceConfig
         register(DatabaseController.class);
 
         register(AuthenticationController.class);
-        register(SecureResource.class);
 
         // Register filter
         packages("dev.hv.server.filter");
@@ -29,6 +25,7 @@ public class JerseyConfig extends ResourceConfig
         register(LoggingFilter.class);
 
         register(JwtFilter.class);
+        register(PermissionFilter.class);
 
         // Enable logging to debug registration
         property(ServerProperties.MONITORING_ENABLED, false);

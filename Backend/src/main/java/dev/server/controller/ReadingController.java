@@ -2,11 +2,13 @@ package dev.server.controller;
 
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.interfaces.IReading;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import dev.server.Annotations.Secured;
 import dev.server.validator.ReadingJsonSchemaValidationService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -21,6 +23,7 @@ import java.util.*;
 
 import static dev.hv.Utils.createErrorResponse;
 
+@Secured
 @Path("/readings")
 public class ReadingController {
 
@@ -49,6 +52,11 @@ public class ReadingController {
         try (ReadingService rs = ServiceProvider.Services.getReadingService()) {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
+
+            if (AuthorisationService.CanUserAccessResource(reading.getCustomerId(), logger)) {
+                return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+            }
+
             if (reading.getId() == null) {
                 reading.setId(UUID.randomUUID());
             }
@@ -86,6 +94,11 @@ public class ReadingController {
                 return createErrorResponse(Response.Status.NOT_FOUND,
                         ResponseMessages.ControllerNotFound.toString());
             }
+
+            if (AuthorisationService.CanUserAccessResource(reading.getId(), logger)) {
+                return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+            }
+
             rs.update(reading);
             logger.info("Reading updated successfully: {}", reading);
             return Response.status(Response.Status.OK)
@@ -107,6 +120,11 @@ public class ReadingController {
     @Path("/{id}")
     public Response getReading(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to get reading with ID: {}", id);
+
+        if (AuthorisationService.CanUserAccessResource(id, logger)) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
         try (ReadingService rs = ServiceProvider.Services.getReadingService()) {
             Reading reading = rs.getById(id);
             logger.info("Reading retrieved successfully: {}", reading);
@@ -129,6 +147,11 @@ public class ReadingController {
     @Path("/{id}")
     public Response deleteReading(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to delete reading with ID: {}", id);
+
+        if (AuthorisationService.CanUserAccessResource(id, logger)) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
         try (ReadingService rs = ServiceProvider.Services.getReadingService()) {
             Reading reading = rs.getById(id);
             rs.remove(reading);
@@ -156,6 +179,10 @@ public class ReadingController {
                                 @QueryParam("kindOfMeter") Integer kindOfMeter) throws JsonProcessingException {
         logger.info("Received request to get readings with parameters - customer: {}, start: {}, end: {}, kindOfMeter: {}",
                 customerId, startDate, endDate, kindOfMeter);
+
+        if (!AuthorisationService.IsUserAdmin(logger))
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+
         try {
             UUID id = customerId != null ? UUID.fromString(customerId) : null;
 
