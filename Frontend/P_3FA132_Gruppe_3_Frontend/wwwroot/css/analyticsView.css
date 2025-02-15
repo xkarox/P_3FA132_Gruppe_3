@@ -6,15 +6,19 @@
 .analytics-widget-container {
     position: relative;
     margin: 1rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .customer-count {
-    height: auto;
+    height: fit-content;
     width: fit-content;
 }
 
 .reading-count {
-    height: 8rem;
+    height: fit-content;
     width: fit-content;
 }
 

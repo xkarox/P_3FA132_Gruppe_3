@@ -5,12 +5,8 @@
     border-radius: 50%;
     animation: 
             spin 700ms linear infinite;
-    width: 10%;
-    height: 10%;
-    position: absolute;
-    top: 42.5%;
-    left: 42.5%;
-    transform: translate(-50%, -50%);
+    width: 3rem;
+    height: 3rem;
 }
 
 @keyframes spin {
