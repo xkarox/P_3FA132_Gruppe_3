@@ -1,9 +1,25 @@
-.reading-type-donut {
-    width: 45rem;
-    color: var(--color-primary)
-}
-
 .apexcharts-svg
 {
     background: none;
+}
+
+.analytics-widget-container {
+    position: relative;
+    margin: 1rem;
+}
+
+.customer-count {
+    height: auto;
+    width: fit-content;
+}
+
+.reading-count {
+    height: 8rem;
+    width: fit-content;
+}
+
+.reading-type-donut {
+    height: 30rem;
+    width: 48rem;
+    color: var(--color-primary)
 }

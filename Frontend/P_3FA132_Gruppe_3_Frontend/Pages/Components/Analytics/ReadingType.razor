@@ -2,7 +2,7 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes.Analytics
 
-<div class="reading-type-donut-widget card chart">
+<div class="reading-type-donut-widget chart">
     <ApexChart TItem="ReadingTypeData" Title="Meter Readings" Options="Options">
         <ApexPointSeries TItem="ReadingTypeData"
                          Items="@Items"
@@ -10,7 +10,7 @@
                          Name="Meter Count"
                          XValue="r => r.Type.ToEmoji()"
                          YValue="r => (decimal?)r.Value" />
-    </ApexChart>    
+    </ApexChart>
 </div>
 
 @code {
@@ -32,7 +32,6 @@
                 Opacity = 1
             }
         };
-
     }
 
 }

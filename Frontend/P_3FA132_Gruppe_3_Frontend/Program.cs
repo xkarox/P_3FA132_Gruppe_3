@@ -1,6 +1,5 @@
 using ApexCharts;
 using Blazing.Mvvm;
-
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using P_3FA132_Gruppe_3_Frontend;

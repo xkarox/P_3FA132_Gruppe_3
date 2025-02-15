@@ -15,9 +15,13 @@ public partial class AnalyticsViewModel(
     [ObservableProperty] private int _customerCount;
     [ObservableProperty] private List<Reading>? _readings;
     [ObservableProperty] private List<ReadingTypeData> _readingData = new();
+
+    [ObservableProperty] private bool _loading = false;
     
     public override async void OnInitialized()
     {
+        Loading = true;
+        
         var customers = await customerService.GetAll();
         CustomerCount = customers!.Count();
 
@@ -33,5 +37,7 @@ public partial class AnalyticsViewModel(
             };
             ReadingData.Add(readingTypeData);
         }
+
+        Loading = false;
     }
 }
