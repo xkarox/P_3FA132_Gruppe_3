@@ -1,0 +1,38 @@
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+<div class="reading-activity-widget chart">
+    <ApexChart TItem="Reading" Title="Reading Activity" Options="Options">
+        @foreach (var source in Data.GroupBy(e => e.KindOfMeter))
+        {
+            <ApexPointSeries TItem="Reading"
+                             Items="source.OrderBy(e => e.DateOfReading!.Value.Month)"
+                             Name="@(source.Key + source.Key.ToEmoji())"
+                             SeriesType="SeriesType.Heatmap"
+                             XValue="@(e => e.DateOfReading!.Value.Month)"
+                             YAggregate="@(e => e.Count())">
+            </ApexPointSeries>
+        }
+    </ApexChart>
+</div>
+
+
+@code {
+    [EditorRequired] [Parameter] public List<Reading> Data { get; set; }
+    private ApexChartOptions<Reading> Options;
+    
+    protected override void OnInitialized()
+    {
+        Options = new ApexChartOptions<Reading>()
+        {
+            Chart = new Chart 
+            {
+                Background = "transparent",
+            },
+            Fill = new Fill
+            {
+                Type = new List<FillType> { FillType.Solid },
+                Opacity = 1
+            }
+        };
+    }
+}

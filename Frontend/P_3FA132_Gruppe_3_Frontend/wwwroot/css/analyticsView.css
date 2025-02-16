@@ -6,7 +6,6 @@
 .analytics-widgets {
     display: flex;
     flex-wrap: wrap;          /* Allows widgets to wrap onto the next row */
-    gap: 20px;                /* Space between widgets */
     justify-content: space-between; /* Even spacing in each row */
     align-items: stretch;     /* Makes items in the same row equal height */
     padding: 20px;            /* Optional: adds some padding around the container */
