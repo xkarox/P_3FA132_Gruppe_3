@@ -1,0 +1,65 @@
+.recent-reading-widget{
+    width: 100%;
+    height: 100%;
+    font-size: 2rem;
+    line-height: 1px;
+}
+.recent-reading-widget div {
+    width: fit-content;
+}
+
+.recent-reading-widget-container {
+    display: flex;
+}
+
+.recent-reading-widget-value {
+    line-height: 0.05;
+}
+
+.recent-reading-widget-icon-container {
+    align-content: center;
+}
+
+.recent-reading-sub-title {
+    font-size: 0.7rem;
+    display: flex;
+    width: auto;
+    margin-left: auto;
+}
+
+p.meter-display {
+    /* Use a digital or monospace font to mimic seven-segment characters */
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 2rem;
+
+    /* Dark background with a slight border to simulate a device screen */
+    background-color: #000;
+    color: var(--color-tertiary); /* green for a classic LED look; change to red if desired */
+    padding: 1.5rem 1rem;
+    border: 2px solid #333;
+    border-radius: 5px;
+
+    /* Create an inner glow effect that resembles the light coming from LED segments */
+    text-shadow:
+            0 0 5px var(--color-primary),
+            0 0 10px var(--color-primary),
+            0 0 15px var(--color-primary);
+
+    text-align: center;
+    letter-spacing: 0.1em;
+    /* Optional: force a fixed width for a uniform display */
+    display: inline-block;
+    width: fit-content;
+}
+
+span.letter-box {
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
+    padding: 0.2rem;
+}
+
+.recent-reading-widget-icon-container {
+    text-shadow: none; !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin-right: 1rem;
+}

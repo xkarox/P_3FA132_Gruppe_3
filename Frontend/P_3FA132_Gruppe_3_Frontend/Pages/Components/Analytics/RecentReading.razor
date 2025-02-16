@@ -1,0 +1,36 @@
+@using System.Runtime.InteropServices.JavaScript
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+<div class="recent-reading-widget">
+    <div class="recent-reading-widget-container">
+        <div class="recent-reading-widget-value-container">
+            <p class="recent-reading-widget-value meter-display">
+                <span class="recent-reading-widget-icon-container">@Type.ToEmoji()</span>
+                @foreach (var letter in Value!)
+                {
+                    <span class="letter-box">@letter</span>
+                }
+                @(" " + Type.GetUnit())
+            </p>
+        </div>
+    </div>
+    <div class="recent-reading-sub-title">
+        @if (DateOfReading != null)
+        {
+            <p class="recent-reading-date">
+                From: @DateOfReading.ToString("dd.MM.yyyy")
+            </p>
+        }
+        else
+        {
+            <p class="recent-reading-date">
+                No Date Provided
+            </p>
+        }
+    </div>
+</div>
+
+@code {
+    [EditorRequired] [Parameter] public string? Value { get; set; }
+    [EditorRequired] [Parameter] public KindOfMeter Type { get; set; }
+    [Parameter] public DateOnly DateOfReading { get; set; }
+}
