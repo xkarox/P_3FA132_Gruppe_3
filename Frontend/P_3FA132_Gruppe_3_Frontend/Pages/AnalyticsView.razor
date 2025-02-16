@@ -6,8 +6,28 @@
 
 <h3>AnalyticsView</h3>
 <div class="analytics-widgets">
-    <div class="customer-count analytics-widget-container card">
+    <div class="reading-type-donut analytics-widget-container card">
         @if(ViewModel.Loading)
+        {
+        <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+        <ReadingActivity Data="ViewModel.Readings"></ReadingActivity>
+        }
+    </div>
+    <div class="reading-type-donut analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+        <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+        <ReadingType Items="ViewModel.ReadingData"></ReadingType>
+        }
+    </div>
+    <div class="customer-count analytics-widget-container card">
+        @if (ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
         }
@@ -17,27 +37,18 @@
         }
     </div>
     <div class="reading-count analytics-widget-container card">
-        @if(ViewModel.Loading)
+        @if (ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
         }
         else
         {
-            <Count TValue="int" Title="Reading Count" Value="269"></Count>
-        }
-    </div>
-    <div class="reading-type-donut analytics-widget-container card">
-        @if(ViewModel.Loading)
-        {
-            <LoadingSpinner></LoadingSpinner>
-        }
-        else
-        {
-            <ReadingType Items="ViewModel.ReadingData"></ReadingType>
+            <Count TValue="int" Title="Reading Count" Value="ViewModel.Readings.Count"
+                   IconSvgPath="@ViewModel.ReadingCountSvgPath"></Count>
         }
     </div>
     <div class="recent-reading analytics-widget-container card">
-        @if(ViewModel.Loading)
+        @if (ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
         }
@@ -47,7 +58,7 @@
         }
     </div>
     <div class="recent-reading analytics-widget-container card">
-        @if(ViewModel.Loading)
+        @if (ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
         }
@@ -57,13 +68,14 @@
         }
     </div>
     <div class="recent-reading analytics-widget-container card">
-        @if(ViewModel.Loading)
+        @if (ViewModel.Loading)
         {
-        <LoadingSpinner></LoadingSpinner>
+            <LoadingSpinner></LoadingSpinner>
         }
         else
         {
-        <RecentReading Type="KindOfMeter.STROM" Value="234234" DateOfReading="DateOnly.FromDateTime(DateTime.Now)"></RecentReading>
+            <RecentReading Type="KindOfMeter.STROM" Value="234234" DateOfReading="DateOnly.FromDateTime(DateTime.Now)"></RecentReading>
         }
     </div>
+
 </div>
