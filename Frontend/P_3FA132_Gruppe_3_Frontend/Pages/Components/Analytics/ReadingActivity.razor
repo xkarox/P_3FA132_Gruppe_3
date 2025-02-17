@@ -1,38 +1,62 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Models
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using ChartJs.Blazor;
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.LineChart
+@using ChartJs.Blazor.Util
+
+
 <div class="reading-activity-widget chart">
-    <ApexChart TItem="Reading" Title="Reading Activity" Options="Options">
-        @foreach (var source in Data.GroupBy(e => e.KindOfMeter))
-        {
-            <ApexPointSeries TItem="Reading"
-                             Items="source.OrderBy(e => e.DateOfReading!.Value.Month)"
-                             Name="@(source.Key + source.Key.ToEmoji())"
-                             SeriesType="SeriesType.Heatmap"
-                             XValue="@(e => e.DateOfReading!.Value.Month)"
-                             YAggregate="@(e => e.Count())">
-            </ApexPointSeries>
-        }
-    </ApexChart>
+    <Chart Config="_config"></Chart>
 </div>
 
 
 @code {
     [EditorRequired] [Parameter] public List<Reading> Data { get; set; }
-    private ApexChartOptions<Reading> Options;
+    private LineConfig _config;
     
     protected override void OnInitialized()
     {
-        Options = new ApexChartOptions<Reading>()
+        _config = new LineConfig()
         {
-            Chart = new Chart 
+            Options = new LineOptions()
             {
-                Background = "transparent",
-            },
-            Fill = new Fill
-            {
-                Type = new List<FillType> { FillType.Solid },
-                Opacity = 1
+                Responsive = true,
+                Title = new OptionsTitle()
+                {
+                    Display = true,
+                    Text = "Reading Activity"
+                }
             }
         };
+        var months = new[] 
+            { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+        var colors = new List<string>();
+        foreach (var month in months)
+        {
+            _config.Data.Labels.Add(month);
+            var random = new Random();
+            colors.Add(ColorUtil.ColorHexString((byte)random.Next(0, 255), (byte)random.Next(0, 255), (byte)random.Next(0, 255)));
+        }
+        
+        var colorCounter = 0;
+        foreach (var type in Enum.GetNames<KindOfMeter>())
+        {
+            var data = new List<int>();
+            foreach (var month in new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12})
+            {
+                var numOfReadings = Data.Count(dataPoint => dataPoint.DateOfReading!.Value.Month == month && dataPoint.KindOfMeter == type.ToKindOfMeter());
+                data.Add(numOfReadings);
+            }
+            
+            LineDataset<int> dataset = new LineDataset<int>(data)
+            {
+                Label = type,
+                Fill = false,
+                BorderColor = colors[colorCounter++]
+            };
+            
+            _config.Data.Datasets.Add(dataset);
+        }
     }
 }

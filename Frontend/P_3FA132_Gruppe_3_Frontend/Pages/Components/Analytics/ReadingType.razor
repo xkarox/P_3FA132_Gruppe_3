@@ -1,37 +1,55 @@
+@using System.ComponentModel
 @using P_3FA132_Gruppe_3_Frontend.Data.Models
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes.Analytics
+@using ChartJs.Blazor;
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.PieChart
+@using ChartJs.Blazor.Util
 
 <div class="reading-type-donut-widget chart">
-    <ApexChart TItem="ReadingTypeData" Title="Meter Readings" Options="Options">
-        <ApexPointSeries TItem="ReadingTypeData"
-                         Items="@Items"
-                         SeriesType="SeriesType.Bar"
-                         Name="Meter Count"
-                         XValue="r => r.Type.ToEmoji()"
-                         YValue="r => (decimal?)r.Value" />
-    </ApexChart>
-</div>
+    <Chart Config="_config"></Chart>
+</div>s
 
 @code {
     [EditorRequired] [Parameter] public List<ReadingTypeData> Items { get; set; }
-    
-    private ApexChartOptions<ReadingTypeData> Options { get; set; }
+
+    private PieConfig _config;
     
     protected override void OnInitialized()
     {
-        Options = new ApexChartOptions<ReadingTypeData>()
+        _config = new PieConfig
         {
-            Chart = new Chart 
+            Options = new PieOptions
             {
-                Background = "transparent",
-            },
-            Fill = new Fill
-            {
-                Type = new List<FillType> { FillType.Solid },
-                Opacity = 1
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Number of readings per type"
+                },
+                
             }
         };
+        
+        var random = new Random();
+        var data = new List<int>();
+        var backgroundColors = new List<string>();
+        
+        foreach (var type in Enum.GetNames<KindOfMeter>())
+        {
+            _config.Data.Labels.Add(type);
+            var item = Items.Where(i => i.Type == type.ToKindOfMeter()).ToArray()[0];
+            data.Add(item.Value);
+            backgroundColors.Add(ColorUtil.ColorHexString((byte)random.Next(0, 255), (byte)random.Next(0, 255), (byte)random.Next(0, 255) ) );
+        }
+        
+        var dataset = new PieDataset<int>(data)
+        {
+            BackgroundColor = backgroundColors.ToArray()
+        };
+        
+        _config.Data.Datasets.Add(dataset);
     }
 
 }

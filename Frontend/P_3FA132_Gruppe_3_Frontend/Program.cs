@@ -1,4 +1,3 @@
-using ApexCharts;
 using Blazing.Mvvm;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -28,12 +27,4 @@ builder.Services.AddMvvm(options =>
     options.HostingModelType = BlazorHostingModelType.WebAssembly;
 });
 
-builder.Services.AddApexCharts(e =>
-{
-    e.GlobalOptions = new ApexChartBaseOptions
-    {
-        Debug = true,
-        Theme = new Theme { Palette = PaletteType.Palette10, Mode = Mode.Dark }
-    };
-});
 await builder.Build().RunAsync();
