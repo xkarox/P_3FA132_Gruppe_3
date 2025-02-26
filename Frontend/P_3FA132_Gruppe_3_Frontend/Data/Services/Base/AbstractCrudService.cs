@@ -3,7 +3,7 @@ using System.Text;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 {
-    public class AbstractCrudService<T> : AbstractBaseService<T> where T : IBaseClass<T>
+    public class AbstractCrudService<T> : AbstractBaseService where T : IBaseClass<T>
     {
         public AbstractCrudService(HttpClient httpClient, string endpointUrl) : base(httpClient, endpointUrl)
         {

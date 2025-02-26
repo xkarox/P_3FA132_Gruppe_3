@@ -1,5 +1,5 @@
 <div class="SideBarItem">
-    <NavLink href="@Href" class="navLink" @onclick="Callback">
+    <NavLink href="@Href" class="navLink" @onclick="OnClickFunc">
         <div class="icon-text-container">
             @* <Iconify Icon="@IconName" class="iconify-icon"></Iconify> *@
             <div class="iconify-icon">
@@ -70,5 +70,5 @@
     public string Href { get; set; }
     
     [Parameter]
-    public Func<Task> Callback { get; set; }
+    public Func<Task> OnClickFunc { get; set; }
 }
