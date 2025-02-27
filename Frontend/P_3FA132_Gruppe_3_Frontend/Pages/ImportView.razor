@@ -1,58 +1,105 @@
 @page "/ImportView"
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ImportViewModel>
 
 <PageTitle>Import</PageTitle>
 <h3>ImportView</h3>
 
-<p>Select your customer or reading file you want to upload...</p>
+<p>Select a file you want to import...</p>
+<InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync">Upload</InputFile>
+
 <!--
-<InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync">
+
+<EditForm Model="ViewModel.CustomerQuery" OnValidSubmit="ViewModel.QueryCommand.ExecuteAsync">
+    <InputText placeholder="First Name" @bind-Value="ViewModel.CustomerQuery.FirstName">
+
+    </InputText>
+    <InputText placeholder="Last Name" @bind-Value="ViewModel.CustomerQuery.LastName">
+
+    </InputText>
+    <button type="submit">Search</button>
+</EditForm>
+
+@if (ViewModel.SelectedCustomer != null)
+{
+    <h4>Ausgewählter Customer:</h4>
+    <p>Name: @ViewModel.SelectedCustomer.FirstName @ViewModel.SelectedCustomer.LastName</p>
+    <p>ID: @ViewModel.SelectedCustomer.Id</p>
+    <InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync">Upload</InputFile>
+}
+else
+{
+    <h4>Suche nach einem Customer und wähle ihn aus...</h4>
+}
     
-</InputFile>
 
--->
-    <EditForm Model="ViewModel.CustomerQuery" OnValidSubmit="ViewModel.QueryCommand.ExecuteAsync">
-        <InputText @bind-Value="ViewModel.CustomerQuery.FirstName">
-
-        </InputText>
-        <button type="submit">Search</button>
-    </EditForm>
-
-<QuickGrid Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState" Class="quickgrid">
-    <TemplateColumn Context="customer" Title="firstName">
+@if (ViewModel.SearchButtonClicked)
+{
+    <QuickGrid Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState" Class="quickgrid">
+        <TemplateColumn Context="customer" Title="Id">
+            <span>
+                @customer.Id
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="First Name">
             <span>
                 @customer.FirstName
             </span>
-    </TemplateColumn>
-</QuickGrid>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Last Name">
+            <span>
+                @customer.LastName
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Birth Date">
+            <span>
+                @customer.DateOfBirth
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Gender">
+            <span>
+                @(customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji())
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer">
+            <button @onclick="() => ViewModel.SelectCustomerCommand.Execute(customer)">
+                Select
+            </button>
+        </TemplateColumn>
+
+    </QuickGrid>
+}
 
 
-<!--
-<QuickGrid TGridItem="Reading" Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
-    <TemplateColumn Context="reading" Title="Date of reading">
-        <span>
-            @reading.DateOfReading
-        </span>
-    </TemplateColumn>
-    <TemplateColumn Context="reading" Title="Meter count">
-        <span>
-            @reading.MeterCount
-        </span>
-    </TemplateColumn>
-    <TemplateColumn Context="reading" Title="Comment">
-        <span>
-            @reading.Comment
-        </span>
-    </TemplateColumn>
-</QuickGrid>
+
+
+
 -->
+@if (ViewModel.IsReadingCsv)
+{
+    <QuickGrid Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
+        <TemplateColumn Context="reading" Title="Date of reading">
+            <span>
+                @reading.DateOfReading
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="reading" Title="Meter count">
+            <span>
+                @reading.MeterCount
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="reading" Title="Comment">
+            <span>
+                @reading.Comment
+            </span>
+        </TemplateColumn>
+    </QuickGrid>
+}
 
-<!--
 @if (ViewModel.IsCustomerCsv)
 {
-    <QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState">
+    <QuickGrid Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState">
         <TemplateColumn Context="customer" Title="UUID">
             <span>
                 @customer.Id
@@ -78,7 +125,6 @@
                 @customer.DateOfBirth
             </span>
         </TemplateColumn>
-
     </QuickGrid>
 }
 
@@ -87,7 +133,7 @@
 <div class="quickgrid-pagination">
     <Paginator State="ViewModel.PaginationState"/>
 </div>
--->
+
 
 @code {
 

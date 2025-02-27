@@ -2,7 +2,6 @@
 using Blazing.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;
@@ -11,29 +10,30 @@ using P_3FA132_Gruppe_3_Frontend.Data.Services;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
-public partial class ImportViewModel(CsvService csvService,
+public partial class ImportViewModel(
+    CsvService csvService,
     ReadingService readingService,
     CustomerService customerService) : ViewModelBase
 {
+    private readonly int numberOfCustomerHeaderValues = 5;
+    private readonly int numberOfReadingHeaderValues = 3;
+
+    [ObservableProperty] private CustomerQuery? _customerQuery;
     [ObservableProperty] private ObservableCollection<Customer> _customers = [];
 
     [ObservableProperty] private PaginationState? _paginationState;
 
     [ObservableProperty] private ObservableCollection<Reading> _readings = [];
 
+    [ObservableProperty] private Customer? _selectedCustomer;
+
+    [ObservableProperty] private Guid? _selectedCustomerId;
+
     [ObservableProperty] private bool isCustomerCsv;
 
     [ObservableProperty] private bool isReadingCsv;
-
-    private readonly int numberOfCustomerHeaderValues = 5;
-    private readonly int numberOfReadingHeaderValues = 3;
     
-    [ObservableProperty] 
-    private Guid? _selectedCustomerId;
-
-    [ObservableProperty] private Customer? _selectedCustomer;
-    
-    [ObservableProperty] private CustomerQuery? _customerQuery;
+    [ObservableProperty] private bool searchButtonClicked = false;
 
 
     public override async void OnInitialized()
@@ -41,26 +41,14 @@ public partial class ImportViewModel(CsvService csvService,
         Customers = new ObservableCollection<Customer>();
         PaginationState = new PaginationState { ItemsPerPage = 10 };
         CustomerQuery = new CustomerQuery();
-        // Customers = await customerService.GetAll() ?? new List<Customer>();
-        
-        // var customers = await customerService.GetAll() ?? new List<Customer>();
-        
-        /*
-        Customers =
-            new ObservableCollection<Customer>(
-                customers.OrderByDescending(r => r.FirstName));
-
-*/
-        
-        
     }
-    
+
     [RelayCommand]
     private async Task Query()
     {
         var customers = await customerService.QueryCustomer(CustomerQuery);
-       Customers = new ObservableCollection<Customer>(
-           customers.OrderByDescending(r => r.LastName));
+        Customers = new ObservableCollection<Customer>(customers.OrderByDescending(r => r.LastName));
+        searchButtonClicked = true;
     }
 
     [RelayCommand]
@@ -75,7 +63,7 @@ public partial class ImportViewModel(CsvService csvService,
 
             var csvContent = await reader.ReadToEndAsync();
 
-            IEnumerable<string> header = await csvService.FormatHeader(csvContent);
+            var header = await csvService.FormatHeader(csvContent);
             IEnumerable<Dictionary<string, string>> metaData = await csvService.FormatMetaData(csvContent);
             IEnumerable<List<string>> result = await csvService.FormatValues(csvContent);
 
@@ -89,7 +77,7 @@ public partial class ImportViewModel(CsvService csvService,
                     for (var i = 0; i < result.Count(); i++)
                     {
                         var customer = new Customer();
-                        List<string> currentRow = result.ElementAt(i);
+                        var currentRow = result.ElementAt(i);
                         customer.Id = Guid.Parse(currentRow[0]);
                         customer.Gender = currentRow[1].ToGender();
                         customer.FirstName = currentRow[2];
@@ -107,7 +95,7 @@ public partial class ImportViewModel(CsvService csvService,
                     {
                         var reading = new Reading();
 
-                        List<string> currentRow = result.ElementAt(i);
+                        var currentRow = result.ElementAt(i);
                         reading.DateOfReading = DateOnly.Parse(currentRow[0]);
                         reading.MeterCount = int.Parse(currentRow[1]);
                         if (currentRow.Count > 2) reading.Comment = currentRow[2];
@@ -130,31 +118,16 @@ public partial class ImportViewModel(CsvService csvService,
     private async Task Upload()
     {
         if (isCustomerCsv)
-        {
-            for (int i = 0; i < _customers.Count; i++)
-            {
+            for (var i = 0; i < _customers.Count; i++)
                 await customerService.Add(_customers[i]);
-            }
-            
-        }
         else if (isReadingCsv)
-        {
-            for (int i = 0; i < _readings.Count; i++)
-            {
+            for (var i = 0; i < _readings.Count; i++)
                 await readingService.Add(_readings[i]);
-            }
-        }
-        
     }
 
     [RelayCommand]
-    private void OnCustomerSelected(ChangeEventArgs e)
+    private void SelectCustomer(Customer customer)
     {
-        if (Guid.TryParse(e.Value?.ToString(), out var id))
-        {
-            SelectedCustomerId = id;
-            SelectedCustomer = Customers.FirstOrDefault(c => c.Id == id);
-        }
+        SelectedCustomer = customer.Copy();
     }
-    
 }
