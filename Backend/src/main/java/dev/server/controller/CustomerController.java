@@ -1,5 +1,6 @@
 package dev.server.controller;
 
+import com.sun.jna.platform.win32.Guid;
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
@@ -94,6 +95,7 @@ public class CustomerController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/getCustomers")
     public Response getCustomers() throws JsonProcessingException {
         logger.info("Received request to get all customers");
         try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {

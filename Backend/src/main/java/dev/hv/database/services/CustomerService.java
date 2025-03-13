@@ -1,5 +1,6 @@
 package dev.hv.database.services;
 
+import com.sun.jna.platform.win32.Guid;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.model.classes.Customer;
@@ -9,9 +10,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class CustomerService extends AbstractBaseService<Customer>
 {
