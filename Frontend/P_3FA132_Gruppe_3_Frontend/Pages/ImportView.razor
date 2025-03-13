@@ -9,73 +9,6 @@
 <p>Select a file you want to import...</p>
 <InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync">Upload</InputFile>
 
-<!--
-
-<EditForm Model="ViewModel.CustomerQuery" OnValidSubmit="ViewModel.QueryCommand.ExecuteAsync">
-    <InputText placeholder="First Name" @bind-Value="ViewModel.CustomerQuery.FirstName">
-
-    </InputText>
-    <InputText placeholder="Last Name" @bind-Value="ViewModel.CustomerQuery.LastName">
-
-    </InputText>
-    <button type="submit">Search</button>
-</EditForm>
-
-@if (ViewModel.SelectedCustomer != null)
-{
-    <h4>Ausgewählter Customer:</h4>
-    <p>Name: @ViewModel.SelectedCustomer.FirstName @ViewModel.SelectedCustomer.LastName</p>
-    <p>ID: @ViewModel.SelectedCustomer.Id</p>
-    <InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync">Upload</InputFile>
-}
-else
-{
-    <h4>Suche nach einem Customer und wähle ihn aus...</h4>
-}
-    
-
-@if (ViewModel.SearchButtonClicked)
-{
-    <QuickGrid Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState" Class="quickgrid">
-        <TemplateColumn Context="customer" Title="Id">
-            <span>
-                @customer.Id
-            </span>
-        </TemplateColumn>
-        <TemplateColumn Context="customer" Title="First Name">
-            <span>
-                @customer.FirstName
-            </span>
-        </TemplateColumn>
-        <TemplateColumn Context="customer" Title="Last Name">
-            <span>
-                @customer.LastName
-            </span>
-        </TemplateColumn>
-        <TemplateColumn Context="customer" Title="Birth Date">
-            <span>
-                @customer.DateOfBirth
-            </span>
-        </TemplateColumn>
-        <TemplateColumn Context="customer" Title="Gender">
-            <span>
-                @(customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji())
-            </span>
-        </TemplateColumn>
-        <TemplateColumn Context="customer">
-            <button @onclick="() => ViewModel.SelectCustomerCommand.Execute(customer)">
-                Select
-            </button>
-        </TemplateColumn>
-
-    </QuickGrid>
-}
-
-
-
-
-
--->
 @if (ViewModel.IsReadingCsv)
 {
     <QuickGrid Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
@@ -128,11 +61,14 @@ else
     </QuickGrid>
 }
 
-<button @onclick="ViewModel.UploadCommand.ExecuteAsync">Upload</button>
+@if (ViewModel.FileIsSelected)
+{
+    <div class="quickgrid-pagination">
+        <Paginator State="ViewModel.PaginationState"/>
+    </div>  
+    <button @onclick="ViewModel.UploadCommand.ExecuteAsync">Upload</button>
+}
 
-<div class="quickgrid-pagination">
-    <Paginator State="ViewModel.PaginationState"/>
-</div>
 
 
 @code {

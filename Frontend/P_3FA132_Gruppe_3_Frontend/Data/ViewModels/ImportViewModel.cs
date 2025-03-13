@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using Blazing.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,8 +18,8 @@ public partial class ImportViewModel(
 {
     private readonly int numberOfCustomerHeaderValues = 5;
     private readonly int numberOfReadingHeaderValues = 3;
+    private IBrowserFile? browserFile;
 
-    [ObservableProperty] private CustomerQuery? _customerQuery;
     [ObservableProperty] private ObservableCollection<Customer> _customers = [];
 
     [ObservableProperty] private PaginationState? _paginationState;
@@ -33,28 +34,20 @@ public partial class ImportViewModel(
 
     [ObservableProperty] private bool isReadingCsv;
     
-    [ObservableProperty] private bool searchButtonClicked = false;
+    [ObservableProperty] private bool fileIsSelected = false;
 
 
-    public override async void OnInitialized()
+    public override void OnInitialized()
     {
         Customers = new ObservableCollection<Customer>();
         PaginationState = new PaginationState { ItemsPerPage = 10 };
-        CustomerQuery = new CustomerQuery();
-    }
-
-    [RelayCommand]
-    private async Task Query()
-    {
-        var customers = await customerService.QueryCustomer(CustomerQuery);
-        Customers = new ObservableCollection<Customer>(customers.OrderByDescending(r => r.LastName));
-        searchButtonClicked = true;
     }
 
     [RelayCommand]
     private async Task SelectFile(InputFileChangeEventArgs e)
     {
-        var browserFile = e.File;
+        resetValues();
+        browserFile = e.File;
 
         if (browserFile != null)
         {
@@ -90,15 +83,32 @@ public partial class ImportViewModel(
                 {
                     isReadingCsv = true;
                     isCustomerCsv = false;
-
+                    var cus = await customerService.getAllCustomers();
                     for (var i = 0; i < result.Count(); i++)
                     {
                         var reading = new Reading();
 
                         var currentRow = result.ElementAt(i);
                         reading.DateOfReading = DateOnly.Parse(currentRow[0]);
-                        reading.MeterCount = int.Parse(currentRow[1]);
-                        if (currentRow.Count > 2) reading.Comment = currentRow[2];
+                        reading.MeterCount = double.Parse(currentRow[1]);
+                        
+                        Customer customer = cus.FirstOrDefault(c => c.Id == Guid.Parse(metaData.ElementAt(0)["Kunde"]));
+                        reading.Customer = customer;
+                        reading.MeterId = metaData.ElementAt(1)["Zählernummer"];
+                        
+                        if (currentRow.Count > 2)
+                        {
+                            
+                            Match match = Regex.Match(currentRow[2], @"Nummer\s+([A-Za-z0-9\-]+)");
+                            if (match.Success)
+                            {
+                                string extractedNumber = match.Groups[1].Value;
+                                reading.MeterId = extractedNumber;
+                                metaData.ElementAt(1)["Zählernummer"] = extractedNumber;
+                            }
+                            
+                            reading.Comment = currentRow[2];
+                        }
                         _readings.Add(reading);
                     }
                 }
@@ -107,9 +117,8 @@ public partial class ImportViewModel(
             {
                 Console.WriteLine(ex.Message);
             }
-
-            Console.WriteLine(result);
             Console.WriteLine($"Received {result.Count()} rows from backend.");
+            fileIsSelected = true;
         }
     }
 
@@ -123,11 +132,23 @@ public partial class ImportViewModel(
         else if (isReadingCsv)
             for (var i = 0; i < _readings.Count; i++)
                 await readingService.Add(_readings[i]);
+        resetValues();
+        
     }
 
     [RelayCommand]
     private void SelectCustomer(Customer customer)
     {
         SelectedCustomer = customer.Copy();
+    }
+
+    private void resetValues()
+    {
+        fileIsSelected = false;
+        isCustomerCsv = false;
+        isReadingCsv = false;
+        _customers.Clear();
+        _readings.Clear();
+        browserFile = null;
     }
 }
