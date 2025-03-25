@@ -125,6 +125,25 @@ public class ReadingController {
         }
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getReadings() throws JsonProcessingException {
+        logger.info("Receieved request to get all readings");
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            Collection<Reading> readings = rs.getAll();
+            logger.info("Readings retrieved successfully");
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(readings, Reading.class))
+                    .build();
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            logger.error("Error retrieving readings: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
     @DELETE
     @Path("/{id}")
     public Response deleteReading(@PathParam("id") UUID id) throws JsonProcessingException {
