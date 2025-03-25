@@ -17,7 +17,7 @@
         @if (DateOfReading != null)
         {
             <p class="recent-reading-date">
-                From: @DateOfReading.ToString("dd.MM.yyyy")
+                From: @DateOfReading.ToString()
             </p>
         }
         else
@@ -32,5 +32,5 @@
 @code {
     [EditorRequired] [Parameter] public string? Value { get; set; }
     [EditorRequired] [Parameter] public KindOfMeter Type { get; set; }
-    [Parameter] public DateOnly DateOfReading { get; set; }
+    [Parameter] public DateOnly? DateOfReading { get; set; }
 }

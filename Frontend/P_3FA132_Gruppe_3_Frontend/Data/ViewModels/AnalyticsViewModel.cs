@@ -15,6 +15,9 @@ public partial class AnalyticsViewModel(
     [ObservableProperty] private int _customerCount;
     [ObservableProperty] private List<Reading>? _readings;
     [ObservableProperty] private List<ReadingTypeData> _readingData = new();
+    [ObservableProperty] private Reading? _latestWaterReading;
+    [ObservableProperty] private Reading? _latestGasReading;
+    [ObservableProperty] private Reading? _latestElectricityReading;
 
     [ObservableProperty] private bool _loading = false;
 
@@ -38,9 +41,9 @@ public partial class AnalyticsViewModel(
         var customers = await customerService.GetAll();
         CustomerCount = customers!.Count();
 
-        // var readings = await readingService.QueryReading(new ReadingQuery());
-        // Readings = readings.ToList();
-        Readings = GenerateDummyData(1000);
+        var readings = await readingService.GetAll();
+        Readings = readings?.ToList();
+        // Readings = GenerateDummyData(1000);
         
         foreach (var type in Enum.GetValues<KindOfMeter>())
         {
@@ -52,7 +55,35 @@ public partial class AnalyticsViewModel(
             ReadingData.Add(readingTypeData);
         }
 
+        LatestElectricityReading = FindLatestReading(KindOfMeter.STROM);
+        LatestGasReading = FindLatestReading(KindOfMeter.HEIZUNG);
+        LatestWaterReading = FindLatestReading(KindOfMeter.WASSER); 
+
         Loading = false;
+    }
+
+    private Reading? FindLatestReading(KindOfMeter kind)
+    {
+        if (Readings == null)
+        {
+            return null;
+        }
+
+        Reading? latestReading = null;
+        foreach (Reading reading in Readings.Where(reading => reading.KindOfMeter == kind))
+        {
+            if (latestReading == null)
+            {
+                latestReading = reading;
+            }
+
+            if (latestReading.DateOfReading < reading.DateOfReading)
+            {
+                latestReading = reading;
+            }
+        }
+
+        return latestReading;
     }
 
 

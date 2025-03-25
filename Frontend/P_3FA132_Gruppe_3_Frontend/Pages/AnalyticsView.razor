@@ -9,28 +9,28 @@
     <div class="reading-type-donut analytics-widget-container card">
         @if(ViewModel.Loading)
         {
-        <LoadingSpinner></LoadingSpinner>
+            <LoadingSpinner></LoadingSpinner>
         }
         else
         {
-        <ReadingActivity Data="ViewModel.Readings"></ReadingActivity>
+            <ReadingActivity Data="ViewModel.Readings"></ReadingActivity>
         }
     </div>
     <div class="reading-type-donut analytics-widget-container card">
         @if (ViewModel.Loading)
         {
-        <LoadingSpinner></LoadingSpinner>
+            <LoadingSpinner></LoadingSpinner>
         }
         else
         {
-        <ReadingType Items="ViewModel.ReadingData"></ReadingType>
+            <ReadingType Items="ViewModel.ReadingData"></ReadingType>
         }
     </div>
     <div class="customer-count analytics-widget-container card">
         @if (ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
-        }
+        } 
         else
         {
             <Count TValue="int" Title="Customer Count" Value="ViewModel.CustomerCount"></Count>
@@ -54,7 +54,13 @@
         }
         else
         {
-            <RecentReading Type="KindOfMeter.WASSER" Value="696969" DateOfReading="DateOnly.FromDateTime(DateTime.Now)"></RecentReading>
+            <RecentReading Type="KindOfMeter.WASSER" 
+                           Value="@(ViewModel.LatestWaterReading != null 
+                                    ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                                    : "unavailable")" 
+                           DateOfReading="@(ViewModel.LatestWaterReading != null 
+                                            ? ViewModel.LatestWaterReading.DateOfReading! 
+                                            : DateOnly.MinValue!)"></RecentReading>
         }
     </div>
     <div class="recent-reading analytics-widget-container card">
@@ -64,7 +70,13 @@
         }
         else
         {
-            <RecentReading Type="KindOfMeter.HEIZUNG" Value="52034" DateOfReading="DateOnly.FromDateTime(DateTime.Now)"></RecentReading>
+            <RecentReading Type="KindOfMeter.STROM" 
+                           Value="@(ViewModel.LatestWaterReading != null 
+                                      ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                                      : "unavailable")" 
+                           DateOfReading="@(ViewModel.LatestWaterReading != null 
+                                              ? ViewModel.LatestWaterReading.DateOfReading! 
+                                              : DateOnly.MinValue!)"></RecentReading>
         }
     </div>
     <div class="recent-reading analytics-widget-container card">
@@ -74,7 +86,13 @@
         }
         else
         {
-            <RecentReading Type="KindOfMeter.STROM" Value="234234" DateOfReading="DateOnly.FromDateTime(DateTime.Now)"></RecentReading>
+            <RecentReading Type="KindOfMeter.HEIZUNG" 
+                           Value="@(ViewModel.LatestWaterReading != null 
+                                      ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                                      : "unavailable")" 
+                           DateOfReading="@(ViewModel.LatestWaterReading != null 
+                                              ? ViewModel.LatestWaterReading.DateOfReading! 
+                                              : DateOnly.MinValue!)"></RecentReading>
         }
     </div>
 
