@@ -148,6 +148,23 @@ public class ReadingController {
         }
     }
 
+    private Response getReadings() throws JsonProcessingException {
+        logger.info("Receieved request to get all readings");
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            Collection<Reading> readings = rs.getAll();
+            logger.info("Readings retrieved successfully");
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(readings, Reading.class))
+                    .build();
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            logger.error("Error retrieving readings: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReadings(@QueryParam("customer") String customerId,
@@ -156,6 +173,8 @@ public class ReadingController {
                                 @QueryParam("kindOfMeter") Integer kindOfMeter) throws JsonProcessingException {
         logger.info("Received request to get readings with parameters - customer: {}, start: {}, end: {}, kindOfMeter: {}",
                 customerId, startDate, endDate, kindOfMeter);
+        if(customerId == null && startDate == null && endDate == null && kindOfMeter == null)
+            return getReadings();
         try {
             UUID id = customerId != null ? UUID.fromString(customerId) : null;
 
