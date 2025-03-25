@@ -3,6 +3,7 @@ package dev.server.controller;
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.services.AuthorisationService;
+import dev.hv.model.enums.UserPermissions;
 import dev.hv.model.interfaces.IReading;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
@@ -49,11 +50,12 @@ public class ReadingController {
         if (invalid != null) {
             return invalid;
         }
+
         try (ReadingService rs = ServiceProvider.Services.getReadingService()) {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
 
-            if (AuthorisationService.CanUserAccessResource(reading.getCustomerId(), logger)) {
+            if (AuthorisationService.CanUserAccessResource(reading.getCustomerId(), UserPermissions.WRITE,  logger)) {
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
@@ -95,7 +97,7 @@ public class ReadingController {
                         ResponseMessages.ControllerNotFound.toString());
             }
 
-            if (AuthorisationService.CanUserAccessResource(reading.getId(), logger)) {
+            if (AuthorisationService.CanUserAccessResource(reading.getId(), UserPermissions.Update, logger)) {
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
@@ -121,7 +123,7 @@ public class ReadingController {
     public Response getReading(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to get reading with ID: {}", id);
 
-        if (AuthorisationService.CanUserAccessResource(id, logger)) {
+        if (AuthorisationService.CanUserAccessResource(id, UserPermissions.READ, logger)) {
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         }
 
@@ -148,7 +150,7 @@ public class ReadingController {
     public Response deleteReading(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to delete reading with ID: {}", id);
 
-        if (AuthorisationService.CanUserAccessResource(id, logger)) {
+        if (AuthorisationService.CanUserAccessResource(id, UserPermissions.DELETE, logger)) {
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         }
 

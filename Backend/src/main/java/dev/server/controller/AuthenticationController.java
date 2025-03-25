@@ -26,12 +26,6 @@ public class AuthenticationController
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
-    // ToDo: Secure other endpoints with JWT
-    // ToDo: Add static master key for crypto service
-    // ToDo: Add schema validation for user
-    // ToDo: remove internal service provider
-    // ToDo: endpoint dokumentation
-
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)

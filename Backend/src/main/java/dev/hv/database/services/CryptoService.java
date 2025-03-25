@@ -79,7 +79,8 @@ public class CryptoService
         return hashStringWithSalt(input).equals(hashedInput);
     }
 
-    public static String generateToken(UUID id) {
+    public static String generateToken(UUID id)
+    {
         return Jwts.builder()
                 .setSubject(id.toString())
                 .setIssuedAt(new Date())
@@ -88,7 +89,8 @@ public class CryptoService
                 .compact();
     }
 
-    public static String validateToken(String token) {
+    public static String validateToken(String token)
+    {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -96,5 +98,4 @@ public class CryptoService
                 .getBody()
                 .getSubject();
     }
-
 }

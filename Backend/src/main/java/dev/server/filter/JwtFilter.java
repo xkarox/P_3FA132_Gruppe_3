@@ -14,7 +14,6 @@ import jakarta.ws.rs.ext.Provider;
 import org.slf4j.MDC;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.UUID;
 
 @Secured
