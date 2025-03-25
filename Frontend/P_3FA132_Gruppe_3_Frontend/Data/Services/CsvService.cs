@@ -67,5 +67,14 @@ public class CsvService
         
         return await response.Content.ReadAsStringAsync();
     }
+
+    public async Task<string> CreateAllReadingsCsv()
+    {
+        const string path = "/createAllReadingsCsv";
+        var response = await _httpClient.GetAsync(BaseUrl + path);
+        response.EnsureSuccessStatusCode();
+        
+        return await response.Content.ReadAsStringAsync();
+    }
     
 }

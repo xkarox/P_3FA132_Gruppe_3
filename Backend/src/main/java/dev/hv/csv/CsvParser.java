@@ -219,4 +219,26 @@ public class CsvParser
         return customerCsv;
     }
 
+    public String createAllReadingsCsv() throws SQLException, IOException, ReflectiveOperationException
+    {
+        String readingHeader = "Datum,Zählerstand,Kommentar\n";
+        String readingValues = "";
+        this.rs = ServiceProvider.Services.getReadingService();
+
+        List<Reading> readings = this.rs.getAll();
+        for (int i = 0; i < readings.size(); i++) {
+            readingValues += readings.get(i).getDateOfReading() + ";";
+            readingValues += readings.get(i).getMeterCount() + ";";
+            if(readings.get(i).getComment() != null) {
+                readingValues += readings.get(i).getComment() + "\n";
+            }
+            else {
+                readingValues += "\n";
+            }
+        }
+        String readingCsv = "";
+        readingCsv = readingHeader + readingValues;
+        return readingCsv;
+    }
+
 }

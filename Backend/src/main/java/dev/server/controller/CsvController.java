@@ -1,6 +1,7 @@
 package dev.server.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.CachedSupplier;
 import dev.hv.Utils;
 import dev.hv.csv.CsvFormatter;
 import dev.hv.csv.CsvParser;
@@ -143,6 +144,25 @@ public class CsvController
         try {
             CsvParser parser = new CsvParser();
             String csvData = parser.createAllCustomerCsv();
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(csvData)
+                    .build();
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/createAllReadingsCsv")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response createAllReadingsCsv() {
+        try {
+            CsvParser parser = new CsvParser();
+            String csvData = parser.createAllReadingsCsv();
             return Response.status(Response.Status.OK)
                     .type(MediaType.TEXT_PLAIN)
                     .entity(csvData)

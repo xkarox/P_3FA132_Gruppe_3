@@ -10,6 +10,7 @@
 
 <button @onclick="Call">export customer with readings</button>
 <button @onclick="ExportCustomers">Export all Customers</button>
+<button @onclick="ExportReadings">Export all Readings</button>
 
 @code {
 
@@ -37,6 +38,13 @@
     {
         string values = await csvService.CreateAllCustomersCsv();
         string fileName = "customers.csv";
-        await JSRuntime.InvokeVoidAsync("DownloadCsv", values, fileName);
+        await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
+    }
+
+    private async Task ExportReadings()
+    {
+        string values = await csvService.CreateAllReadingsCsv();
+        string fileName = "readings.csv";
+        await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName);
     }
 }
