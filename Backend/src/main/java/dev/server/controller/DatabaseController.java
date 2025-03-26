@@ -9,6 +9,7 @@ import dev.hv.database.services.AuthUserService;
 import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.classes.Authentification.AuthUserDto;
 import dev.hv.model.classes.Authentification.AuthUser;
+import dev.hv.model.enums.UserRoles;
 import dev.provider.ServiceProvider;
 import dev.server.Annotations.Secured;
 import jakarta.ws.rs.*;
@@ -87,6 +88,7 @@ public class DatabaseController {
                         user = new AuthUserDto();
                         user.setUsername(properties.getProperty("default.admin.username"));
                         user.setPassword(properties.getProperty("default.admin.password"));
+                        user.setRole(UserRoles.ADMIN);
                     }
 
                     user.setId(UUID.randomUUID()); // Admin user id

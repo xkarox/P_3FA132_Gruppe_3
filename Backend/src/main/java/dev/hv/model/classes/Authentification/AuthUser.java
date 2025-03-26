@@ -10,6 +10,7 @@ import dev.provider.ServiceProvider;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class AuthUser implements IAuthUser
         this._username = user.getUsername();
         this._password = user.getPassword();
         this._role = user.getRole();
-        this._permissions = user.getPermissions();
+        this._permissions = user.getPermissions() == null ? new ArrayList<>() : user.getPermissions();
     }
 
     public String getUsername() {
