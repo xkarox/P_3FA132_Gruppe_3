@@ -94,5 +94,15 @@
                                               : DateOnly.MinValue!)"></RecentReading>
         }
     </div>
+    <div class="usage analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <Usage Items="ViewModel.UsagePerMonthReadings"></Usage>
+        }
+    </div>
 
 </div>

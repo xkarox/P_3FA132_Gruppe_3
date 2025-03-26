@@ -1,6 +1,3 @@
-.apexcharts-svg {
-    background: none;
-}
 
 .analytics-widgets {
     display: grid;
@@ -11,8 +8,8 @@
 
 .analytics-widget-container {
     position: relative;
-    padding: 1rem;
     display: flex;
+    padding: 1rem;
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
@@ -37,7 +34,12 @@
     height: 100%;
 }
 
-/* Responsive adjustments */
+.usage {
+    grid-column: span 3;
+    height: 40rem;
+    width: 100%;
+}
+
 @media (max-width: 1200px) {
     .analytics-widgets {
         grid-template-columns: repeat(4, 1fr);

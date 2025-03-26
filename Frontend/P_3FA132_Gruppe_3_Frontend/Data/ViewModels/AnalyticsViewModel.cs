@@ -19,6 +19,8 @@ public partial class AnalyticsViewModel(
     [ObservableProperty] private Reading? _latestGasReading;
     [ObservableProperty] private Reading? _latestElectricityReading;
 
+    [ObservableProperty] private List<Reading>? _usagePerMonthReadings;
+
     [ObservableProperty] private bool _loading = false;
 
     [ObservableProperty] public static string _readingCountSvgPath =
@@ -57,8 +59,9 @@ public partial class AnalyticsViewModel(
 
         LatestElectricityReading = FindLatestReading(KindOfMeter.STROM);
         LatestGasReading = FindLatestReading(KindOfMeter.HEIZUNG);
-        LatestWaterReading = FindLatestReading(KindOfMeter.WASSER); 
+        LatestWaterReading = FindLatestReading(KindOfMeter.WASSER);
 
+        UsagePerMonthReadings = GenerateDummyData(100);
         Loading = false;
     }
 
@@ -98,6 +101,9 @@ public partial class AnalyticsViewModel(
             int month = random.Next(1, 13);
             int day = random.Next(1, DateTime.DaysInMonth(year, month) + 1);
             reading.DateOfReading = new DateOnly(year, month, day);
+
+            int value = random.Next(100, 100000);
+            reading.MeterCount = value;
 
             KindOfMeter[] values = Enum.GetValues<KindOfMeter>();
             reading.KindOfMeter = (KindOfMeter)random.Next(values.Length);
