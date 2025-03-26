@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 
 import static dev.hv.Utils.createErrorResponse;
@@ -58,7 +59,7 @@ public class DatabaseController {
     {
         if (!AuthorisationService.CanResourceBeAccessed())
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
-        if (userBody != null)
+        if (!Objects.equals(userBody, ""))
             logger.info("Received request to add admin user: {}", userBody);
 
         try(DatabaseConnection dbCon = ServiceProvider.Services.getDatabaseConnection())
@@ -79,7 +80,7 @@ public class DatabaseController {
                 try (AuthUserService as = ServiceProvider.getAuthUserService())
                 {
                     AuthUserDto user;
-                    if (userBody != null)
+                    if (!Objects.equals(userBody, ""))
                         user = mapper.readValue(userBody, AuthUserDto.class);
                     else {
                         var properties = DbHelperService.loadProperties();
