@@ -2,7 +2,9 @@ package dev.server.controller;
 
 import com.sun.jna.platform.win32.Guid;
 import dev.hv.ResponseMessages;
+import dev.hv.csv.CsvParser;
 import dev.hv.database.services.ReadingService;
+import dev.hv.model.classes.CustomerWrapper;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
@@ -10,6 +12,8 @@ import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.Customer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.server.validator.CustomerJsonSchemaValidatorService;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.*;
@@ -205,6 +210,52 @@ public class CustomerController {
             logger.error("Error retrieving customers: {}", e.getMessage(), e);
             return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
                     ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+    @GET
+    @Path("/createAllCustomersCsv")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response createAllCustomersCsv() {
+        try {
+            CsvParser parser = new CsvParser();
+            String csvData = parser.createAllCustomerCsv();
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(csvData)
+                    .build();
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/createAllCustomersXml")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response createAllCustomersXml() {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService()){
+
+            JAXBContext objToConvert = JAXBContext.newInstance(CustomerWrapper.class);
+            Marshaller marshallerObj = objToConvert.createMarshaller();
+            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            List<Customer> customers = cs.getAll();
+            CustomerWrapper customerWrapper = new CustomerWrapper(customers);
+            StringWriter xmlWriter = new StringWriter();
+            marshallerObj.marshal(customerWrapper, xmlWriter);
+
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.APPLICATION_XML)
+                    .entity(xmlWriter.toString())
+                    .build();
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the XML file: " + e.getMessage())
+                    .build();
         }
     }
 }

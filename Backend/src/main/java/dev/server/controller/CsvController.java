@@ -10,6 +10,7 @@ import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.CustomerWrapper;
 import dev.hv.model.classes.Reading;
+import dev.hv.model.classes.ReadingWrapper;
 import dev.provider.ServiceProvider;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -20,6 +21,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Dictionary;
 import java.util.List;
@@ -141,92 +143,5 @@ public class CsvController
                     .build();
         }
     }
-
-    @GET
-    @Path("/createAllCustomersCsv")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createAllCustomersCsv() {
-        try {
-            CsvParser parser = new CsvParser();
-            String csvData = parser.createAllCustomerCsv();
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        }
-        catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/createAllCustomersXml")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response createAllCustomersXml() {
-        try (CustomerService cs = ServiceProvider.Services.getCustomerService()){
-
-            //List<Customer> customers = cs.getAll();
-            // CustomerWrapper customerList = new CustomerWrapper(customers);
-            // JAXBContext jaxbContext = JAXBContext.newInstance(Customer.class);
-
-            JAXBContext objToConvert = JAXBContext.newInstance(CustomerWrapper.class);
-            Marshaller marshallerObj = objToConvert.createMarshaller();
-            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            List<Customer> customers = cs.getAll();
-            CustomerWrapper customerWrapper = new CustomerWrapper(customers);
-            marshallerObj.marshal(customerWrapper, new FileOutputStream("test.xml"));
-
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.APPLICATION_XML)
-                    .entity(customerWrapper)
-                    .build();
-        }
-        catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/createAllCustomersJson")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createAllCustomersJson() {
-        try {
-            CsvParser parser = new CsvParser();
-            String csvData = parser.createAllCustomerCsv();
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        }
-        catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/createAllReadingsCsv")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createAllReadingsCsv() {
-        try {
-            CsvParser parser = new CsvParser();
-            String csvData = parser.createAllReadingsCsv();
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        }
-        catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
-                    .build();
-        }
-    }
-
 
 }

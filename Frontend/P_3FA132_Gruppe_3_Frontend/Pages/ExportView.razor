@@ -4,86 +4,137 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ExportViewModel>
 @inject IJSRuntime JSRuntime
-@inject CsvService csvService
+@inject ExportService exportService
 @inject CustomerService customerService
 
 <h3>ExportView</h3>
 
-<button @onclick="Call">export customer with readings</button>
+<div class="buttons">
+    <div class="button-row">
+        <button class="btn @(ViewModel.ButtonSelected == 'R' ? "selected" : "")" @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync('R')">Reading</button>
+        <button class="btn" @(ViewModel.ButtonSelected == 'C' ? "selected" : "") @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync('C')">Customer</button>
+    </div>
+    @if (ViewModel.ButtonSelected.Equals('R'))
+    {
+        <div class="button-row">
+            <button class="btn @(ViewModel.KindOfMeterSelected == 'S' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('S')">Strom</button>
+            <button class="btn @(ViewModel.KindOfMeterSelected == 'W' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('W')">Wasser</button>
+            <button class="btn @(ViewModel.KindOfMeterSelected == 'H' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('H')">Heizung</button>
+            <button class="btn @(ViewModel.KindOfMeterSelected == 'U' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('U')">Undefined</button>
+        </div>
+    }
+    @if (ViewModel.ButtonSelected switch
+             {
+                 'C' => true,
+                 'R' when new[] { 'S', 'W', 'H', 'U' }.Contains(ViewModel.KindOfMeterSelected) => true,
+                 _ => false
+             })
+    {
+        <div class="button-row">
+            <button class="btn @(ViewModel.FormatSelected == 'X' ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync('X')">XML</button>
+            <button class="btn @(ViewModel.FormatSelected == 'J' ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync('J')">Json</button>
+            <button class="btn @(ViewModel.FormatSelected == 'C' ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync('C')">Csv</button>
+        </div>
+    }
+    @if (ViewModel.ButtonSelected switch
+             {
+                 'C' when new[] { 'X', 'J', 'C' }.Contains(ViewModel.FormatSelected) => true,
+                 'R' when new[] { 'S', 'W', 'H', 'U' }.Contains(ViewModel.KindOfMeterSelected) && new[] { 'X', 'J', 'C' }.Contains(ViewModel.FormatSelected) => true,
+                 _ => false
+             })
+    {
+        <div class="button-row">
+            <button @onclick="ViewModel.ExportCommand.ExecuteAsync">Export</button>
+        </div>
+    }
+</div>
+
+
+<!--
 <button @onclick="ExportCustomers">Export all Customers</button>
 <button @onclick="ExportReadings">Export all Readings</button>
+-->
 
 @code {
     [ObservableProperty] private bool csvSelected;
     [ObservableProperty] private bool jsonSelected;
     [ObservableProperty] private bool xmlSelected;
-    
+
+
     private IEnumerable<Customer>? _customers;
-    
+
     protected override async Task OnInitializedAsync()
-        
+
     {
         await base.OnInitializedAsync();
         _customers = await customerService.GetAll();
-        
-        
-    }
-    
-    private async Task Call()
-    {
-        string test = await csvService.CreateReadingCsvFromCustomer(_customers.First());
-
-        string fileName = "output.csv";
-        
-        await JSRuntime.InvokeVoidAsync("DownloadCsv", test, fileName);
     }
 
     private async Task ExportCustomers()
     {
         if (false)
         {
-            string values = await csvService.CreateAllCustomersCsv();
-            string fileName = "customers.csv";
+            var values = await exportService.CreateAllCustomersCsv();
+            var fileName = "customers.csv";
             await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
         }
-        else if (true)
+
+        if (false)
         {
-            string values = await csvService.CreateAllCustomersXml();
-            string fileName = "customers.xml";
+            var values = await exportService.CreateAllCustomersXml();
+            var fileName = "customers.xml";
             await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
         }
-        else if (jsonSelected)
+
+        if (true)
         {
-            string values = await csvService.CreateAllCustomersJson();
-            string fileName = "customers.json";
-            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersJson", values, fileName);
+            var values = await exportService.CreateAllCustomersJson();
+            var fileName = "customers.json";
+            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
         }
-        
     }
 
     private async Task ExportReadings()
     {
-        if (csvSelected)
+        if (false)
         {
-            string values = await csvService.CreateAllReadingsCsv();
-            string fileName = "readings.csv";
-            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName); 
+            var values = await exportService.CreateAllReadingsCsv();
+            var fileName = "readings.csv";
+            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName);
         }
-        else if (xmlSelected)
+
+        if (true)
         {
-            string values = await csvService.CreateAllReadingsXml();
-            string fileName = "readings.xml";
-            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsXml", values, fileName); 
+            var values = await exportService.CreateAllReadingsXml();
+            var fileName = "readings.xml";
+            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName);
         }
         else if (jsonSelected)
         {
-            string values = await csvService.CreateAllReadingsJson();
-            string fileName = "readings.json";
-            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsJson", values, fileName); 
+            var values = await exportService.CreateAllReadingsJson();
+            var fileName = "readings.json";
+            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsJson", values, fileName);
         }
-        
-        
     }
-    
-    
+
+    /*
+    private void ButtonSelected(int row, char? button)
+    {
+        switch (row)
+        {
+            case 1:
+                firstRowSelected = true;
+                break;
+            case 2:
+                secondRowSelected = true;
+                break;
+            case 3:
+                thirdRowSelected = true;
+                break;
+        }
+
+    }
+    */
+
+
 }

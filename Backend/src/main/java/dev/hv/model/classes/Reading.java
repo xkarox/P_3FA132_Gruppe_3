@@ -9,6 +9,11 @@ import dev.hv.model.IReading;
 import dev.hv.model.decorator.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 import dev.provider.ServiceProvider;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -20,39 +25,50 @@ import java.util.Objects;
 import java.util.UUID;
 
 // Req. Nr.: 2
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Reading implements IReading
 {
+    @XmlElement(name = "Id")
     @JsonProperty("id")
     @IFieldInfo(fieldName = "id", fieldType = String.class)
     private UUID _id;
 
+    @XmlElement(name = "Comment")
     @JsonProperty("comment")
     @IFieldInfo(fieldName = "comment", fieldType = String.class)
     private String _comment;
 
+    @XmlTransient
     @JsonProperty("customerId")
     @IFieldInfo(fieldName = "customerId", fieldType = String.class)
     private UUID _customerId;
 
+    @XmlElement(name = "Customer")
     @JsonProperty("customer")
     private Customer _customer;
 
+    @XmlElement(name = "DateOfReading")
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     @JsonProperty("dateOfReading")
     @IFieldInfo(fieldName = "dateOfReading", fieldType = LocalDate.class)
     private LocalDate _dateOfReading;
 
+    @XmlElement(name = "KindOfMeter")
     @JsonProperty("kindOfMeter")
     @IFieldInfo(fieldName = "kindOfMeter", fieldType = int.class)
     private KindOfMeter _kindOfMeter;
 
+    @XmlElement(name = "MeterCount")
     @JsonProperty("meterCount")
     @IFieldInfo(fieldName = "meterCount", fieldType = Double.class)
     private Double _meterCount;
 
+    @XmlElement(name = "MeterId")
     @JsonProperty("meterId")
     @IFieldInfo(fieldName = "meterId", fieldType = String.class)
     private String _meterId;
 
+    @XmlElement(name = "Substitute")
     @JsonProperty("substitute")
     @IFieldInfo(fieldName = "substitute", fieldType = Boolean.class)
     private Boolean _substitute;

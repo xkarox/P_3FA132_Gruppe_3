@@ -1,0 +1,15 @@
+﻿.buttons {
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+}
+
+.selected {
+    background-color: #5a0087;
+    color: white;
+    border-color: #3e0063;
+}
+
+.selected:hover {
+    background-color: #4a0070;
+}

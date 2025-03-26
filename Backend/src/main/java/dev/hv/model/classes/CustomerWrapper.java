@@ -3,11 +3,11 @@ import jakarta.xml.bind.annotation.*;
 
 import java.util.List;
 
-@XmlRootElement
+@XmlRootElement(name = "CustomerWrapper")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CustomerWrapper {
 
-    @XmlElement(name = "customers")
+    @XmlElement(name = "Customers")
     private List<Customer> customers;
 
     public CustomerWrapper() {}

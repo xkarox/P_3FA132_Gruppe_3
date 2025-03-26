@@ -12,7 +12,7 @@ using P_3FA132_Gruppe_3_Frontend.Data.Services;
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
 public partial class ImportViewModel(
-    CsvService csvService,
+    ExportService exportService,
     ReadingService readingService,
     CustomerService customerService) : ViewModelBase
 {
@@ -56,9 +56,9 @@ public partial class ImportViewModel(
 
             var csvContent = await reader.ReadToEndAsync();
 
-            var header = await csvService.FormatHeader(csvContent);
-            IEnumerable<Dictionary<string, string>> metaData = await csvService.FormatMetaData(csvContent);
-            IEnumerable<List<string>> result = await csvService.FormatValues(csvContent);
+            var header = await exportService.FormatHeader(csvContent);
+            IEnumerable<Dictionary<string, string>> metaData = await exportService.FormatMetaData(csvContent);
+            IEnumerable<List<string>> result = await exportService.FormatValues(csvContent);
 
             try
             {
