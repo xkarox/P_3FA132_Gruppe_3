@@ -6,8 +6,10 @@
     <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
     <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
     <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
-    
+    <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc"/>
 </nav>
+
+<AuthComponent Show="@showComp"/>
 
 <style>
     .sidebar {
@@ -39,6 +41,7 @@
     private ElementReference _sidebarElement;
     private bool _isHovered;
     private DotNetObjectReference<SideBar> _dotNetRef = null!;
+    public bool showComp = false;
 
     [JSInvokable]
     public void SetHoverState(bool hoverState)
@@ -61,9 +64,9 @@
         _dotNetRef?.Dispose();
     }
 
-    public Task callback()
+    public Task CallbackFunc()
     {
-        Console.WriteLine("'clicked'");
+        showComp = !showComp;
         return Task.CompletedTask;
     }
 }

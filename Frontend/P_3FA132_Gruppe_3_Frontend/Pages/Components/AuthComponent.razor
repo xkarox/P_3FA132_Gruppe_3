@@ -1,4 +1,4 @@
-<div class="overlay visible"></div>
+<div class="overlay @(Show ? "visible" : "hidden")"></div>
 <div class="@(Show ? "visible" : "hidden") auth-component">
     <h3>Login</h3>
     @if (LoginCallback == null)
