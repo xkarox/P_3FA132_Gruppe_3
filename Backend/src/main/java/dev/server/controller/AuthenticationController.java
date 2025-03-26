@@ -11,13 +11,14 @@ import dev.hv.model.classes.Authentification.AuthUser;
 import dev.provider.ServiceProvider;
 import dev.server.Annotations.Secured;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.SQLException;
-
+import java.util.ArrayList;
 import static dev.hv.Utils.createErrorResponse;
 
 @Path("/auth")
@@ -29,7 +30,6 @@ public class AuthenticationController
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response login(String userBody) throws JsonProcessingException
     {
         logger.info("Received request to login user: {}", userBody);
@@ -52,8 +52,7 @@ public class AuthenticationController
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
-            String token = CryptoService.generateToken(authInfo.getId());
-            return Response.ok(token).build();
+            return Response.ok().header(HttpHeaders.SET_COOKIE,CryptoService.createTokenCookie(authInfo.getId())).build();
         } catch (SQLException | ReflectiveOperationException e)
         {
             logger.info("Error while logging in user: {}", e.getMessage(), e);
@@ -181,13 +180,18 @@ public class AuthenticationController
 
         try (AuthUserService as = ServiceProvider.getAuthUserService()){
             var users = as.getAll();
+            ArrayList<AuthUserDto> dtoUsers = new ArrayList<AuthUserDto>();
             for (AuthUser user : users){
-                user.setPassword(null);
+                var dtoUser = new AuthUserDto();
+                dtoUser.setId(user.getId());
+                dtoUser.setUsername(user.getUsername());
+                dtoUser.setRole(user.getRole());
+                dtoUser.setPermissions(new ArrayList<>(user.getPermissions()));
+                dtoUsers.add(dtoUser);
             }
-
             logger.info("Users retrieved successfully");
             return Response.status(Response.Status.OK)
-                    .entity(mapper.writeValueAsString(users))
+                    .entity(mapper.writeValueAsString(dtoUsers))
                     .build();
         } catch (SQLException | ReflectiveOperationException e){
             logger.error("Error retrieving users: {}", e.getMessage(), e);

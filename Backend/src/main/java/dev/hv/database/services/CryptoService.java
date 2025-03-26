@@ -6,6 +6,7 @@ import dev.provider.ServiceProvider;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.ws.rs.core.NewCookie;
 
 import java.io.IOException;
 import java.security.Key;
@@ -19,8 +20,13 @@ import java.util.UUID;
 public class CryptoService
 {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_TIME = 3600000; // 1 Hour
+    private static final int  EXPIRATION_TIME = 3600000; // 1 Hour
     private static final Random random = new Random();
+
+    public static int getExpirationTime()
+    {
+        return EXPIRATION_TIME;
+    }
 
     public static String CreateNewUsername(Customer customer) throws SQLException, IOException, ReflectiveOperationException
     {
@@ -97,5 +103,17 @@ public class CryptoService
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public static NewCookie createTokenCookie(UUID id)
+    {
+        var updatedToken = CryptoService.generateToken(id);
+        return new NewCookie.Builder("jwt-token")
+                .value(updatedToken)
+                .path("/")
+                .maxAge(CryptoService.getExpirationTime())
+                .secure(true)
+                .httpOnly(true)
+                .build();
     }
 }

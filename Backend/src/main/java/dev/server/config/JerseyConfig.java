@@ -26,6 +26,7 @@ public class JerseyConfig extends ResourceConfig
 
         register(JwtFilter.class);
         register(PermissionFilter.class);
+        register(ResponseFilter.class);
 
         // Enable logging to debug registration
         property(ServerProperties.MONITORING_ENABLED, false);
