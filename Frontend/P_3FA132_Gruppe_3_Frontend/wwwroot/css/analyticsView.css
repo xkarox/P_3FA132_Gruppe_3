@@ -1,55 +1,66 @@
-.apexcharts-svg
-{
+.apexcharts-svg {
     background: none;
 }
 
 .analytics-widgets {
-    display: flex;
-    flex-wrap: wrap;          /* Allows widgets to wrap onto the next row */
-    justify-content: space-between; /* Even spacing in each row */
-    align-items: stretch;     /* Makes items in the same row equal height */
-    padding: 20px;            /* Optional: adds some padding around the container */
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    padding: 20px;
 }
 
 .analytics-widget-container {
     position: relative;
-    margin: 1rem;
     padding: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-sizing: border-box;   /* Ensures padding and border are included in the item’s width */
+    box-sizing: border-box;
 }
 
-.customer-count {
-    flex: 1 1 25px;
-    min-width: fit-content;
-    max-width: fit-content;
-    height: fit-content;
-    width: fit-content;
-}
-
+.customer-count,
 .reading-count {
-    flex: 1 1 25px;
-    min-width: fit-content;
-    max-width: fit-content;
-    height: fit-content;
-    width: fit-content;
+    grid-column: span 2;
+    width: 100%;
+    height: 100%;
 }
 
 .reading-type-donut {
-    flex: 0 0 48rem;
-    min-width: 48rem;
+    grid-column: span 3;
     height: 30rem;
-    width: 48rem;
-    color: var(--color-primary)
+    color: var(--color-primary);
 }
 
 .recent-reading {
-    flex: 1 1 25px;
-    min-width: fit-content;
-    max-width: fit-content;
-    height: fit-content;
-    width: fit-content;
+    grid-column: span 2;
+    width: 100%;
+    height: 100%;
 }
 
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .analytics-widgets {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .reading-type-donut {
+        grid-column: span 2;
+    }
+
+    .recent-reading {
+        grid-column: span 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-widgets {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .customer-count,
+    .reading-count,
+    .reading-type-donut,
+    .recent-reading {
+        grid-column: span 2;
+    }
+}

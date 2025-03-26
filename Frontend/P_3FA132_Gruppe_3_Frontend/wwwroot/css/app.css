@@ -44,11 +44,20 @@ svg:not(.apexcharts-svg) path {
     fill: var(--color-primary);
 }
 
+html {
+    /*background: #000000;*/
+}
+
 body {
     /*background-color: var(--bg-dark);*/
     background: -webkit-radial-gradient(circle at bottom, rgba(54,52,62,1) 0%, rgba(39,37,48,1) 23%, rgba(31,28,44,1) 61%, rgba(0,0,0,1) 100%);
-    background: radial-gradient(circle at bottom, rgba(54,52,62,1) 0%, rgba(39,37,48,1) 23%, rgba(31,28,44,1) 61%, rgba(0,0,0,1) 100%);    color: var(--text-color);
+    background: radial-gradient(circle at bottom, rgba(54,52,62,1) 0%, rgba(39,37,48,1) 23%, rgba(31,28,44,1) 61%, rgba(0,0,0,1) 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center center;
+    color: var(--text-color);
     font-family: 'Roboto', sans-serif;
+    overscroll-behavior-y: none;
 }
 
 header {

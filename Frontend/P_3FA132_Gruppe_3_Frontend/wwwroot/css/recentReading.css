@@ -10,6 +10,7 @@
 
 .recent-reading-widget-container {
     display: flex;
+    
 }
 
 .recent-reading-widget-value {
@@ -51,6 +52,7 @@ p.meter-display {
     display: inline-block;
     width: fit-content;
 }
+
 
 span.letter-box {
     border-left: 1px solid #333;
