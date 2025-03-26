@@ -52,7 +52,7 @@ public class AuthUserPermissions implements IAuthPermissions
     @Override
     public String getSerializedTableName()
     {
-        return "UserRoles";
+        return "userroles";
     }
 
     @Override

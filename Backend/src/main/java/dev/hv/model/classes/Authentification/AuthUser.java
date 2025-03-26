@@ -117,6 +117,6 @@ public class AuthUser implements IAuthUser
     @Override
     public String getSerializedTableName()
     {
-        return "AuthUser";
+        return "authuser";
     }
 }
