@@ -99,7 +99,11 @@ public class AuthUser implements IAuthUser
         this._role = UserRoles.values()[(int) args[3]];
 
         try(UserPermissionService ups = ServiceProvider.getUserPermissionService()){
-            this._permissions = ups.getAllById(this._id).stream().map(AuthUserPermissions::getPermission).filter(Objects::nonNull).toList();
+            var userPermissions = ups.getAllById(this._id);
+            if (userPermissions == null)
+                this._permissions = new ArrayList<>();
+            else
+                this._permissions = userPermissions.stream().map(AuthUserPermissions::getPermission).filter(Objects::nonNull).toList();
         }
 
         return this;

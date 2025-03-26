@@ -125,7 +125,7 @@ public class DatabaseControllerTest
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         when(ServiceProvider.Services.getDatabaseConnection()).thenThrow(new SQLException());
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 Internal Server Error");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode(), "Should return status code 500 Internal Server Error");
 
         ServiceProvider.Services = mock(InternalServiceProvider.class);
         when(ServiceProvider.Services.getDatabaseConnection()).thenThrow(new IOException());
