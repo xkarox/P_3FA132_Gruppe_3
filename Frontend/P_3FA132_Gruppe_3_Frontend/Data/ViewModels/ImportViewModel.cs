@@ -66,6 +66,7 @@ public partial class ImportViewModel(
                 {
                     isCustomerCsv = true;
                     isReadingCsv = false;
+                    
 
                     for (var i = 0; i < result.Count(); i++)
                     {
@@ -83,6 +84,32 @@ public partial class ImportViewModel(
                 {
                     isReadingCsv = true;
                     isCustomerCsv = false;
+                    
+                    bool isElectric = false;
+                    bool isWater = false;
+                    bool isUnknown = false;
+                    bool isHeat = false;
+
+                    if (header.ElementAt(1).Contains("kWh"))
+                    {
+                        isElectric = true;
+                    }
+                    else if (header.ElementAt(1).Contains("m\u00b3"))
+                    {
+                        isWater = true;
+                    }
+                    else if (header.ElementAt(1).Contains("MWh"))
+                    {
+                        isHeat = true;
+                    }
+
+                    else
+                    {
+                        isUnknown = true;
+                    }
+                    
+
+                    
                     var cus = await customerService.getAllCustomers();
                     for (var i = 0; i < result.Count(); i++)
                     {
@@ -91,6 +118,19 @@ public partial class ImportViewModel(
                         var currentRow = result.ElementAt(i);
                         reading.DateOfReading = DateOnly.Parse(currentRow[0]);
                         reading.MeterCount = double.Parse(currentRow[1]);
+
+                        if (isElectric)
+                        {
+                            reading.KindOfMeter = KindOfMeter.STROM;
+                        }
+                        else if (isWater)
+                        {
+                            reading.KindOfMeter = KindOfMeter.WASSER;
+                        }
+                        else if (isHeat)
+                        {
+                            reading.KindOfMeter = KindOfMeter.HEIZUNG;
+                        }
                         
                         Customer customer = cus.FirstOrDefault(c => c.Id == Guid.Parse(metaData.ElementAt(0)["Kunde"]));
                         reading.Customer = customer;
@@ -111,6 +151,11 @@ public partial class ImportViewModel(
                         }
                         _readings.Add(reading);
                     }
+
+                    isHeat = false;
+                    isElectric = false;
+                    isWater = false;
+                    isUnknown = false;
                 }
             }
             catch (Exception ex)

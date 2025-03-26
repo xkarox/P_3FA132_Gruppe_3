@@ -196,16 +196,16 @@ public class CsvParser
 
     public String createAllCustomerCsv() throws SQLException, IOException, ReflectiveOperationException
     {
-        String customerHeader = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n";
+        String customerHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
         String customerValues = "";
         this.cs = ServiceProvider.Services.getCustomerService();
 
         List<Customer> customers = this.cs.getAll();
         for (int i = 0; i < customers.size(); i++) {
-            customerValues += customers.get(i).getId() + ",";
-            customerValues += customers.get(i).getGender() + ",";
-            customerValues += customers.get(i).getFirstName() + ",";
-            customerValues += customers.get(i).getLastName() + ",";
+            customerValues += customers.get(i).getId() + ";";
+            customerValues += customers.get(i).getGender() + ";";
+            customerValues += customers.get(i).getFirstName() + ";";
+            customerValues += customers.get(i).getLastName() + ";";
             if (customers.get(i).getBirthDate() != null) {
                 customerValues += customers.get(i).getBirthDate() + "\n";
             }
@@ -221,7 +221,7 @@ public class CsvParser
 
     public String createAllReadingsCsv() throws SQLException, IOException, ReflectiveOperationException
     {
-        String readingHeader = "Datum,Zählerstand,Kommentar\n";
+        String readingHeader = "Datum;Zählerstand;Kommentar\n";
         String readingValues = "";
         this.rs = ServiceProvider.Services.getReadingService();
 
@@ -235,6 +235,7 @@ public class CsvParser
             else {
                 readingValues += "\n";
             }
+            readingValues = readingValues.replace(',', '.');
         }
         String readingCsv = "";
         readingCsv = readingHeader + readingValues;

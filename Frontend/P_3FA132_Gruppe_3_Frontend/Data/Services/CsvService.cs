@@ -68,9 +68,45 @@ public class CsvService
         return await response.Content.ReadAsStringAsync();
     }
 
+    public async Task<string> CreateAllCustomersXml()
+    {
+        const string path = "/createAllCustomersXml";
+        var response = await _httpClient.GetAsync(BaseUrl + path);
+        response.EnsureSuccessStatusCode();
+        
+        return await response.Content.ReadAsStringAsync();
+    }
+    
+    public async Task<string> CreateAllCustomersJson()
+    {
+        const string path = "/createAllCustomersJson";
+        var response = await _httpClient.GetAsync(BaseUrl + path);
+        response.EnsureSuccessStatusCode();
+        
+        return await response.Content.ReadAsStringAsync();
+    }
+
     public async Task<string> CreateAllReadingsCsv()
     {
         const string path = "/createAllReadingsCsv";
+        var response = await _httpClient.GetAsync(BaseUrl + path);
+        response.EnsureSuccessStatusCode();
+        
+        return await response.Content.ReadAsStringAsync();
+    }
+    
+    public async Task<string> CreateAllReadingsXml()
+    {
+        const string path = "/createAllReadingsXml";
+        var response = await _httpClient.GetAsync(BaseUrl + path);
+        response.EnsureSuccessStatusCode();
+        
+        return await response.Content.ReadAsStringAsync();
+    }
+    
+    public async Task<string> CreateAllReadingsJson()
+    {
+        const string path = "/createAllReadingsJson";
         var response = await _httpClient.GetAsync(BaseUrl + path);
         response.EnsureSuccessStatusCode();
         

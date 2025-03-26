@@ -15,27 +15,34 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
+import jakarta.xml.bind.annotation.*;
 // Req. Nr.: 1
+
+
 public class Customer implements ICustomer
 {
+
     @JsonProperty("id")
     @IFieldInfo(fieldName = "id", fieldType = String.class)
     private UUID _id;
 
+    @XmlElement(name="FirstName")
     @JsonProperty("firstName")
     @IFieldInfo(fieldName = "firstName", fieldType = String.class)
     private String _firstName;
 
+    @XmlElement(name="LastName")
     @JsonProperty("lastName")
     @IFieldInfo(fieldName = "lastName", fieldType = String.class)
     private String _lastName;
 
+    @XmlTransient
     @JsonProperty("birthDate")
     @IFieldInfo(fieldName = "birthDate", fieldType = LocalDate.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate _birthDate;
 
+    @XmlTransient
     @JsonProperty("gender")
     @IFieldInfo(fieldName = "gender", fieldType = int.class)
     private Gender _gender;

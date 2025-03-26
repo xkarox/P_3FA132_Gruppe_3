@@ -1,4 +1,5 @@
 ﻿@page "/ExportView"
+@using CommunityToolkit.Mvvm.ComponentModel
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ExportViewModel>
@@ -13,7 +14,10 @@
 <button @onclick="ExportReadings">Export all Readings</button>
 
 @code {
-
+    [ObservableProperty] private bool csvSelected;
+    [ObservableProperty] private bool jsonSelected;
+    [ObservableProperty] private bool xmlSelected;
+    
     private IEnumerable<Customer>? _customers;
     
     protected override async Task OnInitializedAsync()
@@ -36,15 +40,50 @@
 
     private async Task ExportCustomers()
     {
-        string values = await csvService.CreateAllCustomersCsv();
-        string fileName = "customers.csv";
-        await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
+        if (false)
+        {
+            string values = await csvService.CreateAllCustomersCsv();
+            string fileName = "customers.csv";
+            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
+        }
+        else if (true)
+        {
+            string values = await csvService.CreateAllCustomersXml();
+            string fileName = "customers.xml";
+            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
+        }
+        else if (jsonSelected)
+        {
+            string values = await csvService.CreateAllCustomersJson();
+            string fileName = "customers.json";
+            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersJson", values, fileName);
+        }
+        
     }
 
     private async Task ExportReadings()
     {
-        string values = await csvService.CreateAllReadingsCsv();
-        string fileName = "readings.csv";
-        await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName);
+        if (csvSelected)
+        {
+            string values = await csvService.CreateAllReadingsCsv();
+            string fileName = "readings.csv";
+            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName); 
+        }
+        else if (xmlSelected)
+        {
+            string values = await csvService.CreateAllReadingsXml();
+            string fileName = "readings.xml";
+            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsXml", values, fileName); 
+        }
+        else if (jsonSelected)
+        {
+            string values = await csvService.CreateAllReadingsJson();
+            string fileName = "readings.json";
+            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsJson", values, fileName); 
+        }
+        
+        
     }
+    
+    
 }
