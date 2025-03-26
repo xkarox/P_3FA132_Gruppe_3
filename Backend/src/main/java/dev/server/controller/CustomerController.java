@@ -86,7 +86,7 @@ public class CustomerController {
     public Response getCustomer(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to get customer with ID: {}", id);
 
-        if (AuthorisationService.CanUserAccessResource(id)) {
+        if (!AuthorisationService.CanUserAccessResource(id)) {
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         }
 
@@ -142,7 +142,7 @@ public class CustomerController {
                 return createErrorResponse(Response.Status.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
 
-            if (AuthorisationService.CanUserAccessResource(dbCustomer.getId())) {
+            if (!AuthorisationService.CanUserAccessResource(dbCustomer.getId())) {
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
@@ -168,7 +168,7 @@ public class CustomerController {
     public Response deleteCustomer(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to delete customer with ID: {}", id);
 
-        if (AuthorisationService.CanUserAccessResource(id)) {
+        if (!AuthorisationService.CanUserAccessResource(id)) {
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         }
 
