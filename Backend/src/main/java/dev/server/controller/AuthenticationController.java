@@ -81,7 +81,10 @@ public class AuthenticationController
         try (AuthUserService as = ServiceProvider.getAuthUserService())
         {
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);
-            user.setId(UUID.randomUUID());
+            if (user.getId() == null){
+                logger.info("User id is null");
+                return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+            }
             if (as.getByUserName(user.getUsername()) != null)
             {
                 logger.info("User already exists");
@@ -104,7 +107,7 @@ public class AuthenticationController
 
     @DELETE
     @Secured
-    @Path("/{userName}")
+    @Path("/delete/{userName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("userName") String userName) throws JsonProcessingException
     {
@@ -136,8 +139,9 @@ public class AuthenticationController
 
     @PUT
     @Secured
+    @Path("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUser(String userBody) throws JsonProcessingException
+    public Response update(String userBody) throws JsonProcessingException
     {
         logger.info("Received request to update user: {}", userBody);
 
@@ -178,6 +182,10 @@ public class AuthenticationController
 
         try (AuthUserService as = ServiceProvider.getAuthUserService()){
             var users = as.getAll();
+            for (AuthUser user : users){
+                user.setPassword(null);
+            }
+
             logger.info("Users retrieved successfully");
             return Response.status(Response.Status.OK)
                     .entity(mapper.writeValueAsString(users))
