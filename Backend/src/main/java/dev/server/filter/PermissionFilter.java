@@ -3,11 +3,14 @@ package dev.server.filter;
 import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.enums.UserPermissions;
 import dev.server.Annotations.Secured;
+import dev.server.controller.CustomerController;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.io.IOException;
@@ -22,10 +25,12 @@ public class PermissionFilter implements ContainerRequestFilter
     @Override
     public void filter(ContainerRequestContext containerRequestContext) throws IOException
     {
-        if (!AuthorisationService.DoesAuthDbExistsWrapper()){ // ToDo: redundant check -> JwtFilter
-            MDC.put("authDbExists", "false");
+        if(MDC.get("authDbExists").equals("false")){
             return;
         }
+
+        if (AuthorisationService.IsUserAdmin())
+            return;
 
         if (MDC.get("permissions").isBlank()){
             containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
@@ -34,7 +39,7 @@ public class PermissionFilter implements ContainerRequestFilter
 
         // Get the request type and check if the user has the permission to execute it
         UserPermissions requestType = UserPermissions.translateHttpToUserPermission(containerRequestContext.getMethod());
-        List<String> availablePermissions = List.of(MDC.get("permissions").split(","));
+        List<String> availablePermissions = List.of(MDC.get("permissions").split(", "));
         if (!availablePermissions.contains(requestType.toString()))
             containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
     }

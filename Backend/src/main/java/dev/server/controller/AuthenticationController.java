@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import static dev.hv.Utils.createErrorResponse;
 
@@ -74,12 +75,13 @@ public class AuthenticationController
     {
         logger.info("Received request to register user: {}", userBody);
 
-        if (!AuthorisationService.IsUserAdmin(logger))
+        if (!AuthorisationService.IsUserAdmin())
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
 
         try (AuthUserService as = ServiceProvider.getAuthUserService())
         {
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);
+            user.setId(UUID.randomUUID());
             if (as.getByUserName(user.getUsername()) != null)
             {
                 logger.info("User already exists");
@@ -108,7 +110,7 @@ public class AuthenticationController
     {
         logger.info("Received request to delete user: {}", userName);
 
-        if (!AuthorisationService.IsUserAdmin(logger))
+        if (!AuthorisationService.IsUserAdmin())
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
 
         try (AuthUserService as = ServiceProvider.getAuthUserService()){
@@ -139,7 +141,7 @@ public class AuthenticationController
     {
         logger.info("Received request to update user: {}", userBody);
 
-        if (!AuthorisationService.IsUserAdmin(logger))
+        if (!AuthorisationService.IsUserAdmin())
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
 
         try (AuthUserService as = ServiceProvider.getAuthUserService()){
@@ -157,6 +159,33 @@ public class AuthenticationController
             return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
         } catch (IOException e)
         {
+            logger.info("Internal server error: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+
+    @GET
+    @Secured
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllUsers() throws JsonProcessingException
+    {
+        logger.info("Received request to get all users");
+
+        if (!AuthorisationService.IsUserAdmin())
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+
+        try (AuthUserService as = ServiceProvider.getAuthUserService()){
+            var users = as.getAll();
+            logger.info("Users retrieved successfully");
+            return Response.status(Response.Status.OK)
+                    .entity(mapper.writeValueAsString(users))
+                    .build();
+        } catch (SQLException | ReflectiveOperationException e){
+            logger.error("Error retrieving users: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+        } catch (IOException e){
             logger.info("Internal server error: {}", e.getMessage(), e);
             return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }

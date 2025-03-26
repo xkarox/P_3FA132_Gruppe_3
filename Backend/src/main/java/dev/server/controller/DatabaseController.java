@@ -6,6 +6,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.services.AuthUserService;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.classes.Authentification.AuthUserDto;
 import dev.hv.model.classes.Authentification.AuthUser;
 import dev.provider.ServiceProvider;
@@ -32,6 +33,8 @@ public class DatabaseController {
     @DELETE
     public Response setupDatabase() throws JsonProcessingException {
         logger.info("Received request to setup database");
+        if (!AuthorisationService.CanResourceBeAccessed())
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         try {
             DatabaseConnection dbCon = ServiceProvider.Services.getDatabaseConnection();
             dbCon.removeAllTables();
@@ -53,6 +56,8 @@ public class DatabaseController {
     public Response setupDatabaseMod(String userBody,
                                   @DefaultValue("false") @QueryParam("security") boolean hasSecurity) throws JsonProcessingException
     {
+        if (!AuthorisationService.CanResourceBeAccessed())
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         if (userBody != null)
             logger.info("Received request to add admin user: {}", userBody);
 

@@ -55,7 +55,7 @@ public class ReadingController {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
 
-            if (AuthorisationService.CanUserAccessResource(reading.getCustomerId(), UserPermissions.WRITE,  logger)) {
+            if (AuthorisationService.CanUserAccessResource(reading.getCustomerId())) {
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
@@ -97,7 +97,7 @@ public class ReadingController {
                         ResponseMessages.ControllerNotFound.toString());
             }
 
-            if (AuthorisationService.CanUserAccessResource(reading.getId(), UserPermissions.Update, logger)) {
+            if (AuthorisationService.CanUserAccessResource(reading.getId())) {
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
@@ -123,7 +123,7 @@ public class ReadingController {
     public Response getReading(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to get reading with ID: {}", id);
 
-        if (AuthorisationService.CanUserAccessResource(id, UserPermissions.READ, logger)) {
+        if (AuthorisationService.CanUserAccessResource(id)) {
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         }
 
@@ -150,7 +150,7 @@ public class ReadingController {
     public Response deleteReading(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to delete reading with ID: {}", id);
 
-        if (AuthorisationService.CanUserAccessResource(id, UserPermissions.DELETE, logger)) {
+        if (AuthorisationService.CanUserAccessResource(id)) {
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
         }
 
@@ -182,7 +182,7 @@ public class ReadingController {
         logger.info("Received request to get readings with parameters - customer: {}, start: {}, end: {}, kindOfMeter: {}",
                 customerId, startDate, endDate, kindOfMeter);
 
-        if (!AuthorisationService.IsUserAdmin(logger))
+        if (!AuthorisationService.IsUserAdmin())
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
 
         try {

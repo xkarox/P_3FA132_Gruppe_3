@@ -1,8 +1,10 @@
 package dev.hv.database.services;
 
 import dev.hv.model.enums.UserPermissions;
+import dev.hv.model.enums.UserRoles;
 import dev.provider.ServiceProvider;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.sql.SQLException;
@@ -11,6 +13,8 @@ import java.util.UUID;
 
 public class AuthorisationService
 {
+    private static final Logger logger = LoggerFactory.getLogger(AuthorisationService.class);
+
     public static boolean DoesAuthDbExistsWrapper()
     {
         try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
@@ -30,26 +34,26 @@ public class AuthorisationService
         return (MDC.get("authDbExists") == null || MDC.get("authDbExists").equals("false"));
     }
 
-    public static boolean IsUserAdmin(Logger logger)
+    public static boolean IsUserAdmin()
     {
-        if (AuthDbFlag() || Objects.equals(MDC.get("role"), "admin"))
+        if (AuthDbFlag() || Objects.equals(MDC.get("role"), UserRoles.ADMIN.toString()))
             return true;
 
-        logger.info("User is not admin");
+        logger.info("User is not a admin");
         return false;
     }
 
-    public static boolean CanUserAccessResource(UUID effectedUserId, Logger logger)
+    public static boolean CanUserAccessResource(UUID effectedUserId)
     {
         if (AuthDbFlag() || Objects.equals(MDC.get("id"), effectedUserId.toString()))
             return true;
-        return IsUserAdmin(logger);
+        return IsUserAdmin();
     }
 
-    public static boolean CanUserAccessResource(UUID effectedUserId, UserPermissions type, Logger logger)
+    public static boolean CanResourceBeAccessed()
     {
-        if (AuthDbFlag() || (Objects.equals(MDC.get("id"), effectedUserId.toString()) && MDC.get("permissions").contains(type.toString())))
+        if (AuthDbFlag())
             return true;
-        return IsUserAdmin(logger);
+        return IsUserAdmin();
     }
 }

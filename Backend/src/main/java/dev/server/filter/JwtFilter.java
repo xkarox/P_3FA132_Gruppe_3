@@ -29,6 +29,8 @@ public class JwtFilter implements ContainerRequestFilter {
             MDC.put("authDbExists", "false");
             return;
         }
+        else
+            MDC.put("authDbExists", "true");
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
