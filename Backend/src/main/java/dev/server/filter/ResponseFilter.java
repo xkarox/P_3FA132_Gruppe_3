@@ -10,6 +10,7 @@ import jakarta.annotation.Priority;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
@@ -28,11 +29,11 @@ public class ResponseFilter implements ContainerResponseFilter
         if (!AuthorisationService.DoesAuthDbExistsWrapper())
             return;
 
-        String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer "))
+        Cookie tokenCookie = requestContext.getCookies().get("jwt-token");
+        if (tokenCookie == null)
             return;
 
-        String token = authorizationHeader.substring(7);
+        String token = tokenCookie.getValue();
         try {
             String userId = CryptoService.validateToken(token);
             try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
