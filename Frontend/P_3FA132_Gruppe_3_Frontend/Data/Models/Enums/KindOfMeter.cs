@@ -1,4 +1,4 @@
-﻿namespace P_3FA132_Gruppe_3_Frontend.Data.Models
+﻿namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
 {
     public enum KindOfMeter
     {
@@ -7,7 +7,7 @@
         UNBEKANNT,
         WASSER
     }
-    
+
     public static class KindOfMeterExtensions
     {
         public static KindOfMeter ToKindOfMeter(this string kindOfMeterString)
@@ -21,7 +21,7 @@
                 _ => KindOfMeter.UNBEKANNT
             };
         }
-        
+
         public static string ToEmoji(this KindOfMeter kindOfMeter)
         {
             return kindOfMeter switch
