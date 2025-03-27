@@ -8,6 +8,7 @@ import dev.server.Annotations.Secured;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
@@ -32,12 +33,13 @@ public class JwtFilter implements ContainerRequestFilter {
         else
             MDC.put("authDbExists", "true");
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+        Cookie tokenCookie = requestContext.getCookies().get("jwt-token");
+        if (tokenCookie == null) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
             return;
         }
 
-        String token = authorizationHeader.substring(7);
+        String token = tokenCookie.getValue();
         try {
             String userId = CryptoService.validateToken(token);
             try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
