@@ -13,7 +13,7 @@ public class ExportService
     private readonly HttpClient _httpClient;
     private const string CsvUrl = "http://localhost:8080/csv";
     private const string CustomerUrl = "http://localhost:8080/customers";
-    private const string ReadingUrl = "https://localhost:8080/readings";
+    private const string ReadingUrl = "http://localhost:8080/readings";
 
     public ExportService(HttpClient httpClient)
     {
@@ -92,16 +92,18 @@ public class ExportService
     public async Task<string> CreateAllReadingsCsv(KindOfMeter kindOfMeter)
     {
         const string path = "/createAllReadingsCsv";
-        var response = await _httpClient.GetAsync(ReadingUrl + path);
+        var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}";
+        var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         
         return await response.Content.ReadAsStringAsync();
     }
     
-    public async Task<string> CreateAllReadingsXml()
+    public async Task<string> CreateAllReadingsXml(KindOfMeter kindOfMeter)
     {
         const string path = "/createAllReadingsXml";
-        var response = await _httpClient.GetAsync(ReadingUrl + path);
+        var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}";
+        var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         
         return await response.Content.ReadAsStringAsync();
@@ -110,7 +112,8 @@ public class ExportService
     public async Task<string> CreateAllReadingsJson(KindOfMeter kindOfMeter)
     {
         const string path = "/createAllReadingsJson";
-        var response = await _httpClient.GetAsync(ReadingUrl + path);
+        var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}";
+        var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         
         return await response.Content.ReadAsStringAsync();

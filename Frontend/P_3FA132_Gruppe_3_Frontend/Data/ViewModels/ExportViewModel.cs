@@ -27,25 +27,24 @@ public partial class ExportViewModel(
         var fileName = "";
         if (ButtonSelected.Equals('R'))
         {
-            // add type download
             if (FormatSelected.Equals('X'))
             {
                 switch (KindOfMeterSelected)
                 {
                     case 'H':
-                        values = await exportService.CreateAllReadingsXml();
+                        values = await exportService.CreateAllReadingsXml(KindOfMeter.HEIZUNG);
                         fileName = "heizung.xml";
                         break;
                     case 'W':
-                        values = await exportService.CreateAllReadingsXml();
+                        values = await exportService.CreateAllReadingsXml(KindOfMeter.WASSER);
                         fileName = "wasser.xml";
                         break;
                     case 'S':
-                        values = await exportService.CreateAllReadingsXml();
+                        values = await exportService.CreateAllReadingsXml(KindOfMeter.STROM);
                         fileName = "strom.xml";
                         break;
                     case 'U':
-                        values = await exportService.CreateAllReadingsXml();
+                        values = await exportService.CreateAllReadingsXml(KindOfMeter.UNBEKANNT);
                         fileName = "unbekannt.xml";
                         break;
                 }

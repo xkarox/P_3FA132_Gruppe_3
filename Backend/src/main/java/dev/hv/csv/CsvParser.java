@@ -2,6 +2,7 @@ package dev.hv.csv;
 
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
+import dev.hv.model.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
@@ -219,21 +220,87 @@ public class CsvParser
         return customerCsv;
     }
 
-    public String createAllReadingsCsv() throws SQLException, IOException, ReflectiveOperationException
+    public String createReadingsByKindOfMeter(IReading.KindOfMeter kindOfMeter) throws SQLException, IOException, ReflectiveOperationException
     {
-        String readingHeader = "Datum;Zählerstand;Kommentar\n";
+        String readingHeader = "Datum;Zählerstand;Kommentar;KundenId;Zählerart;ZählerstandId;Ersatz\n";
         String readingValues = "";
         this.rs = ServiceProvider.Services.getReadingService();
 
-        List<Reading> readings = this.rs.getAll();
-        for (int i = 0; i < readings.size(); i++) {
-            readingValues += readings.get(i).getDateOfReading() + ";";
-            readingValues += readings.get(i).getMeterCount() + ";";
-            if(readings.get(i).getComment() != null) {
-                readingValues += readings.get(i).getComment() + "\n";
+        List<Reading> allReadings = rs.getAll();
+        List<Reading> typeReadings = new ArrayList<>();
+        switch (kindOfMeter) {
+            case IReading.KindOfMeter.WASSER:
+
+                for (Reading r : allReadings) {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER) {
+                        typeReadings.add(r);
+                    }
+                }
+                break;
+            case IReading.KindOfMeter.STROM:
+
+                for (Reading r : allReadings) {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.STROM) {
+                        typeReadings.add(r);
+                    }
+                }
+                break;
+            case IReading.KindOfMeter.HEIZUNG:
+
+                for (Reading r : allReadings) {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG) {
+                        typeReadings.add(r);
+                    }
+                }
+                break;
+            case IReading.KindOfMeter.UNBEKANNT:
+
+                for (Reading r : allReadings) {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT) {
+                        typeReadings.add(r);
+                    }
+                }
+                break;
+        }
+        for (int i = 0; i < typeReadings.size(); i++) {
+            if (typeReadings.get(i).getDateOfReading() != null) {
+                readingValues += typeReadings.get(i).getDateOfReading() + ";";
             }
             else {
-                readingValues += "\n";
+                readingValues += ";";
+            }
+            if (typeReadings.get(i).getMeterCount() != null) {
+                readingValues += typeReadings.get(i).getMeterCount() + ";";
+            }
+            else {
+                readingValues += ";";
+            }
+            if(typeReadings.get(i).getComment() != null) {
+                readingValues += typeReadings.get(i).getComment() + ";";
+            }
+            else {
+                readingValues += ";";
+            }
+            if(typeReadings.get(i).getCustomerId() != null) {
+                readingValues += typeReadings.get(i).getCustomerId() + ";";
+            }
+            else {
+                readingValues += ";";
+            }
+            if (typeReadings.get(i).getKindOfMeter() != null) {
+                readingValues += typeReadings.get(i).getKindOfMeter() + ";";
+            }
+            else {
+                readingValues += ";";
+            }
+            if (typeReadings.get(i).getMeterId() != null) {
+                readingValues += typeReadings.get(i).getMeterId() + ";";
+            }
+            else {
+                readingValues += ";";
+            }
+            if (typeReadings.get(i).getSubstitute() != null) {
+                readingValues += typeReadings.get(i).getSubstitute() + ";\n";
             }
             readingValues = readingValues.replace(',', '.');
         }
