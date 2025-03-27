@@ -1,16 +1,18 @@
 @using ChartJs.Blazor.BarChart
 @using ChartJs.Blazor;
+@using ChartJs.Blazor.BarChart.Axes
 @using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Common.Axes
 @using ChartJs.Blazor.Common.Enums
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 
 <div class="usage-bar-widget chart">
-    <Chart Config="_config"></Chart>
+    <Chart Config="_config" ref="@_chart"></Chart>
 </div>
 
 @code {
     [EditorRequired] [Parameter] public List<Reading> Items { get; set; }
-
+    private Chart _chart;
     private BarConfig _config;
     private string[] monthLabels = new []
     {
@@ -29,36 +31,37 @@
                 MaintainAspectRatio = false,
                 Legend = new Legend
                 {
-                    // Position = Position.Right
-                    Display = false,
+                    Position = Position.Top,
+                    Display = true,
                 },
                 Title = new OptionsTitle
                 {
                     Display = true,
                     Text = "Usage per Month"
-                }
+                },
             },
         };
         
-        var data = CalculateAverageUsagePerMonth();
-        
-        IDataset<double> dataset1 = new BarDataset<double>(data, horizontal: true)
+        // var data = CalculateAverageUsagePerMonth();
+        var data = new int[] { 20, 30, 20, 10, 5, 35, 70, 35, 60, 70, 80, 50, };
+        IDataset<int> dataset1 = new BarDataset<int>(data, horizontal: true)
         {
             Label = "My first dataset",
-            BackgroundColor = "rgba(0, 0, 0, 0.0)",
-            BorderColor = "rgba(245, 40, 145, 0.8)",
-            BorderWidth = 1
+            BackgroundColor = "rgba(1, 0, 1, 1.0)",
+            BorderColor = "rgba(245, 40, 145, 1)",
+            BorderWidth = 10,
         };
 
         foreach (var month in monthLabels)
         {
             _config.Data.Labels.Add(month);
         }
+        _config.Data.Datasets.Add(dataset1);
     }
 
-    private IEnumerable<double> CalculateAverageUsagePerMonth()
+    private IEnumerable<int> CalculateAverageUsagePerMonth()
     {
-        var avgPerMonth = new double[12];
+        var avgPerMonth = new int[12];
         for (var i = 0; i < 12; i++)
         {
             var i1 = i;
@@ -66,8 +69,7 @@
             var readingCount = currentReadings.Count();
             var sum = currentReadings.Sum(reading => reading.MeterCount);
             Console.WriteLine($"{sum} / {readingCount}");
-            avgPerMonth[i] = sum / readingCount;
-            
+            avgPerMonth[i] = (int)(sum / readingCount);
         }
         
         return avgPerMonth;
