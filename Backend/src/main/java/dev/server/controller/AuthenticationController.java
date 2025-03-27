@@ -106,7 +106,7 @@ public class AuthenticationController
 
     @DELETE
     @Secured
-    @Path("/{id]")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("id") UUID userId) throws JsonProcessingException
     {
