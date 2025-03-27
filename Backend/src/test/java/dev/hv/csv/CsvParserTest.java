@@ -25,7 +25,7 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_READING_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_READING_CONTENT));
         assertEquals(";", parser.getSeparator());
     }
 
@@ -34,7 +34,7 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_CUSTOMER_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_CUSTOMER_CONTENT));
         assertEquals(",", parser.getSeparator());
     }
 
@@ -43,9 +43,9 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_READING_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_READING_CONTENT));
         List<String> expectedHeader = Arrays.asList("Datum", "Zählerstand in m³", "Kommentar");
-        assertIterableEquals(expectedHeader, parser.getHeader());
+        assertIterableEquals(expectedHeader, parser.getReadingHeader());
     }
 
     @Test
@@ -53,9 +53,9 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_CUSTOMER_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_CUSTOMER_CONTENT));
         List<String> expectedHeader = Arrays.asList("UUID", "Anrede", "Vorname", "Nachname", "Geburtsdatum");
-        assertIterableEquals(expectedHeader, parser.getHeader());
+        assertIterableEquals(expectedHeader, parser.getReadingHeader());
     }
 
     @Test
@@ -63,12 +63,12 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_READING_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_READING_CONTENT));
         List<List<String>> expectedValues = List.of(
                 List.of("01.02.2018", "5,965"),
                 List.of("01.04.2018", "6,597")
         );
-        assertIterableEquals(expectedValues, parser.getValues());
+        assertIterableEquals(expectedValues, parser.getReadingValues());
     }
 
     @Test
@@ -76,12 +76,12 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_CUSTOMER_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_CUSTOMER_CONTENT));
         List<List<String>> expectedValues = List.of(
                 List.of("ec617965-88b4-4721-8158-ee36c38e4db3", "Herr", "Pumukel", "Kobold", "21.02.1962"),
                 List.of("848c39a1-0cbb-427a-ac6f-a88941943dc8", "Herr", "André", "Schöne", "16.02.1928")
         );
-        assertIterableEquals(expectedValues, parser.getValues());
+        assertIterableEquals(expectedValues, parser.getReadingValues());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_READING_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_READING_CONTENT));
         List<Map<String, String>> expectedValues = List.of(
                 Map.of("Kunde", "ec617965-88b4-4721-8158-ee36c38e4db3"),
                 Map.of("Zählernummer", "MST-af34569")
@@ -102,7 +102,7 @@ public class CsvParserTest {
     {
         CsvParser parser = new CsvParser();
         CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatFile(CSV_CUSTOMER_CONTENT));
+        parser.setCsvContent(formatter.formatReadingCsv(CSV_CUSTOMER_CONTENT));
         assertFalse(parser.getMetaData().iterator().hasNext(), "Customer CSV should have no metadata");
     }
 }

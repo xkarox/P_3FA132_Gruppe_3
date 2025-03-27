@@ -20,9 +20,20 @@ public class ExportService
         _httpClient = httpClient;
     }
 
-    public async Task<IEnumerable<List<string>>> FormatValues(string csvContent)
+    public async Task<IEnumerable<List<string>>> FormatReadingValues(string csvContent)
     {
-        const string path = "/values";
+        const string path = "/readingValues";
+        var content = new StringContent(csvContent, Encoding.UTF8, "text/plain");
+
+        var response = await _httpClient.PostAsync(CsvUrl + path, content);
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<IEnumerable<List<string>>>() ?? new List<List<string>>();
+    }
+    
+    public async Task<IEnumerable<List<string>>> FormatCustomerValues(string csvContent)
+    {
+        const string path = "/customerValues";
         var content = new StringContent(csvContent, Encoding.UTF8, "text/plain");
 
         var response = await _httpClient.PostAsync(CsvUrl + path, content);
@@ -116,6 +127,15 @@ public class ExportService
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    public async Task<string> ValidateCsv(string csvContent)
+    {
+        const string path = "/validateCsv";
+        var content = new StringContent(csvContent, Encoding.UTF8, "text/plain");
+        var response = await _httpClient.PostAsync(CsvUrl + path, content);
+        response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
     

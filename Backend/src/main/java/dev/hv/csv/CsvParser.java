@@ -33,6 +33,7 @@ public class CsvParser
             return description;
         }
     }
+
     enum LineNumbers
     {
         LINES_UNTIL_VALUES_READING(3),
@@ -61,81 +62,114 @@ public class CsvParser
 
     }
 
-    public void setCsvContent(String csvContent) {
+    public void setCsvContent(String csvContent)
+    {
         this.csvContent = csvContent;
     }
 
-    public Iterable<List<String>> getValues() {
+    public Iterable<List<String>> getReadingValues()
+    {
         List<List<String>> valuesList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
 
-        if (Objects.equals(this.getSeparator(), Separator.CUSTOMER_SEPARATOR.toString())) {
-            if (scanner.hasNextLine()) {
+        while (scanner.hasNextLine())
+        {
+            List<String> header = (List<String>) this.getReadingHeader();
+            if (header.size() >= 3)
+            {
                 scanner.nextLine();
+                break;
             }
 
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                List<String> values = Arrays.stream(line.split(Separator.CUSTOMER_SEPARATOR.toString())).toList();
-                valuesList.add(values);
-            }
-        } else if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString())) {
-            for (int i = 0; i < LineNumbers.LINES_UNTIL_VALUES_READING.getNumber() && scanner.hasNextLine(); i++) {
-                scanner.nextLine();
-            }
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                List<String> values = Arrays.stream(line.split(Separator.READING_SEPARATOR.toString())).toList();
-                valuesList.add(values);
-            }
         }
+        while (scanner.hasNextLine())
+        {
+            String line = scanner.nextLine();
+            List<String> values = Arrays.stream(line.split(Separator.READING_SEPARATOR.toString())).toList();
+            valuesList.add(values);
+        }
+
+        return valuesList;
+    }
+
+    public Iterable<List<String>> getCustomerValues()
+    {
+        List<List<String>> valuesList = new ArrayList<>();
+        Scanner scanner = new Scanner(this.csvContent);
+
+        if (scanner.hasNextLine())
+        {
+            scanner.nextLine();
+        }
+
+        while (scanner.hasNextLine())
+        {
+            String line = scanner.nextLine();
+            List<String> values = Arrays.stream(line.split(Separator.READING_SEPARATOR.toString())).toList();
+            valuesList.add(values);
+        }
+
         return valuesList;
     }
 
 
-    public Iterable<String> getHeader() {
+    public Iterable<String> getReadingHeader()
+    {
         List<String> headerList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
 
-        if (Objects.equals(this.getSeparator(), Separator.CUSTOMER_SEPARATOR.toString())) {
-            if (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] headers = line.split(Separator.CUSTOMER_SEPARATOR.toString());
-                Collections.addAll(headerList, headers);
-            }
-        } else if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString())) {
-            int lineNumber = 0;
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                lineNumber++;
+        String separatorRegex = "^[;,]+$";
+        String line;
 
-                if (lineNumber == LineNumbers.LINES_UNTIL_VALUES_READING.getNumber()) {
-                    line = line.replace("\"", "");
-                    String[] headers = line.split(Separator.READING_SEPARATOR.toString());
-                    Collections.addAll(headerList, headers);
-                    break;
-                }
+        while (scanner.hasNextLine())
+        {
+            line = scanner.nextLine().replace("\"", "");
+            String[] headers = line.split("[;,]");
+            if (headers.length >= 3)
+            {
+                Collections.addAll(headerList, headers);
+                break;
+            }
+            if (!line.matches(separatorRegex))
+            {
+                break;
             }
         }
         return headerList;
     }
 
+    public Iterable<String> getCustomerHeader()
+    {
+        List<String> headerList = new ArrayList<>();
+        Scanner scanner = new Scanner(this.csvContent);
+        if (scanner.hasNextLine())
+        {
+            String line = scanner.nextLine();
+            String[] headers = line.split("[;,]");
+            Collections.addAll(headerList, headers);
+        }
+        return headerList;
+    }
 
-    public Iterable<Map<String, String>> getMetaData() {
+
+    public Iterable<Map<String, String>> getMetaData()
+    {
         List<Map<String, String>> metaDataList = new ArrayList<>();
         int lineCount = 0;
         Scanner scanner = new Scanner(this.csvContent);
 
-        if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString())) {
-            while (scanner.hasNextLine() && lineCount < LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber()) {
+        if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString()))
+        {
+            while (scanner.hasNextLine() && lineCount < LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber())
+            {
                 String line = scanner.nextLine();
                 lineCount++;
 
                 line = line.replace("\"", "");
                 String[] parts = line.split(Separator.READING_SEPARATOR.toString());
 
-                if (parts.length == LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber()) {
+                if (parts.length == LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber())
+                {
                     Map<String, String> dataMap = new HashMap<>();
                     dataMap.put(parts[0], parts[1]);
                     metaDataList.add(dataMap);
@@ -148,6 +182,8 @@ public class CsvParser
 
     public String getSeparator()
     {
+        return ";";
+        /*
         Scanner scanner = new Scanner(this.csvContent);
         if (scanner.hasNextLine()) {
             String line = scanner.nextLine();
@@ -158,6 +194,8 @@ public class CsvParser
             }
         }
         return "";
+
+         */
     }
 
     public String createReadingsCsvFromCustomer(Customer customer) throws SQLException, IOException, ReflectiveOperationException
@@ -167,8 +205,10 @@ public class CsvParser
         String readingValues = "";
         String readingMetaData = "Kunde;" + customer.getId() + "\n" + "Zählernummer;";
         List<Reading> readings = this.rs.getReadingsByCustomerId(customer.getId());
-        for (int i = 0; i < readings.size(); i++) {
-            if (readings.get(i).getDateOfReading() != null) {
+        for (int i = 0; i < readings.size(); i++)
+        {
+            if (readings.get(i).getDateOfReading() != null)
+            {
                 LocalDate date = LocalDate.parse(readings.get(i).getDateOfReading().toString());
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
                 String formattedDate = date.format(formatter);
@@ -177,10 +217,11 @@ public class CsvParser
             readingValues += ";";
             readingValues += readings.get(i).getMeterCount().toString();
             readingValues += ";";
-            if (readings.get(i).getComment() != null) {
+            if (readings.get(i).getComment() != null)
+            {
                 readingValues += readings.get(i).getComment();
-            }
-            else {
+            } else
+            {
                 readingValues += "";
             }
 
@@ -202,15 +243,17 @@ public class CsvParser
         this.cs = ServiceProvider.Services.getCustomerService();
 
         List<Customer> customers = this.cs.getAll();
-        for (int i = 0; i < customers.size(); i++) {
+        for (int i = 0; i < customers.size(); i++)
+        {
             customerValues += customers.get(i).getId() + ";";
             customerValues += customers.get(i).getGender() + ";";
             customerValues += customers.get(i).getFirstName() + ";";
             customerValues += customers.get(i).getLastName() + ";";
-            if (customers.get(i).getBirthDate() != null) {
+            if (customers.get(i).getBirthDate() != null)
+            {
                 customerValues += customers.get(i).getBirthDate() + "\n";
-            }
-            else {
+            } else
+            {
                 customerValues += "\n";
             }
 
@@ -228,78 +271,95 @@ public class CsvParser
 
         List<Reading> allReadings = rs.getAll();
         List<Reading> typeReadings = new ArrayList<>();
-        switch (kindOfMeter) {
+        switch (kindOfMeter)
+        {
             case IReading.KindOfMeter.WASSER:
 
-                for (Reading r : allReadings) {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER) {
+                for (Reading r : allReadings)
+                {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER)
+                    {
                         typeReadings.add(r);
                     }
                 }
                 break;
             case IReading.KindOfMeter.STROM:
 
-                for (Reading r : allReadings) {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.STROM) {
+                for (Reading r : allReadings)
+                {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.STROM)
+                    {
                         typeReadings.add(r);
                     }
                 }
                 break;
             case IReading.KindOfMeter.HEIZUNG:
 
-                for (Reading r : allReadings) {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG) {
+                for (Reading r : allReadings)
+                {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG)
+                    {
                         typeReadings.add(r);
                     }
                 }
                 break;
             case IReading.KindOfMeter.UNBEKANNT:
 
-                for (Reading r : allReadings) {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT) {
+                for (Reading r : allReadings)
+                {
+                    if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT)
+                    {
                         typeReadings.add(r);
                     }
                 }
                 break;
         }
-        for (int i = 0; i < typeReadings.size(); i++) {
-            if (typeReadings.get(i).getDateOfReading() != null) {
+        for (int i = 0; i < typeReadings.size(); i++)
+        {
+            if (typeReadings.get(i).getDateOfReading() != null)
+            {
                 readingValues += typeReadings.get(i).getDateOfReading() + ";";
-            }
-            else {
+            } else
+            {
                 readingValues += ";";
             }
-            if (typeReadings.get(i).getMeterCount() != null) {
+            if (typeReadings.get(i).getMeterCount() != null)
+            {
                 readingValues += typeReadings.get(i).getMeterCount() + ";";
-            }
-            else {
+            } else
+            {
                 readingValues += ";";
             }
-            if(typeReadings.get(i).getComment() != null) {
+            if (typeReadings.get(i).getComment() != null)
+            {
                 readingValues += typeReadings.get(i).getComment() + ";";
-            }
-            else {
+            } else
+            {
                 readingValues += ";";
             }
-            if(typeReadings.get(i).getCustomerId() != null) {
+            if (typeReadings.get(i).getCustomerId() != null)
+            {
                 readingValues += typeReadings.get(i).getCustomerId() + ";";
-            }
-            else {
+            } else
+            {
                 readingValues += ";";
             }
-            if (typeReadings.get(i).getKindOfMeter() != null) {
+            if (typeReadings.get(i).getKindOfMeter() != null)
+            {
                 readingValues += typeReadings.get(i).getKindOfMeter() + ";";
-            }
-            else {
+            } else
+            {
                 readingValues += ";";
             }
-            if (typeReadings.get(i).getMeterId() != null) {
+            if (typeReadings.get(i).getMeterId() != null)
+            {
                 readingValues += typeReadings.get(i).getMeterId() + ";";
-            }
-            else {
+            } else
+            {
                 readingValues += ";";
             }
-            if (typeReadings.get(i).getSubstitute() != null) {
+            if (typeReadings.get(i).getSubstitute() != null)
+            {
                 readingValues += typeReadings.get(i).getSubstitute() + ";\n";
             }
             readingValues = readingValues.replace(',', '.');

@@ -120,7 +120,7 @@ public class CsvFormatterTest
         for (var entry : mockedCustomerData.entrySet())
         {
             String originalContent = entry.getKey();
-            String formattedContent = formatter.formatFile(originalContent);
+            String formattedContent = formatter.formatReadingCsv(originalContent);
             formattedMockedCustomerData.add(formattedContent);
 
             int expectedLines = entry.getValue().get(LineType.LINES_AFTER_FORMAT.toString());
@@ -131,7 +131,7 @@ public class CsvFormatterTest
         for (var entry : mockedReadingData.entrySet())
         {
             String originalContent = entry.getKey();
-            String formattedContent = formatter.formatFile(originalContent);
+            String formattedContent = formatter.formatReadingCsv(originalContent);
             formattedMockedReadingData.add(formattedContent);
 
             int expectedLines = entry.getValue().get(LineType.LINES_AFTER_FORMAT.toString());
