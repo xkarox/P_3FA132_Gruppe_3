@@ -6,6 +6,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.database.services.AuthUserService;
 import dev.hv.database.services.AuthorisationService;
 import dev.hv.database.services.CryptoService;
+import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.Authentification.AuthUserDto;
 import dev.hv.model.classes.Authentification.AuthUser;
 import dev.provider.ServiceProvider;
@@ -84,10 +85,17 @@ public class AuthenticationController
                 logger.info("User id is null");
                 return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
             }
-            if (as.getByUserName(user.getUsername()) != null)
+            if (as.getById(user.getId()) != null)
             {
                 logger.info("User already exists");
                 return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
+            }
+
+            try(CustomerService cs = ServiceProvider.Services.getCustomerService()){
+                if (cs.getById(user.getId()) == null){
+                    logger.info("Customer not found");
+                    return createErrorResponse(Response.Status.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
+                }
             }
 
             AuthUser newAuthInfo = new AuthUser(user);
