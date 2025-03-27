@@ -32,6 +32,25 @@ public class CsvController
 {
 
     @POST
+    @Path("/validate")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response validate(String csvContent) {
+        List<String> errors = validateCsvAgainstSchema(csvContent);
+
+        if (errors.isEmpty()) {
+            return Response.ok("{\"message\": \"CSV ist gültig!\"}").build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"errors\": " + errors.toString() + "}")
+                    .build();
+        }
+    }
+    private List<String> validateCsvAgainstSchema(String csvContent) {
+        return null;
+    }
+
+    @POST
     @Path("/values")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
