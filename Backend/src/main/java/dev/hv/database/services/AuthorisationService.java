@@ -1,6 +1,5 @@
 package dev.hv.database.services;
 
-import dev.hv.model.enums.UserPermissions;
 import dev.hv.model.enums.UserRoles;
 import dev.provider.ServiceProvider;
 import org.slf4j.Logger;

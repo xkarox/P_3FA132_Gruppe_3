@@ -1,11 +1,13 @@
 package dev.hv.model.classes.Authentification;
 
 
+import dev.hv.model.classes.Customer;
 import dev.hv.model.enums.UserPermissions;
 import dev.hv.model.interfaces.IAuthPermissions;
 import dev.hv.model.interfaces.IDbItem;
 import dev.hv.model.interfaces.IFieldInfo;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class AuthUserPermissions implements IAuthPermissions
@@ -65,5 +67,17 @@ public class AuthUserPermissions implements IAuthPermissions
     public void setId(UUID id)
     {
         _id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        AuthUserPermissions item =(AuthUserPermissions) obj;
+
+        return Objects.equals(this.getId(), item.getId())
+                && Objects.equals(this.getPermission(), item.getPermission());
     }
 }

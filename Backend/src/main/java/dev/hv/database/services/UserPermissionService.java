@@ -22,6 +22,8 @@ public class UserPermissionService extends AbstractBaseService<AuthUserPermissio
         super(dbConnection, null, AuthUserPermissions.class);
         try
         {
+            if (!this._dbConnection.getConnection().isClosed())
+                return;
             this._dbConnection.openConnection();
         } catch (IOException | SQLException e)
         {
@@ -68,10 +70,11 @@ public class UserPermissionService extends AbstractBaseService<AuthUserPermissio
             throw new IllegalArgumentException("AuthUserPermissions is null and cannot be inserted.");
 
         String sqlStatement = "Update " + item.getSerializedTableName() +
-                " SET permission = ?, WHERE Id = ?;";
+                " SET permission = ? WHERE id = ?;";
 
         try(PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)){
             stmt.setString(1, String.valueOf(item.getPermission().ordinal()));
+            stmt.setString(2, item.getId().toString());
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
 
