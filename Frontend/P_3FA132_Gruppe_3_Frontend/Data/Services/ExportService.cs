@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.Forms;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services;
@@ -88,7 +89,7 @@ public class ExportService
         return await response.Content.ReadAsStringAsync();
     }
 
-    public async Task<string> CreateAllReadingsCsv()
+    public async Task<string> CreateAllReadingsCsv(KindOfMeter kindOfMeter)
     {
         const string path = "/createAllReadingsCsv";
         var response = await _httpClient.GetAsync(ReadingUrl + path);
@@ -106,7 +107,7 @@ public class ExportService
         return await response.Content.ReadAsStringAsync();
     }
     
-    public async Task<string> CreateAllReadingsJson()
+    public async Task<string> CreateAllReadingsJson(KindOfMeter kindOfMeter)
     {
         const string path = "/createAllReadingsJson";
         var response = await _httpClient.GetAsync(ReadingUrl + path);

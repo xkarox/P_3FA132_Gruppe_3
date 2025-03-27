@@ -2,28 +2,24 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.JSInterop;
-using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using P_3FA132_Gruppe_3_Frontend.Data.Services;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
-public partial class ExportViewModel(CustomerService customerService,
+public partial class ExportViewModel(
     ExportService exportService,
-    ReadingService readingService,
     IJSRuntime jsRuntime) : ViewModelBase
 {
-    
     [ObservableProperty] private char _buttonSelected;
-    [ObservableProperty] private char _kindOfMeterSelected;
     [ObservableProperty] private char _formatSelected;
-    
-    private IEnumerable<Customer>? _customers;
+    [ObservableProperty] private char _kindOfMeterSelected;
+
     public override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        _customers = await customerService.GetAll();
     }
-    
+
     [RelayCommand]
     private async Task Export()
     {
@@ -34,25 +30,91 @@ public partial class ExportViewModel(CustomerService customerService,
             // add type download
             if (FormatSelected.Equals('X'))
             {
-                values = await exportService.CreateAllReadingsXml();
-                fileName = "readings.xml";
+                switch (KindOfMeterSelected)
+                {
+                    case 'H':
+                        values = await exportService.CreateAllReadingsXml();
+                        fileName = "heizung.xml";
+                        break;
+                    case 'W':
+                        values = await exportService.CreateAllReadingsXml();
+                        fileName = "wasser.xml";
+                        break;
+                    case 'S':
+                        values = await exportService.CreateAllReadingsXml();
+                        fileName = "strom.xml";
+                        break;
+                    case 'U':
+                        values = await exportService.CreateAllReadingsXml();
+                        fileName = "unbekannt.xml";
+                        break;
+                }
             }
             else if (FormatSelected.Equals('J'))
             {
-                
+                switch (KindOfMeterSelected)
+                {
+                    case 'H':
+                        values = await exportService.CreateAllReadingsJson(KindOfMeter.HEIZUNG);
+                        fileName = "heizung.json";
+                        break;
+                    case 'W':
+                        values = await exportService.CreateAllReadingsJson(KindOfMeter.WASSER);
+                        fileName = "wasser.json";
+                        break;
+                    case 'S':
+                        values = await exportService.CreateAllReadingsJson(KindOfMeter.STROM);
+                        fileName = "strom.json";
+                        break;
+                    case 'U':
+                        values = await exportService.CreateAllReadingsJson(KindOfMeter.UNBEKANNT);
+                        fileName = "unbekannt.json";
+                        break;
+                }
             }
             else if (FormatSelected.Equals('C'))
             {
-                
+                switch (KindOfMeterSelected)
+                {
+                    case 'H':
+                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.HEIZUNG);
+                        fileName = "heizung.csv";
+                        break;
+                    case 'W':
+                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.WASSER);
+                        fileName = "wasser.csv";
+                        break;
+                    case 'S':
+                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.STROM);
+                        fileName = "strom.csv";
+                        break;
+                    case 'U':
+                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.UNBEKANNT);
+                        fileName = "unbekannt.csv";
+                        break;
+                }
             }
         }
         else if (ButtonSelected.Equals('C'))
         {
-            
+            if (FormatSelected.Equals('X'))
+            {
+                values = await exportService.CreateAllCustomersXml();
+                fileName = "customers.xml";
+            }
+            else if (FormatSelected.Equals('J'))
+            {
+                values = await exportService.CreateAllCustomersJson();
+                fileName = "customers.json";
+            }
+            else if (FormatSelected.Equals('C'))
+            {
+                values = await exportService.CreateAllCustomersCsv();
+                fileName = "customers.csv";
+            }
         }
-        string test = await exportService.CreateReadingCsvFromCustomer(_customers.First());
-        
-        await jsRuntime.InvokeVoidAsync("downloadCsv", test, fileName);
+
+        await jsRuntime.InvokeVoidAsync("DownloadFile", values, fileName);
     }
 
     [RelayCommand]

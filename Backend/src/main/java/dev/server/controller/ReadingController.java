@@ -236,6 +236,7 @@ public class ReadingController {
             Marshaller marshallerObj = objToConvert.createMarshaller();
             marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
+            //System.out.println(test);
             List<Reading> readings = rs.getAll();
             ReadingWrapper readingsWrapper = new ReadingWrapper(readings);
             StringWriter xmlWriter = new StringWriter();

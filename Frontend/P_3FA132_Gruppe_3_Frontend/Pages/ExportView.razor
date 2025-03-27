@@ -1,18 +1,12 @@
 ﻿@page "/ExportView"
-@using CommunityToolkit.Mvvm.ComponentModel
-@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
-@using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ExportViewModel>
-@inject IJSRuntime JSRuntime
-@inject ExportService exportService
-@inject CustomerService customerService
 
 <h3>ExportView</h3>
 
 <div class="buttons">
     <div class="button-row">
         <button class="btn @(ViewModel.ButtonSelected == 'R' ? "selected" : "")" @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync('R')">Reading</button>
-        <button class="btn" @(ViewModel.ButtonSelected == 'C' ? "selected" : "") @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync('C')">Customer</button>
+        <button class="btn @(ViewModel.ButtonSelected == 'C' ? "selected" : "")" @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync('C')">Customer</button>
     </div>
     @if (ViewModel.ButtonSelected.Equals('R'))
     {
@@ -49,92 +43,6 @@
     }
 </div>
 
-
-<!--
-<button @onclick="ExportCustomers">Export all Customers</button>
-<button @onclick="ExportReadings">Export all Readings</button>
--->
-
 @code {
-    [ObservableProperty] private bool csvSelected;
-    [ObservableProperty] private bool jsonSelected;
-    [ObservableProperty] private bool xmlSelected;
-
-
-    private IEnumerable<Customer>? _customers;
-
-    protected override async Task OnInitializedAsync()
-
-    {
-        await base.OnInitializedAsync();
-        _customers = await customerService.GetAll();
-    }
-
-    private async Task ExportCustomers()
-    {
-        if (false)
-        {
-            var values = await exportService.CreateAllCustomersCsv();
-            var fileName = "customers.csv";
-            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
-        }
-
-        if (false)
-        {
-            var values = await exportService.CreateAllCustomersXml();
-            var fileName = "customers.xml";
-            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
-        }
-
-        if (true)
-        {
-            var values = await exportService.CreateAllCustomersJson();
-            var fileName = "customers.json";
-            await JSRuntime.InvokeVoidAsync("DownloadAllCustomersCsv", values, fileName);
-        }
-    }
-
-    private async Task ExportReadings()
-    {
-        if (false)
-        {
-            var values = await exportService.CreateAllReadingsCsv();
-            var fileName = "readings.csv";
-            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName);
-        }
-
-        if (true)
-        {
-            var values = await exportService.CreateAllReadingsXml();
-            var fileName = "readings.xml";
-            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsCsv", values, fileName);
-        }
-        else if (jsonSelected)
-        {
-            var values = await exportService.CreateAllReadingsJson();
-            var fileName = "readings.json";
-            await JSRuntime.InvokeVoidAsync("DownloadAllReadingsJson", values, fileName);
-        }
-    }
-
-    /*
-    private void ButtonSelected(int row, char? button)
-    {
-        switch (row)
-        {
-            case 1:
-                firstRowSelected = true;
-                break;
-            case 2:
-                secondRowSelected = true;
-                break;
-            case 3:
-                thirdRowSelected = true;
-                break;
-        }
-
-    }
-    */
-
-
+    
 }
