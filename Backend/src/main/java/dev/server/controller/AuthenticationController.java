@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
+
 import static dev.hv.Utils.createErrorResponse;
 
 @Path("/auth")
@@ -66,7 +68,6 @@ public class AuthenticationController
 
     @POST
     @Secured
-    @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response register(String userBody) throws JsonProcessingException
@@ -105,24 +106,24 @@ public class AuthenticationController
 
     @DELETE
     @Secured
-    @Path("/delete/{userName}")
+    @Path("/{id]")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("userName") String userName) throws JsonProcessingException
+    public Response delete(@PathParam("id") UUID userId) throws JsonProcessingException
     {
-        logger.info("Received request to delete user: {}", userName);
+        logger.info("Received request to delete user with id: {}", userId);
 
         if (!AuthorisationService.IsUserAdmin())
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
 
         try (AuthUserService as = ServiceProvider.getAuthUserService()){
-            var user = as.getByUserName(userName);
+            var user = as.getById(userId);
             if (user == null){
                 logger.info("User not found");
                 return createErrorResponse(Response.Status.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
 
             as.remove(user);
-            logger.info("User deleted successfully: {}", userName + " " + user.getId());
+            logger.info("User deleted successfully: {}", user.getUsername() + " " + user.getId());
             return Response.status(Response.Status.OK).build();
         } catch (SQLException | ReflectiveOperationException e)
         {
@@ -137,7 +138,6 @@ public class AuthenticationController
 
     @PUT
     @Secured
-    @Path("/update")
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(String userBody) throws JsonProcessingException
     {
@@ -155,7 +155,10 @@ public class AuthenticationController
             }
             as.update(authInfo);
             logger.info("User updated successfully: {}", user);
-            return Response.status(Response.Status.OK).build();
+            return Response.status(Response.Status.OK)
+                    .entity(ResponseMessages.ControllerUpdateSuccess.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         } catch (SQLException | ReflectiveOperationException e){
             logger.error("Error updating user: {}", e.getMessage(), e);
             return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString());
@@ -169,7 +172,6 @@ public class AuthenticationController
 
     @GET
     @Secured
-    @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllUsers() throws JsonProcessingException
     {
