@@ -1,4 +1,6 @@
+@using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inject IJSRuntime JSRuntime
+@inject AuthUserService authenticationService
 
 <nav class="sidebar">
     <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
@@ -6,10 +8,10 @@
     <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
     <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
     <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
-    <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc"/>
+    <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc" />
 </nav>
 
-<AuthComponent Show="@showComp"/>
+<AuthComponent Show="@showComp" LoginCallback="authenticationService.Login" OnSuccessfullLogin="@CallbackFunc"/>
 
 <style>
     .sidebar {

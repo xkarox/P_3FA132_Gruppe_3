@@ -6,8 +6,6 @@
 @inject DatabaseService DatabaseService
 @inject CustomerService CustomerService
 @inject ReadingService ReadingService
-@inject AuthenticationService AuthenticationService
-
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
@@ -21,7 +19,6 @@ Welcome to your new app.
 <button @onclick="GetReading">Get Reading</button>
 <button @onclick="UpdateReading">UpdateReading</button>
 <button @onclick="GetAllCustomers">GetAllCustomers</button>
-<button @onclick="LoginAdmin">Login Admin</button>
 
 @if (!string.IsNullOrEmpty(message))
 {
@@ -149,10 +146,5 @@ Welcome to your new app.
     {
         List<Customer> res = (List<Customer>)await CustomerService.GetAll();
         message = res.Count.ToString();
-    }
-
-    private async Task LoginAdmin()
-    {
-        var lol = await AuthenticationService.Login("admin", "password");
     }
 }

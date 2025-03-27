@@ -2,6 +2,7 @@ using Blazing.Mvvm;
 
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using P_3FA132_Gruppe_3_Frontend;
 using P_3FA132_Gruppe_3_Frontend.Data.Services;
 
@@ -18,7 +19,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<DatabaseService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ReadingService>();
-builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<AuthUserService>();    
 
 builder.Services.AddScoped<UtilityService>();
 
@@ -27,5 +28,6 @@ builder.Services.AddMvvm(options =>
 { 
     options.HostingModelType = BlazorHostingModelType.WebAssembly;
 });
+
 
 await builder.Build().RunAsync();

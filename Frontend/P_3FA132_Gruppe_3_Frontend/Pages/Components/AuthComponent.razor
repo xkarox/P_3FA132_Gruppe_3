@@ -1,3 +1,7 @@
+@using P_3FA132_Gruppe_3_Frontend.Data.Services
+
+
+
 <div class="overlay @(Show ? "visible" : "hidden")"></div>
 <div class="@(Show ? "visible" : "hidden") auth-component">
     <h3>Login</h3>
@@ -60,9 +64,13 @@
         var loginResult = await LoginCallback(Username, Password);
         
         if (!loginResult)
+        {
             ErrorMessage = AuthErrorMessages.LoginFailed;
-
+            return;
+        }
+        
         OnSuccessfullLogin?.Invoke();
+        Show = false;
     }
 
     private Task Close()

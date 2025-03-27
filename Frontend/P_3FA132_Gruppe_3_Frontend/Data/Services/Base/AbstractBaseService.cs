@@ -7,7 +7,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 {
     public abstract class AbstractBaseService
     {
-        private readonly string _baseUrl = "http://localhost:8080";
+        private readonly string _baseUrl = "https://localhost:8080";
         protected readonly Uri _endpointUrl;
         protected readonly HttpClient _httpClient;
 
