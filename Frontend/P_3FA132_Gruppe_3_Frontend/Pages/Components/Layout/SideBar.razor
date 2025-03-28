@@ -11,7 +11,7 @@
     <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc" />
 </nav>
 
-<AuthComponent Show="@showComp" LoginCallback="authenticationService.Login" OnSuccessfullLogin="@CallbackFunc"/>
+<AuthComponent Show="@showComp" LoginCallback="authenticationService.Login"/>
 
 <style>
     .sidebar {
@@ -49,7 +49,6 @@
     public void SetHoverState(bool hoverState)
     {
         _isHovered = hoverState;
-        StateHasChanged();
     }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)

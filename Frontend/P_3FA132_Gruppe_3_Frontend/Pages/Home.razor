@@ -3,6 +3,7 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Pages.Components
+@using Microsoft.AspNetCore.Components.Authorization
 @inject DatabaseService DatabaseService
 @inject CustomerService CustomerService
 @inject ReadingService ReadingService
@@ -11,6 +12,15 @@
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<AuthorizeView>
+    <Authorized>
+        <h1>You are currently authorized</h1>
+    </Authorized>
+    <NotAuthorized>
+        <h1>You are currently not authorized</h1>
+    </NotAuthorized>
+</AuthorizeView>
 
 <button @onclick="SetupDatabase">Delete Data</button>
 <button @onclick="AddCustomer">Add Customer</button>

@@ -1,5 +1,9 @@
+@using BitzArt.Blazor.Cookies
+@using Microsoft.AspNetCore.Components.Authorization
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
-
+@inject AuthenticationStateProvider AuthStateProvider
+@inject AuthUserService AuthUserService
+@inject NavigationManager NavManager
 
 
 <div class="overlay @(Show ? "visible" : "hidden")"></div>
@@ -20,7 +24,7 @@
     {
         <p class="error-message">@ErrorMessage</p>
     }
-    <button id="login-button" @onclick="HandleLogin">
+    <button id="login-button" @onclick="Login">
         Login
     </button>
 
@@ -71,6 +75,30 @@
         
         OnSuccessfullLogin?.Invoke();
         Show = false;
+    }
+
+    private async Task Login()
+    {
+        try
+        {
+            var authStateProvider = (AuthStateProvider)AuthStateProvider;
+            await authStateProvider.LoginAsync(Username, Password);
+            
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                Show = false;
+                NavManager.NavigateTo("/");
+            }
+            else
+            {
+                ErrorMessage = "Invalid username or password";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Login error: {ex.Message}";
+        }
     }
 
     private Task Close()

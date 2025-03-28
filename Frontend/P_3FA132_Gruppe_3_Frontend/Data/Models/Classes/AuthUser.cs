@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using Newtonsoft.Json.Linq;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 using System.Text.Json;
@@ -13,6 +14,17 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
         public UserRole Role { get; set; }
         public List<UserPermissions>? Permissions { get; set; }
 
+
+        public static AuthUser FromClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
+        {
+            return new AuthUser();
+        }
+
+        public ClaimsPrincipal ToClaimsPrincipal()
+        {
+            return new ClaimsPrincipal();
+        }
+        
         public static AuthUser LoadJson(string jsonData, bool loadDefaultroot = true)
         {
             using var document = JsonDocument.Parse(jsonData);

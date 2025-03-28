@@ -5,6 +5,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
         ADMIN,
         USER
     }
+    
     public static class RoleExtensions
     {
         public static UserRole ToRole(this string kindOfMeterString)
