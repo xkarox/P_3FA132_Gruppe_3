@@ -55,7 +55,10 @@ public class AuthenticationController
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
-            return Response.ok().header(HttpHeaders.SET_COOKIE,CryptoService.createTokenCookie(authInfo.getId())).build();
+            return Response.ok()
+                    .header(HttpHeaders.SET_COOKIE,CryptoService.createTokenCookie(authInfo.getId()))
+                    .entity(mapper.writeValueAsString(user))
+                    .build();
         } catch (SQLException | ReflectiveOperationException e)
         {
             logger.info("Error while logging in user: {}", e.getMessage(), e);
