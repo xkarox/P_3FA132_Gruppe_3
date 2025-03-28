@@ -1,6 +1,6 @@
 @page "/ImportView"
+@using System.Globalization
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using P_3FA132_Gruppe_3_Frontend.Data.Models
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ImportViewModel>
 
 <PageTitle>Import</PageTitle>
@@ -19,7 +19,7 @@
         </TemplateColumn>
         <TemplateColumn Context="reading" Title="Meter count">
             <span>
-                @reading.MeterCount
+                  @reading.MeterCount.ToString("F1", CultureInfo.InvariantCulture)
             </span>
         </TemplateColumn>
         <TemplateColumn Context="reading" Title="Comment">

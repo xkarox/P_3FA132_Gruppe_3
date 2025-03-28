@@ -14,6 +14,7 @@ public class ExportService
     private const string CsvUrl = "http://localhost:8080/csv";
     private const string CustomerUrl = "http://localhost:8080/customers";
     private const string ReadingUrl = "http://localhost:8080/readings";
+    private const string ExportUrl = "http://localhost:8080/export";
 
     public ExportService(HttpClient httpClient)
     {
@@ -136,6 +137,33 @@ public class ExportService
         var content = new StringContent(csvContent, Encoding.UTF8, "text/plain");
         var response = await _httpClient.PostAsync(CsvUrl + path, content);
         response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    public async Task<string> ExportFile(string fileContent, string fileType)
+    {
+        const string path = "/exportFile";
+        string contentType;
+
+        switch (fileType.ToLower())
+        {
+            case ".json":
+                contentType = "application/json";
+                break;
+            case ".xml":
+                contentType = "application/xml";
+                break;
+            case ".csv":
+                contentType = "text/plain";
+                break;
+            default:
+                throw new ArgumentException("Unsupported file type. Allowed: json, xml, txt.");
+        }
+        var content = new StringContent(fileContent, Encoding.UTF8, contentType);
+        var response = await _httpClient.PostAsync(ExportUrl + path, content);
+
+        response.EnsureSuccessStatusCode();
+        
         return await response.Content.ReadAsStringAsync();
     }
     
