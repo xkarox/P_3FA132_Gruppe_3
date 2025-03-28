@@ -55,6 +55,8 @@ public class AuthenticationController
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
             }
 
+            authInfo.setPassword(null);
+
             return Response.ok()
                     .header(HttpHeaders.SET_COOKIE,CryptoService.createTokenCookie(authInfo.getId()))
                     .entity(mapper.writeValueAsString(user))
