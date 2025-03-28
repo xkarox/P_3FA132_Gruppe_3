@@ -3,10 +3,7 @@ package dev.server.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.ResponseMessages;
-import dev.hv.database.services.AuthUserService;
-import dev.hv.database.services.AuthorisationService;
-import dev.hv.database.services.CryptoService;
-import dev.hv.database.services.CustomerService;
+import dev.hv.database.services.*;
 import dev.hv.model.classes.Authentification.AuthUserDto;
 import dev.hv.model.classes.Authentification.AuthUser;
 import dev.provider.ServiceProvider;
@@ -56,10 +53,11 @@ public class AuthenticationController
             }
 
             authInfo.setPassword(null);
+            var userDto = new AuthUserDto(authInfo);
 
             return Response.ok()
                     .header(HttpHeaders.SET_COOKIE,CryptoService.createTokenCookie(authInfo.getId()))
-                    .entity(mapper.writeValueAsString(authInfo))
+                    .entity(mapper.writeValueAsString(userDto))
                     .build();
         } catch (SQLException | ReflectiveOperationException e)
         {
