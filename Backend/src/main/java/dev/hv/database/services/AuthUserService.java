@@ -26,6 +26,8 @@ public class AuthUserService extends AbstractBaseService<AuthUser>
         super(dbConnection, null, AuthUser.class);
         try
         {
+            if (!this._dbConnection.getConnection().isClosed())
+                return;
             this._dbConnection.openConnection();
         } catch (IOException | SQLException e)
         {
@@ -72,26 +74,26 @@ public class AuthUserService extends AbstractBaseService<AuthUser>
     }
 
     // ToDo: Why oh why
-    public AuthUser addBlankUser(Customer customer) throws SQLException, ReflectiveOperationException, IOException
-    {
-        if (customer == null)
-            throw new IllegalArgumentException("Customer is null and cannot be inserted.");
-
-        AuthUser item = CreateNewAuthInformation(customer);
-
-        String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
-                " (id, username, password, role) VALUES (?, ?, ?, ?);";
-
-        try(PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)){
-            stmt.setString(1, item.getId().toString());
-            stmt.setString(2, item.getUsername());
-            stmt.setString(3, null);
-            stmt.setString(4, UserRoles.USER.toString());
-            this._dbConnection.executePreparedStatementCommand(stmt, 1);
-        }
-
-        return item;
-    }
+//    public AuthUser addBlankUser(Customer customer) throws SQLException, ReflectiveOperationException, IOException
+//    {
+//        if (customer == null)
+//            throw new IllegalArgumentException("Customer is null and cannot be inserted.");
+//
+//        AuthUser item = CreateNewAuthInformation(customer);
+//
+//        String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
+//                " (id, username, password, role) VALUES (?, ?, ?, ?);";
+//
+//        try(PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)){
+//            stmt.setString(1, item.getId().toString());
+//            stmt.setString(2, item.getUsername());
+//            stmt.setString(3, null);
+//            stmt.setString(4, UserRoles.USER.toString());
+//            this._dbConnection.executePreparedStatementCommand(stmt, 1);
+//        }
+//
+//        return item;
+//    }
 
     @Override
     public AuthUser update(AuthUser item) throws SQLException
@@ -99,16 +101,40 @@ public class AuthUserService extends AbstractBaseService<AuthUser>
         if (item == null)
             throw new IllegalArgumentException("AuthItem is null and cannot be inserted.");
 
-        String sqlStatement = "Update " + item.getSerializedTableName() +
-                " SET username = ?, SET password = ? WHERE Id = ?;";
+        if (item.getPassword() != null)
+            return updateWithPassword(item);
+        else
+            return updateWithoutPassword(item);
+    }
 
-        try(PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)){
+    private AuthUser updateWithPassword(AuthUser item) throws SQLException
+    {
+        String sqlStatement = "Update " + item.getSerializedTableName() +
+                " SET username = ?, password = ? WHERE Id = ?";
+
+        try(PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
+        {
+            var password = CryptoService.hashStringWithSalt(item.getPassword());
             stmt.setString(1, item.getUsername());
-            stmt.setString(2, CryptoService.hashStringWithSalt(item.getPassword()));
+            stmt.setString(2, password);
             stmt.setString(3, item.getId().toString());
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
+            item.setPassword(password);
         }
+        return item;
+    }
 
+    private AuthUser updateWithoutPassword(AuthUser item) throws SQLException
+    {
+        String sqlStatement = "Update " + item.getSerializedTableName() +
+                " SET username = ? WHERE Id = ?;";
+
+        try(PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
+        {
+            stmt.setString(1, item.getUsername());
+            stmt.setString(2, item.getId().toString());
+            this._dbConnection.executePreparedStatementCommand(stmt, 1);
+        }
         return item;
     }
 
@@ -152,6 +178,12 @@ public class AuthUserService extends AbstractBaseService<AuthUser>
     @Override
     public void close() throws SQLException
     {
-        _dbConnection.close();
+        if (this._provider != null)
+        {
+            this._provider.releaseDbConnection(this._dbConnection);
+        }
+        else {
+            this._dbConnection.close();
+        }
     }
 }

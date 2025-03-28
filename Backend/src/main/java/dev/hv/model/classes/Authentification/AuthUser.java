@@ -124,4 +124,18 @@ public class AuthUser implements IAuthUser
     {
         return "authuser";
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        AuthUser item =(AuthUser) obj;
+
+        return Objects.equals(this.getId(), item.getId())
+                && Objects.equals(this.getUsername(), item.getUsername())
+                && Objects.equals(this.getRole(), item.getRole())
+                && Objects.equals(this.getPermissions(), item.getPermissions());
+    }
 }

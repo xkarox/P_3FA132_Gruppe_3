@@ -13,13 +13,13 @@ public class ServiceProvider
 {
     public static InternalServiceProvider Services;
 
-    public static AuthUserService getAuthUserService()
+    public static AuthUserService getAuthUserService() throws SQLException, IOException
     {
-        return new AuthUserService(new DatabaseConnection());
+        return new AuthUserService(Services.getDatabaseConnection(), Services);
     }
     public static UserPermissionService getUserPermissionService() throws SQLException, IOException
     {
-        return new UserPermissionService(Services.getDatabaseConnection());
+        return new UserPermissionService(Services.getDatabaseConnection(), Services);
     }
 
     static {

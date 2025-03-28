@@ -2,7 +2,8 @@ package dev.server.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.hv.ResponseMessages;
-import dev.hv.database.services.AuthorisationService;
+import dev.hv.database.DbHelperService;
+import dev.hv.database.DbTestHelper;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.interfaces.IId;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dev.server.Server;
@@ -85,8 +85,9 @@ public class CustomerControllerTest
     }
 
     @AfterAll
-    static void afterAl()
+    static void afterAl() throws IOException
     {
+        ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.stopServer();
@@ -128,7 +129,7 @@ public class CustomerControllerTest
         String restartServer = System.getenv("SkipServerRestart");
         if (!Objects.equals(restartServer, "True"))
             Server.stopServer();
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
+        ServiceProvider.Services = new InternalServiceProvider(100, 100, 10);
     }
 
     @Test

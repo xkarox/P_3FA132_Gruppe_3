@@ -7,6 +7,7 @@ import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -94,6 +95,9 @@ public class CustomerService extends AbstractBaseService<Customer>
         try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
             if (authUserService.checkIfAuthDatabaseExists())
                 authUserService.remove(new AuthUser(customerId));
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 

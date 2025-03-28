@@ -1,5 +1,6 @@
 package dev.hv.database.services;
 
+import dev.hv.database.DatabaseConnection;
 import dev.hv.model.enums.UserRoles;
 import dev.provider.ServiceProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.slf4j.MDC;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -21,11 +23,17 @@ public class AuthorisationServiceTest
     private MockedStatic<ServiceProvider> mockedServiceProvider;
 
     @BeforeEach
-    public void setUp()
+    public void setUp() throws NoSuchFieldException, IllegalAccessException
     {
         mockAuthUserService = mock(AuthUserService.class);
         mockedServiceProvider = mockStatic(ServiceProvider.class);
         mockedServiceProvider.when(() -> ServiceProvider.getAuthUserService()).thenReturn(mockAuthUserService);
+
+        Class<?> clazz = AuthorisationService.class;
+        Field field = clazz.getDeclaredField("authUserService");
+        field.setAccessible(true);
+        field.set(null, mockAuthUserService);
+
         MDC.clear();
     }
 

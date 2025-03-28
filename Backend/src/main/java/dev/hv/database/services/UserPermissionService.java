@@ -12,9 +12,9 @@ import java.util.UUID;
 
 public class UserPermissionService extends AbstractBaseService<AuthUserPermissions>
 {
-    protected UserPermissionService(DatabaseConnection dbConnection, InternalServiceProvider provider, Class<AuthUserPermissions> type)
+    public UserPermissionService(DatabaseConnection dbConnection, InternalServiceProvider provider)
     {
-        super(dbConnection, provider, type);
+        super(dbConnection, provider, AuthUserPermissions.class);
     }
 
     public UserPermissionService(DatabaseConnection dbConnection)
@@ -42,7 +42,13 @@ public class UserPermissionService extends AbstractBaseService<AuthUserPermissio
     @Override
     public void close() throws SQLException
     {
-        _dbConnection.close();
+        if (this._provider != null)
+        {
+            this._provider.releaseDbConnection(this._dbConnection);
+        }
+        else {
+            this._dbConnection.close();
+        }
     }
 
     @Override

@@ -13,12 +13,28 @@ import java.util.UUID;
 public class AuthorisationService
 {
     private static final Logger logger = LoggerFactory.getLogger(AuthorisationService.class);
+    private static AuthUserService authUserService;
+
+    static
+    {
+        try
+        {
+            authUserService = ServiceProvider.getAuthUserService();
+        } catch (Exception e)
+        {
+            authUserService = null;
+        }
+    }
 
     public static boolean DoesAuthDbExistsWrapper()
     {
-        try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
-            if (!authUserService.checkIfAuthDatabaseExists())
+        try
+        {
+            if (authUserService == null)
                 return false;
+            if (!authUserService.checkIfAuthDatabaseExists()){
+                return false;
+            }
         } catch (SQLException e)
         {
             if(e.getMessage().contains("'homeautomation.authenticationinformation' doesn't exist"))

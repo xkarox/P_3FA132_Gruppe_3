@@ -38,6 +38,7 @@ public class CustomerServiceTest
     @BeforeAll
     static void OneTimeSetup() throws IOException
     {
+        ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         DbTestHelper.LoadTestServiceProvider();
     }
 
