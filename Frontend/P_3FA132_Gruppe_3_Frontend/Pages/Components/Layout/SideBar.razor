@@ -1,4 +1,5 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JSRuntime
 @inject AuthUserService authenticationService
 
@@ -8,7 +9,14 @@
     <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
     <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
     <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
-    <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc" />
+    <AuthorizeView>
+        <Authorized>
+            <SideBarItem Text="Logout" IconName="logout"/>
+        </Authorized>
+        <NotAuthorized>
+            <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc"/>
+        </NotAuthorized>
+    </AuthorizeView>
 </nav>
 
 <AuthComponent Show="@showComp" LoginCallback="authenticationService.Login"/>
