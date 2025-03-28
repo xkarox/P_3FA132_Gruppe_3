@@ -59,7 +59,7 @@ public class AuthenticationController
 
             return Response.ok()
                     .header(HttpHeaders.SET_COOKIE,CryptoService.createTokenCookie(authInfo.getId()))
-                    .entity(mapper.writeValueAsString(user))
+                    .entity(mapper.writeValueAsString(authInfo))
                     .build();
         } catch (SQLException | ReflectiveOperationException e)
         {
