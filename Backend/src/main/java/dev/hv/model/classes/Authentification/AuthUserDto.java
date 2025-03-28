@@ -18,6 +18,15 @@ public class AuthUserDto
     {
     }
 
+    public AuthUserDto(AuthUser user)
+    {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.role = user.getRole();
+        this.permissions = user.getPermissions();
+    }
+
     public String getUsername()
     {
         return username;
