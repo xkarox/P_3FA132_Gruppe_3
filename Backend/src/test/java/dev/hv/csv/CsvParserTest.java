@@ -68,7 +68,7 @@ public class CsvParserTest {
                 List.of("01.02.2018", "5,965"),
                 List.of("01.04.2018", "6,597")
         );
-        assertIterableEquals(expectedValues, parser.getReadingValues());
+        assertIterableEquals(expectedValues, parser.getDefaultReadingValues());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class CsvParserTest {
                 List.of("ec617965-88b4-4721-8158-ee36c38e4db3", "Herr", "Pumukel", "Kobold", "21.02.1962"),
                 List.of("848c39a1-0cbb-427a-ac6f-a88941943dc8", "Herr", "André", "Schöne", "16.02.1928")
         );
-        assertIterableEquals(expectedValues, parser.getReadingValues());
+        assertIterableEquals(expectedValues, parser.getDefaultReadingValues());
     }
 
     @Test

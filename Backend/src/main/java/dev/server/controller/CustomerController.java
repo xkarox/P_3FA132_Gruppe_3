@@ -213,24 +213,6 @@ public class CustomerController {
         }
     }
 
-    @GET
-    @Path("/createAllCustomersCsv")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createAllCustomersCsv() {
-        try {
-            CsvParser parser = new CsvParser();
-            String csvData = parser.createAllCustomerCsv();
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        }
-        catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
-                    .build();
-        }
-    }
 
     @GET
     @Path("/createAllCustomersXml")

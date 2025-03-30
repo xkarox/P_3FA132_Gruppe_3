@@ -89,7 +89,7 @@ public class CsvController
             CsvParser parser = new CsvParser();
             CsvFormatter formatter = new CsvFormatter();
             parser.setCsvContent(formatter.formatReadingCsv(csvContent));
-            Iterable<List<String>> values = parser.getReadingValues();
+            Iterable<List<String>> values = parser.getDefaultReadingValues();
 
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(values);
@@ -195,30 +195,6 @@ public class CsvController
                     .build();
         }
 
-    }
-
-    @POST
-    @Path("/createReadingCsvFromCustomer")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createReadingCsvFromCustomer(String customerJson)
-    {
-        try
-        {
-            customerJson = Utils.unpackFromJsonString(customerJson, Customer.class);
-            CsvParser parser = new CsvParser();
-            Customer customer = Utils.getObjectMapper().readValue(customerJson, Customer.class);
-            String csvData = parser.createReadingsCsvFromCustomer(customer);
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        } catch (Exception e)
-        {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
-                    .build();
-        }
     }
 
 }

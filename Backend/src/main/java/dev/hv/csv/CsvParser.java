@@ -2,6 +2,7 @@ package dev.hv.csv;
 
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
+import dev.hv.model.ICustomer;
 import dev.hv.model.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
@@ -67,20 +68,21 @@ public class CsvParser
         this.csvContent = csvContent;
     }
 
-    public Iterable<List<String>> getReadingValues()
+    public String getCsvContent() {
+        return this.csvContent;
+    }
+
+    public Iterable<List<String>> getDefaultReadingValues()
     {
+        CsvFormatter formatter = new CsvFormatter();
+        setCsvContent(formatter.formatReadingCsv(this.getCsvContent()));
         List<List<String>> valuesList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
 
-        while (scanner.hasNextLine())
-        {
-            List<String> header = (List<String>) this.getReadingHeader();
-            if (header.size() >= 3)
-            {
-                scanner.nextLine();
-                break;
-            }
-
+        int linesToSkip = 3;
+        while (scanner.hasNextLine() && linesToSkip > 0) {
+            scanner.nextLine();
+            linesToSkip--;
         }
         while (scanner.hasNextLine())
         {
@@ -92,8 +94,29 @@ public class CsvParser
         return valuesList;
     }
 
+    public Iterable<List<String>> getCustomReadingValues() {
+        CsvFormatter formatter = new CsvFormatter();
+        setCsvContent(formatter.formatReadingCsv(this.getCsvContent()));
+        List<List<String>> valuesList = new ArrayList<>();
+        Scanner scanner = new Scanner(this.csvContent);
+
+        if (scanner.hasNextLine()) {
+            scanner.nextLine();
+        }
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine(); // Zeile einlesen
+            List<String> values = Arrays.stream(line.split(Separator.READING_SEPARATOR.toString())).toList();
+            valuesList.add(values);
+        }
+        return valuesList;
+
+    }
+
     public Iterable<List<String>> getCustomerValues()
     {
+        CsvFormatter formatter = new CsvFormatter();
+        setCsvContent(formatter.formatCustomerCsv(this.getCsvContent()));
         List<List<String>> valuesList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
 
@@ -115,6 +138,8 @@ public class CsvParser
 
     public Iterable<String> getReadingHeader()
     {
+        CsvFormatter formatter = new CsvFormatter();
+        setCsvContent(formatter.formatReadingCsv(this.getCsvContent()));
         List<String> headerList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
 
@@ -132,7 +157,7 @@ public class CsvParser
             }
             if (!line.matches(separatorRegex))
             {
-                break;
+                scanner.nextLine();
             }
         }
         return headerList;
@@ -140,6 +165,8 @@ public class CsvParser
 
     public Iterable<String> getCustomerHeader()
     {
+        CsvFormatter formatter = new CsvFormatter();
+        setCsvContent(formatter.formatCustomerCsv(this.getCsvContent()));
         List<String> headerList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
         if (scanner.hasNextLine())
@@ -183,84 +210,6 @@ public class CsvParser
     public String getSeparator()
     {
         return ";";
-        /*
-        Scanner scanner = new Scanner(this.csvContent);
-        if (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.contains(Separator.CUSTOMER_SEPARATOR.toString())) {
-                return Separator.CUSTOMER_SEPARATOR.toString();
-            } else if (line.contains(Separator.READING_SEPARATOR.toString())) {
-                return Separator.READING_SEPARATOR.toString();
-            }
-        }
-        return "";
-
-         */
-    }
-
-    public String createReadingsCsvFromCustomer(Customer customer) throws SQLException, IOException, ReflectiveOperationException
-    {
-        this.rs = ServiceProvider.Services.getReadingService();
-
-        String readingValues = "";
-        String readingMetaData = "Kunde;" + customer.getId() + "\n" + "Zählernummer;";
-        List<Reading> readings = this.rs.getReadingsByCustomerId(customer.getId());
-        for (int i = 0; i < readings.size(); i++)
-        {
-            if (readings.get(i).getDateOfReading() != null)
-            {
-                LocalDate date = LocalDate.parse(readings.get(i).getDateOfReading().toString());
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                String formattedDate = date.format(formatter);
-                readingValues += formattedDate;
-            }
-            readingValues += ";";
-            readingValues += readings.get(i).getMeterCount().toString();
-            readingValues += ";";
-            if (readings.get(i).getComment() != null)
-            {
-                readingValues += readings.get(i).getComment();
-            } else
-            {
-                readingValues += "";
-            }
-
-            readingValues += "\n";
-        }
-        readingMetaData += readings.get(0).getMeterId();
-        readingMetaData += "\n";
-
-        String readingHeader = "Datum;Zählerstand in m³;Kommentar\n";
-        String readingCsv = "";
-        readingCsv += readingMetaData + readingHeader + readingValues;
-        return readingCsv;
-    }
-
-    public String createAllCustomerCsv() throws SQLException, IOException, ReflectiveOperationException
-    {
-        String customerHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
-        String customerValues = "";
-        this.cs = ServiceProvider.Services.getCustomerService();
-
-        List<Customer> customers = this.cs.getAll();
-        for (int i = 0; i < customers.size(); i++)
-        {
-            customerValues += customers.get(i).getId() + ";";
-            customerValues += customers.get(i).getGender() + ";";
-            customerValues += customers.get(i).getFirstName() + ";";
-            customerValues += customers.get(i).getLastName() + ";";
-            if (customers.get(i).getBirthDate() != null)
-            {
-                customerValues += customers.get(i).getBirthDate() + "\n";
-            } else
-            {
-                customerValues += "\n";
-            }
-
-        }
-        String customerCsv = "";
-        customerCsv = customerHeader + customerValues;
-        return customerCsv;
     }
 
     public String createReadingsByKindOfMeter(IReading.KindOfMeter kindOfMeter) throws SQLException, IOException, ReflectiveOperationException
@@ -318,7 +267,8 @@ public class CsvParser
         {
             if (typeReadings.get(i).getDateOfReading() != null)
             {
-                readingValues += typeReadings.get(i).getDateOfReading() + ";";
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                readingValues += typeReadings.get(i).getDateOfReading().format(formatter) + ";";
             } else
             {
                 readingValues += ";";
