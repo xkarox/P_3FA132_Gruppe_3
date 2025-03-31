@@ -105,7 +105,7 @@ public class CsvParser
         }
 
         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine(); // Zeile einlesen
+            String line = scanner.nextLine();
             List<String> values = Arrays.stream(line.split(Separator.READING_SEPARATOR.toString())).toList();
             valuesList.add(values);
         }
