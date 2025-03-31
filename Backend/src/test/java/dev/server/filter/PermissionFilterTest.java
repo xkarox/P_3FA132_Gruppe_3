@@ -53,7 +53,7 @@ class PermissionFilterTest
         MDC.clear();
 
         MDC.put("authDbExists", "true");
-        _mockAuth.when(() -> AuthorisationService.IsUserAdmin()).thenReturn(true);
+        _mockAuth.when(AuthorisationService::IsUserAdmin).thenReturn(true);
 
         assertDoesNotThrow(() -> _permissionFilter.filter(null));
 

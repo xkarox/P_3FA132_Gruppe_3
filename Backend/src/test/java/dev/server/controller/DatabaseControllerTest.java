@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
+import dev.hv.database.services.AuthUserService;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.interfaces.ICustomer;
 import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Customer;
@@ -12,9 +14,8 @@ import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.server.Server;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,7 +27,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mockStatic;
 
 public class DatabaseControllerTest
 {
@@ -36,6 +39,15 @@ public class DatabaseControllerTest
     Customer _customer;
     Reading _reading;
     ObjectMapper _objMapper;
+
+    private static MockedStatic<AuthorisationService> _mockAuthorisationService;
+    private InternalServiceProvider _mockedServices;
+    private DatabaseConnection _mockedDbCon;
+    private AuthUserService _mockedAuthUserService;
+    private DatabaseController _dbController;
+    private static MockedStatic<ServiceProvider> _mockedServiceProvider;
+
+
 
     Customer getTestCustomer()
     {
@@ -57,6 +69,19 @@ public class DatabaseControllerTest
         reading.setMeterId("X1D3-ABCD");
         reading.setSubstitute(false);
         return reading;
+    }
+
+    @BeforeAll
+    static void oneTimeSetup()
+    {
+        _mockAuthorisationService = mockStatic(AuthorisationService.class);
+        _mockedServiceProvider = mockStatic(ServiceProvider.class);
+    }
+
+    @AfterAll
+    static void OneTimeTearDown()
+    {
+        _mockAuthorisationService.close();
     }
 
     @BeforeEach
@@ -85,6 +110,10 @@ public class DatabaseControllerTest
         this._customer = this.getTestCustomer();
         this._reading = this.getTestReading();
         this._reading.setCustomer(this._customer);
+
+        this._mockedServices = mock(InternalServiceProvider.class);
+        this._mockedDbCon = mock(DatabaseConnection.class);
+        this._dbController = new DatabaseController();
     }
 
     @AfterEach
@@ -131,5 +160,54 @@ public class DatabaseControllerTest
         when(ServiceProvider.Services.getDatabaseConnection()).thenThrow(new IOException());
         response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 Internal Server Error");
+    }
+
+    @Test
+    void setupDatabaseModNormal() throws SQLException, IOException
+    {
+        _mockAuthorisationService.when(AuthorisationService::CanResourceBeAccessed).thenReturn(true);
+        registerMockedServices();
+        assertEquals(Response.Status.OK.getStatusCode(), _dbController.setupDatabaseMod("", false).getStatus());
+    }
+
+    @Test
+    void setupDatabaseModSecureDefault() throws SQLException, IOException, ReflectiveOperationException
+    {
+        _mockAuthorisationService.when(AuthorisationService::CanResourceBeAccessed).thenReturn(true);
+        registerMockedServices();
+
+        when(_mockedAuthUserService.getByUserName(any())).thenReturn(null);
+        when(_mockedAuthUserService.add(any())).then(null);
+
+
+        var res = _dbController.setupDatabaseMod("", true);
+
+
+
+    }
+
+    @Test
+    void auth() throws IOException, InterruptedException, ReflectiveOperationException, SQLException
+    {
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(false);
+        _mockAuthorisationService.when(AuthorisationService::CanResourceBeAccessed).thenReturn(false);
+
+        DatabaseController dbController = new DatabaseController();
+
+        assertUnauthorized(dbController.setupDatabase());
+        assertUnauthorized(dbController.setupDatabaseMod("", false));
+    }
+
+    private void assertUnauthorized(Response response)
+    {
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    private void registerMockedServices() throws SQLException, IOException
+    {
+        ServiceProvider.Services = _mockedServices;
+        _mockedServiceProvider.when(ServiceProvider::getAuthUserService).thenReturn(_mockedAuthUserService);
+        when(_mockedServices.getDatabaseConnection()).thenReturn(_mockedDbCon);
+
     }
 }

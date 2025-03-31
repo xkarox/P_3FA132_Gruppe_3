@@ -1,6 +1,7 @@
 package dev.server.controller;
 
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.interfaces.IId;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
 import dev.server.Server;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.net.URI;
@@ -50,6 +52,8 @@ public class ReadingControllerTest
     Customer _customer;
     Reading _reading;
     ObjectMapper _objMapper;
+    private static MockedStatic<AuthorisationService> _mockAuthorisationService;
+
 
     Customer getTestCustomer()
     {
@@ -92,14 +96,16 @@ public class ReadingControllerTest
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.startServer("http://localhost:8080/");
+        _mockAuthorisationService = mockStatic(AuthorisationService.class);
     }
 
     @AfterAll
-    static void afterAl()
+    static void afterAll()
     {
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.stopServer();
+        _mockAuthorisationService.close();
     }
 
     @BeforeEach
@@ -617,5 +623,35 @@ public class ReadingControllerTest
 
         assertEquals(500, response.statusCode(), "Returned status code should be 5090 Internal Server Error");
         assertTrue(response.body().contains("Internal Server IOError"));
+    }
+
+    @Test
+    void auth() throws IOException, InterruptedException, ReflectiveOperationException, SQLException
+    {
+        Reading mockReading = mock(Reading.class);
+        ReadingService mockRs = mock(ReadingService.class);
+
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockRs);
+        when(mockRs.getById(any())).thenReturn(mockReading);
+
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(false);
+        _mockAuthorisationService.when(() -> AuthorisationService.CanUserAccessResource(any())).thenReturn(false);
+
+        String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
+
+        ReadingController rs = new ReadingController();
+
+        assertUnauthorized(rs.addReading(jsonString));
+        assertUnauthorized(rs.updateReading(jsonString));
+        assertUnauthorized(rs.getReading(UUID.randomUUID()));
+        assertUnauthorized(rs.deleteReading(UUID.randomUUID()));
+        assertUnauthorized(rs.getReadings(null, null, null, null));
+    }
+
+    private void assertUnauthorized(Response response)
+    {
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 }

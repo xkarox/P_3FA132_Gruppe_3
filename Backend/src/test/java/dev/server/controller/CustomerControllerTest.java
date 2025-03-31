@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dev.hv.ResponseMessages;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.DbTestHelper;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.interfaces.IId;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dev.server.Server;
@@ -35,6 +37,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.Provider;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -53,6 +56,7 @@ public class CustomerControllerTest
     private HttpClient _httpClient;
     private Customer _customer;
     private ObjectMapper _objMapper;
+    private static MockedStatic<AuthorisationService> _mockAuthorisationService;
 
 
     Customer getTestCustomer()
@@ -82,15 +86,18 @@ public class CustomerControllerTest
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.startServer(" ");
+        _mockAuthorisationService = mockStatic(AuthorisationService.class);
     }
 
     @AfterAll
-    static void afterAl() throws IOException
+    static void afterAll() throws IOException
     {
         ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.stopServer();
+
+        _mockAuthorisationService.close();
     }
 
 
@@ -557,7 +564,6 @@ public class CustomerControllerTest
     @Test
     void deleteCustomerByIdThrowsException() throws SQLException, IOException, InterruptedException, ReflectiveOperationException
     {
-
         UUID id = UUID.randomUUID();
         String url = _url + "/" + id;
 
@@ -580,5 +586,37 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 internal server error");
 
+    }
+
+    @Test
+    void auth() throws IOException, InterruptedException, ReflectiveOperationException, SQLException
+    {
+        Customer mockCustomer = mock(Customer.class);
+
+        CustomerService mockedCs = mock(CustomerService.class);
+
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        when(mockedInternalServiceProvider.getCustomerService()).thenReturn(mockedCs);
+        when(mockedCs.getById(any())).thenReturn(mockCustomer);
+
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(false);
+        _mockAuthorisationService.when(() -> AuthorisationService.CanUserAccessResource(any())).thenReturn(false);
+
+
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
+
+        CustomerController cs = new CustomerController();
+
+        assertUnauthorized(cs.addCustomer(jsonString));
+        assertUnauthorized(cs.getCustomer(UUID.randomUUID()));
+        assertUnauthorized(cs.getCustomers());
+        assertUnauthorized(cs.updateCustomer(jsonString));
+        assertUnauthorized(cs.deleteCustomer(UUID.randomUUID()));
+    }
+
+    private void assertUnauthorized(Response response)
+    {
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 }
