@@ -165,8 +165,6 @@ public class ExportController
 
     private String handleCsv(String csvContent) throws IOException, SQLException, ReflectiveOperationException
     {
-        CustomerService cs = ServiceProvider.Services.getCustomerService();
-
         boolean isDefaultReading = false;
         boolean isCustomReading = false;
         boolean isCustomer = false;
@@ -185,7 +183,6 @@ public class ExportController
 
 
         CsvParser parser = new CsvParser();
-        CsvFormatter formatter = new CsvFormatter();
         parser.setCsvContent(csvContent);
         List<String> csvCustomerHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomerHeader());
 
@@ -211,159 +208,19 @@ public class ExportController
             isCustomReading = true;
         }
         if (isDefaultReading) {
-            List<Reading> readings = new ArrayList<>();
-            Iterable<List<String>> defaultReadingValues = parser.getDefaultReadingValues();
-            Iterable<Map<String, String>> metaData = parser.getMetaData();
-            String meterId = "";
 
-            Iterator<Map<String, String>> iterator = metaData.iterator();
-            Map<String, String> customerMetadata = new HashMap<>();
-            Map<String, String> meterIdMetaData = new HashMap<>();
+            List<Reading> readings = parser.createDefaultReadingsFromCsv(heat, water, electricity);
 
-            if (iterator.hasNext()) {
-                customerMetadata = iterator.next();
-
-            }
-
-            if (iterator.hasNext()) {
-                meterIdMetaData = iterator.next();
-                meterId = meterIdMetaData.get("Zählernummer");
-
-            }
-
-            for (List<String> defaultReadingList : defaultReadingValues) {
-                Reading reading = new Reading();
-                reading.setCustomer(cs.getById(UUID.fromString(customerMetadata.get("Kunde"))));
-                reading.setMeterId(meterIdMetaData.get("Zählernummer"));
-                reading.setSubstitute(false);
-
-                if (defaultReadingList.size() > 0)
-                {
-                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                    reading.setDateOfReading(LocalDate.parse(defaultReadingList.getFirst(), dateTimeFormatter));
-                }
-                if (defaultReadingList.size() > 1) {
-                    if (water) {
-                        reading.setKindOfMeter(IReading.KindOfMeter.WASSER);
-                    }
-                    else if (heat) {
-                        reading.setKindOfMeter(IReading.KindOfMeter.HEIZUNG);
-                    }
-                    else if (electricity) {
-                        reading.setKindOfMeter(IReading.KindOfMeter.STROM);
-                    }
-                    else {
-                        reading.setKindOfMeter(IReading.KindOfMeter.UNBEKANNT);
-                    }
-                    reading.setMeterCount(Double.parseDouble(defaultReadingList.get(1)));
-                }
-                if (defaultReadingList.size() > 2)
-                {
-                    Pattern pattern = Pattern.compile("Nummer\\s+(\\S+)");
-                    Matcher matcher = pattern.matcher(defaultReadingList.get(2));
-
-                    if (matcher.find()) {
-                        meterId = matcher.group(1);
-                    }
-
-                    reading.setComment(defaultReadingList.get(2));
-                }
-                reading.setMeterId(meterId);
-                readings.add(reading);
-            }
             return Utils.packIntoJsonString(readings, Reading.class);
         }
         else if (isCustomReading) {
-            List<Reading> readings = new ArrayList<>();
-            Iterable<List<String>> customReadingValues = parser.getCustomReadingValues();
-
-            for (List<String> customReadingList : customReadingValues) {
-                Reading reading = new Reading();
-
-                if (customReadingList.size() > 0) {
-                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                    reading.setDateOfReading(LocalDate.parse(customReadingList.getFirst(), dateTimeFormatter));
-                }
-                if (customReadingList.size() > 1) {
-                    reading.setMeterCount(Double.parseDouble(customReadingList.get(1)));
-                }
-                if (customReadingList.size() > 2) {
-                    reading.setComment(customReadingList.get(2));
-                }
-                if (customReadingList.size() > 3) {
-                    reading.setCustomer(cs.getById(UUID.fromString(customReadingList.get(3))));
-                }
-                if (customReadingList.size() > 4) {
-                    switch (customReadingList.get(4)) {
-                        case "STROM":
-                            reading.setKindOfMeter(IReading.KindOfMeter.STROM);
-                            break;
-                        case "HEIZUNG":
-                            reading.setKindOfMeter(IReading.KindOfMeter.HEIZUNG);
-                            break;
-                        case "WASSER":
-                            reading.setKindOfMeter(IReading.KindOfMeter.WASSER);
-                            break;
-                        default:
-                            reading.setKindOfMeter(IReading.KindOfMeter.UNBEKANNT);
-                            break;
-                    }
-                }
-                if (customReadingList.size() > 5) {
-                    reading.setMeterId(customReadingList.get(5));
-                }
-                if (customReadingList.size() > 6) {
-                    reading.setSubstitute(Boolean.parseBoolean(customReadingList.get(5)));
-                }
-                readings.add(reading);
-            }
+            List<Reading> readings = parser.createCustomReadingsFromCsv();
             return Utils.packIntoJsonString(readings, Reading.class);
         }
 
         if (isCustomer)
         {
-            List<Customer> customers = new ArrayList<>();
-            Iterable<List<String>> customerValues = parser.getCustomerValues();
-            for (List<String> customerList : customerValues)
-            {
-                Customer customer = new Customer();
-                if (customerList.size() > 0)
-                {
-                    customer.setId(UUID.fromString(customerList.getFirst()));
-                }
-                if (customerList.size() > 1)
-                {
-                    switch(customerList.get(1)) {
-                        case "Herr":
-                            customer.setGender(ICustomer.Gender.M);
-                            break;
-                        case "Frau":
-                            customer.setGender(ICustomer.Gender.W);
-                            break;
-                        case "k.A.":
-                            customer.setGender(ICustomer.Gender.U);
-                            break;
-                    }
-                }
-                if (customerList.size() > 2)
-                {
-                    customer.setFirstName(customerList.get(2));
-                }
-                if (customerList.size() > 3)
-                {
-                    customer.setLastName(customerList.get(3));
-                }
-                if (customerList.size() > 4)
-                {
-                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                    customer.setBirthDate(LocalDate.parse(customerList.get(4), dateTimeFormatter));
-                } else
-                {
-                    customer.setBirthDate(null);
-                }
-
-                customers.add(customer);
-            }
+            List<Customer> customers = parser.createCustomerFromCsv();
             return Utils.packIntoJsonString(customers, Customer.class);
         }
 

@@ -18,7 +18,6 @@ public class JerseyConfig extends ResourceConfig
         register(CustomerController.class);
         register(ReadingController.class);
         register(DatabaseController.class);
-        register(CsvController.class);
         register(ExportController.class);
 
         // Register filter
