@@ -2,24 +2,29 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using BitzArt.Blazor.Cookies;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Newtonsoft.Json;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Authentication;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 
-public class UserService
+public class UserAuthService
 {
     private readonly HttpClient _httpClient;
     private readonly ICookieService _cookieService;
     private readonly AuthenticatedUserStorage _authUserStore;
+    private readonly NavigationManager _navigationManager;
     
-    public UserService(IHttpClientFactory httpClientFactory, 
+    public UserAuthService(IHttpClientFactory httpClientFactory, 
         ICookieService cookieService,
-        AuthenticatedUserStorage authUserStore)
+        AuthenticatedUserStorage authUserStore,
+        NavigationManager navigationManager)
     {
         _httpClient = httpClientFactory.CreateClient("AuthApi");
         _cookieService = cookieService;
         _authUserStore = authUserStore;
+        _navigationManager = navigationManager;
     }
     
     public async Task<AuthUser?> SendAuthenticateRequestAsync(string username, string password)
@@ -69,9 +74,10 @@ public class UserService
         return await _cookieService.GetAsync("jwt-token");
     }
     
-    private async Task DeleteJwtToken()
+    public async Task Logout()
     {
         await _cookieService.RemoveAsync("jwt-token");
         _authUserStore.Clear();
+        _navigationManager.NavigateTo("/");
     }
 }

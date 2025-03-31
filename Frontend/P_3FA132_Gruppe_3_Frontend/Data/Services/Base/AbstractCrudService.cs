@@ -5,7 +5,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 {
     public class AbstractCrudService<T> : AbstractBaseService where T : IBaseClass<T>
     {
-        public AbstractCrudService(HttpClient httpClient, string endpointUrl) : base(httpClient, endpointUrl)
+        public AbstractCrudService(IHttpClientFactory httpClientFactory, string endpointUrl) : base(httpClientFactory, endpointUrl)
         {
         }
 

@@ -1,7 +1,7 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JSRuntime
-@inject AuthUserService authenticationService
+@inject UserAuthService UserAuthService
 
 <nav class="sidebar">
     <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
@@ -10,16 +10,16 @@
     <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
     <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
     <AuthorizeView>
-        <Authorized>
-            <SideBarItem Text="Logout" IconName="logout"/>
-        </Authorized>
         <NotAuthorized>
             <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc"/>
         </NotAuthorized>
+        <Authorized>
+            <SideBarItem Text="Logout" IconName="logout" OnClickFunc="() => UserAuthService.Logout()"/>
+        </Authorized>
     </AuthorizeView>
 </nav>
 
-<AuthComponent Show="@showComp" LoginCallback="authenticationService.Login"/>
+<AuthComponent Show="@showComp" LoginCallback="UserAuthService.SendAuthenticateRequestAsync"/>
 
 <style>
     .sidebar {
@@ -66,6 +66,12 @@
             _dotNetRef = DotNetObjectReference.Create(this);
             await JSRuntime.InvokeVoidAsync("initializeSidebar", _dotNetRef);
         }
+    }
+
+    public async void Logout()
+    {
+        await UserAuthService.Logout();
+        StateHasChanged();
     }
 
     public void Dispose()

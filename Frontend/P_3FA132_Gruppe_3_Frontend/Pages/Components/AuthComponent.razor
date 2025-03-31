@@ -1,8 +1,8 @@
 @using BitzArt.Blazor.Cookies
 @using Microsoft.AspNetCore.Components.Authorization
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inject AuthenticationStateProvider AuthStateProvider
-@inject AuthUserService AuthUserService
 @inject NavigationManager NavManager
 
 
@@ -41,7 +41,7 @@
 
     [Parameter] public bool Show { get; set; } = false;
     [Parameter] public Func<Task>? OnSuccessfullLogin { get; set; }
-    [Parameter] public Func<string, string, Task<bool>>? LoginCallback { get; set; }
+    [Parameter] public Func<string, string, Task<AuthUser?>>? LoginCallback { get; set; }
 
     static class AuthErrorMessages
     {
@@ -67,7 +67,7 @@
             return;
         var loginResult = await LoginCallback(Username, Password);
         
-        if (!loginResult)
+        if (loginResult == null)
         {
             ErrorMessage = AuthErrorMessages.LoginFailed;
             return;

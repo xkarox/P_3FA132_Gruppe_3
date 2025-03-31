@@ -6,9 +6,9 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services
 {
     public class DatabaseService : AbstractBaseService
     {
-        public DatabaseService(HttpClient httpClient) : base(httpClient, "setupDB")
+        public DatabaseService(IHttpClientFactory httpClientFactory) 
+            : base(httpClientFactory, "setupDB")
         {
-            
         }
 
         public async Task<HttpStatusCode> SetupDatabase()

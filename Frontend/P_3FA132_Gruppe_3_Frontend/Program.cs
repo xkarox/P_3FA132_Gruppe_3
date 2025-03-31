@@ -12,16 +12,17 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-// Register HttpClient
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddAuthorizationCore();
 
 // Register Services for singelton use
+builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+builder.Services.AddScoped<UserAuthService>();
+builder.Services.AddScoped<JwtAuthorizationMessageHandler>();
+builder.Services.AddScoped<AuthenticatedUserStorage>();
+
 builder.Services.AddScoped<DatabaseService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ReadingService>();
-builder.Services.AddScoped<AuthUserService>();    
 
 builder.Services.AddScoped<UtilityService>();
 
@@ -34,18 +35,15 @@ builder.Services.AddMvvm(options =>
 builder.AddBlazorCookies();
 
 builder.Services.AddOptions();
-builder.Services.AddAuthorizationCore();
 
-builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<JwtAuthorizationMessageHandler>();
-builder.Services.AddScoped<AuthenticatedUserStorage>();
+const string baseURL = "http://localhost:8080/";
 
 builder.Services.AddHttpClient("AuthApi", client => 
     {
-        client.BaseAddress = new Uri("https://localhost:8080/");
+        client.BaseAddress = new Uri(baseURL);
     })
     .AddHttpMessageHandler<JwtAuthorizationMessageHandler>();
 
+builder.Services.AddScoped(sp => new HttpClient(new JwtAuthorizationMessageHandler()) { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 await builder.Build().RunAsync();
