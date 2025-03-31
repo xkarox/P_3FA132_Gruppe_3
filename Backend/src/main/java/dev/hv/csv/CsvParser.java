@@ -323,6 +323,7 @@ public class CsvParser
 
     public List<Reading> createDefaultReadingsFromCsv(boolean heat, boolean water, boolean electricity) throws ReflectiveOperationException, SQLException, IOException
     {
+        this.cs = ServiceProvider.Services.getCustomerService();
         List<Reading> readings = new ArrayList<>();
         Iterable<List<String>> defaultReadingValues = getDefaultReadingValues();
         Iterable<Map<String, String>> metaData = getMetaData();
