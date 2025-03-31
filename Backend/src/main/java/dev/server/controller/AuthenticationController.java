@@ -208,7 +208,7 @@ public class AuthenticationController
                     .build();
         } catch (SQLException | ReflectiveOperationException e){
             logger.error("Error retrieving users: {}", e.getMessage(), e);
-            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+            return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerInternalError.toString());
         } catch (IOException e){
             logger.info("Internal server error: {}", e.getMessage(), e);
             return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());

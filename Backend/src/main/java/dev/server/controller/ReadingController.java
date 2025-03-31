@@ -31,7 +31,7 @@ public class ReadingController {
 
     private Response validateRequestData(String jsonString) throws JsonProcessingException {
         logger.debug("Validating request data: {}", jsonString);
-        boolean invalidReading = ReadingJsonSchemaValidationService.getInstance().validate(jsonString);
+        boolean invalidReading = ReadingJsonSchemaValidationService.getInstance().validate(jsonString); // ToDo: Doesn't do shit, can insert any thing
         if (invalidReading) {
             logger.warn("Invalid reading data: {}", jsonString);
             return createErrorResponse(Response.Status.BAD_REQUEST,

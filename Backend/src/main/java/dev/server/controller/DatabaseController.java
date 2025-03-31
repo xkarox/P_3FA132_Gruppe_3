@@ -82,6 +82,7 @@ public class DatabaseController {
                 {
                     AuthUserDto user;
                     if (!Objects.equals(userBody, ""))
+                        // Could be a normal user, then we have no admin user
                         user = mapper.readValue(userBody, AuthUserDto.class);
                     else {
                         var properties = DbHelperService.loadProperties();

@@ -3,18 +3,14 @@ package dev.server.filter;
 import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.enums.UserPermissions;
 import dev.server.Annotations.Secured;
-import dev.server.controller.CustomerController;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Provider
