@@ -1,5 +1,6 @@
 package dev.hv.csv;
 
+import dev.hv.Serializer;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.ICustomer;
@@ -20,8 +21,7 @@ public class CsvParser
 {
     enum Separator
     {
-        READING_SEPARATOR(";"),
-        CUSTOMER_SEPARATOR(",");
+        READING_SEPARATOR(";");
 
         private final String description;
 
@@ -39,8 +39,6 @@ public class CsvParser
 
     enum LineNumbers
     {
-        LINES_UNTIL_VALUES_READING(3),
-        LINES_UNTIL_VALUES_CUSTOMER(1),
         METADATA_READING_NUMBER_OF_VALUES(2);
 
         private final int number;
@@ -211,119 +209,36 @@ public class CsvParser
 
     public String getSeparator()
     {
-        return ";";
+        return Separator.READING_SEPARATOR.toString();
     }
 
     public String createReadingsByKindOfMeter(IReading.KindOfMeter kindOfMeter) throws SQLException, IOException, ReflectiveOperationException
     {
         String readingHeader = "Datum;Zählerstand;Kommentar;KundenId;Zählerart;ZählerstandId;Ersatz\n";
-        String readingValues = "";
         this.rs = ServiceProvider.Services.getReadingService();
 
         List<Reading> allReadings = rs.getAll();
-        List<Reading> typeReadings = new ArrayList<>();
-        switch (kindOfMeter)
-        {
-            case IReading.KindOfMeter.WASSER:
+        List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
 
-                for (Reading r : allReadings)
-                {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER)
-                    {
-                        typeReadings.add(r);
-                    }
-                }
-                break;
-            case IReading.KindOfMeter.STROM:
+        String readingCsv = Serializer.serializeIntoCsv(typeReadings);
 
-                for (Reading r : allReadings)
-                {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.STROM)
-                    {
-                        typeReadings.add(r);
-                    }
-                }
-                break;
-            case IReading.KindOfMeter.HEIZUNG:
+        return readingHeader + readingCsv;
+    }
 
-                for (Reading r : allReadings)
-                {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG)
-                    {
-                        typeReadings.add(r);
-                    }
-                }
-                break;
-            case IReading.KindOfMeter.UNBEKANNT:
+    public String createAllCustomerCsv() throws SQLException, IOException, ReflectiveOperationException
+    {
+        String customerHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
+        this.cs = ServiceProvider.Services.getCustomerService();
 
-                for (Reading r : allReadings)
-                {
-                    if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT)
-                    {
-                        typeReadings.add(r);
-                    }
-                }
-                break;
-        }
-        for (int i = 0; i < typeReadings.size(); i++)
-        {
-            if (typeReadings.get(i).getDateOfReading() != null)
-            {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                readingValues += typeReadings.get(i).getDateOfReading().format(formatter) + ";";
-            } else
-            {
-                readingValues += ";";
-            }
-            if (typeReadings.get(i).getMeterCount() != null)
-            {
-                readingValues += typeReadings.get(i).getMeterCount() + ";";
-            } else
-            {
-                readingValues += ";";
-            }
-            if (typeReadings.get(i).getComment() != null)
-            {
-                readingValues += typeReadings.get(i).getComment() + ";";
-            } else
-            {
-                readingValues += ";";
-            }
-            if (typeReadings.get(i).getCustomerId() != null)
-            {
-                readingValues += typeReadings.get(i).getCustomerId() + ";";
-            } else
-            {
-                readingValues += ";";
-            }
-            if (typeReadings.get(i).getKindOfMeter() != null)
-            {
-                readingValues += typeReadings.get(i).getKindOfMeter() + ";";
-            } else
-            {
-                readingValues += ";";
-            }
-            if (typeReadings.get(i).getMeterId() != null)
-            {
-                readingValues += typeReadings.get(i).getMeterId() + ";";
-            } else
-            {
-                readingValues += ";";
-            }
-            if (typeReadings.get(i).getSubstitute() != null)
-            {
-                readingValues += typeReadings.get(i).getSubstitute() + ";\n";
-            }
-            readingValues = readingValues.replace(',', '.');
-        }
-        String readingCsv = "";
-        readingCsv = readingHeader + readingValues;
-        return readingCsv;
+        List<Customer> customers = this.cs.getAll();
+        String customerCsv = Serializer.serializeIntoCsv(customers);
+
+        return customerHeader + customerCsv;
     }
 
     public List<Reading> createDefaultReadingsFromCsv(boolean heat, boolean water, boolean electricity) throws ReflectiveOperationException, SQLException, IOException
     {
-        this.cs = ServiceProvider.Services.getCustomerService();
+        CustomerService cs = ServiceProvider.Services.getCustomerService();
         List<Reading> readings = new ArrayList<>();
         Iterable<List<String>> defaultReadingValues = getDefaultReadingValues();
         Iterable<Map<String, String>> metaData = getMetaData();
@@ -435,9 +350,11 @@ public class CsvParser
         return readings;
     }
 
-    public List<Customer> createCustomerFromCsv() {
+    public List<Customer> createCustomerFromCsv() throws IOException
+    {
+        CsvParser parser = new CsvParser();
         List<Customer> customers = new ArrayList<>();
-        Iterable<List<String>> customerValues = getCustomerValues();
+        Iterable<List<String>> customerValues = parser.getCustomerValues();
         for (List<String> customerList : customerValues)
         {
             Customer customer = new Customer();
@@ -480,32 +397,4 @@ public class CsvParser
         }
         return customers;
     }
-
-    public String createAllCustomerCsv() throws SQLException, IOException, ReflectiveOperationException
-    {
-        String customerHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
-        String customerValues = "";
-        this.cs = ServiceProvider.Services.getCustomerService();
-
-        List<Customer> customers = this.cs.getAll();
-        for (int i = 0; i < customers.size(); i++)
-        {
-            customerValues += customers.get(i).getId() + ";";
-            customerValues += customers.get(i).getGender() + ";";
-            customerValues += customers.get(i).getFirstName() + ";";
-            customerValues += customers.get(i).getLastName() + ";";
-            if (customers.get(i).getBirthDate() != null)
-            {
-                customerValues += customers.get(i).getBirthDate() + "\n";
-            } else
-            {
-                customerValues += "\n";
-            }
-
-        }
-        String customerCsv = "";
-        customerCsv = customerHeader + customerValues;
-        return customerCsv;
-    }
-
 }

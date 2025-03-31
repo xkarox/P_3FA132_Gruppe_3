@@ -20,60 +20,36 @@ public class ExportService
         _httpClient = httpClient;
     }
 
-    public async Task<string> CreateAllCustomersCsv()
+    public async Task<string> CreateAllCustomers(string fileType)
     {
-        const string path = "/createAllCustomersCsv";
-        var response = await _httpClient.GetAsync(CustomerUrl + path);
-        response.EnsureSuccessStatusCode();
+        if (fileType.Equals("json"))
+        {
+            var response = await _httpClient.GetAsync(CustomerUrl);
+            response.EnsureSuccessStatusCode();
         
-        return await response.Content.ReadAsStringAsync();
-    }
+            return await response.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            const string path = "/getCustomersFileData";
+            var url = $"{CustomerUrl}{path}?fileType={fileType.ToLower()}";
 
-    public async Task<string> CreateAllCustomersXml()
-    {
-        const string path = "/createAllCustomersXml";
-        var response = await _httpClient.GetAsync(CustomerUrl + path);
-        response.EnsureSuccessStatusCode();
-        
-        return await response.Content.ReadAsStringAsync();
-    }
-    
-    public async Task<string> CreateAllCustomersJson()
-    {
-        const string path = "/getCustomers";
-        var response = await _httpClient.GetAsync(CustomerUrl + path);
-        response.EnsureSuccessStatusCode();
-        
-        return await response.Content.ReadAsStringAsync();
-    }
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
 
-    public async Task<string> CreateAllReadingsCsv(KindOfMeter kindOfMeter)
-    {
-        const string path = "/createAllReadingsCsv";
-        var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}";
-        var response = await _httpClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
         
-        return await response.Content.ReadAsStringAsync();
     }
     
-    public async Task<string> CreateAllReadingsXml(KindOfMeter kindOfMeter)
+    public async Task<string> CreateAllReadings(KindOfMeter kindOfMeter, string fileType)
     {
-        const string path = "/createAllReadingsXml";
-        var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}";
+        const string path = "/getReadingsFileData";
+        var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}&fileType={fileType.ToLower()}";
+
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
-        
-        return await response.Content.ReadAsStringAsync();
-    }
-    
-    public async Task<string> CreateAllReadingsJson(KindOfMeter kindOfMeter)
-    {
-        const string path = "/createAllReadingsJson";
-        var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}";
-        var response = await _httpClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
-        
+
         return await response.Content.ReadAsStringAsync();
     }
 

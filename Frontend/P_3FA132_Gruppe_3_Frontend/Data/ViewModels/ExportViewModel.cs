@@ -32,19 +32,19 @@ public partial class ExportViewModel(
                 switch (KindOfMeterSelected)
                 {
                     case 'H':
-                        values = await exportService.CreateAllReadingsXml(KindOfMeter.HEIZUNG);
+                        values = await exportService.CreateAllReadings(KindOfMeter.HEIZUNG, "xml");
                         fileName = "heizung.xml";
                         break;
                     case 'W':
-                        values = await exportService.CreateAllReadingsXml(KindOfMeter.WASSER);
+                        values = await exportService.CreateAllReadings(KindOfMeter.WASSER, "xml");
                         fileName = "wasser.xml";
                         break;
                     case 'S':
-                        values = await exportService.CreateAllReadingsXml(KindOfMeter.STROM);
+                        values = await exportService.CreateAllReadings(KindOfMeter.STROM, "xml");
                         fileName = "strom.xml";
                         break;
                     case 'U':
-                        values = await exportService.CreateAllReadingsXml(KindOfMeter.UNBEKANNT);
+                        values = await exportService.CreateAllReadings(KindOfMeter.UNBEKANNT, "xml");
                         fileName = "unbekannt.xml";
                         break;
                 }
@@ -54,19 +54,19 @@ public partial class ExportViewModel(
                 switch (KindOfMeterSelected)
                 {
                     case 'H':
-                        values = await exportService.CreateAllReadingsJson(KindOfMeter.HEIZUNG);
+                        values = await exportService.CreateAllReadings(KindOfMeter.HEIZUNG, "json");
                         fileName = "heizung.json";
                         break;
                     case 'W':
-                        values = await exportService.CreateAllReadingsJson(KindOfMeter.WASSER);
+                        values = await exportService.CreateAllReadings(KindOfMeter.WASSER, "json");
                         fileName = "wasser.json";
                         break;
                     case 'S':
-                        values = await exportService.CreateAllReadingsJson(KindOfMeter.STROM);
+                        values = await exportService.CreateAllReadings(KindOfMeter.STROM, "json");
                         fileName = "strom.json";
                         break;
                     case 'U':
-                        values = await exportService.CreateAllReadingsJson(KindOfMeter.UNBEKANNT);
+                        values = await exportService.CreateAllReadings(KindOfMeter.UNBEKANNT, "json");
                         fileName = "unbekannt.json";
                         break;
                 }
@@ -76,19 +76,19 @@ public partial class ExportViewModel(
                 switch (KindOfMeterSelected)
                 {
                     case 'H':
-                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.HEIZUNG);
+                        values = await exportService.CreateAllReadings(KindOfMeter.HEIZUNG, "csv");
                         fileName = "heizung.csv";
                         break;
                     case 'W':
-                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.WASSER);
+                        values = await exportService.CreateAllReadings(KindOfMeter.WASSER, "csv");
                         fileName = "wasser.csv";
                         break;
                     case 'S':
-                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.STROM);
+                        values = await exportService.CreateAllReadings(KindOfMeter.STROM, "csv");
                         fileName = "strom.csv";
                         break;
                     case 'U':
-                        values = await exportService.CreateAllReadingsCsv(KindOfMeter.UNBEKANNT);
+                        values = await exportService.CreateAllReadings(KindOfMeter.UNBEKANNT, "csv");
                         fileName = "unbekannt.csv";
                         break;
                 }
@@ -98,17 +98,17 @@ public partial class ExportViewModel(
         {
             if (FormatSelected.Equals('X'))
             {
-                values = await exportService.CreateAllCustomersXml();
+                values = await exportService.CreateAllCustomers("xml");
                 fileName = "customers.xml";
             }
             else if (FormatSelected.Equals('J'))
             {
-                values = await exportService.CreateAllCustomersJson();
+                values = await exportService.CreateAllCustomers("json");
                 fileName = "customers.json";
             }
             else if (FormatSelected.Equals('C'))
             {
-                values = await exportService.CreateAllCustomersCsv();
+                values = await exportService.CreateAllCustomers("csv");
                 fileName = "customers.csv";
             }
         }

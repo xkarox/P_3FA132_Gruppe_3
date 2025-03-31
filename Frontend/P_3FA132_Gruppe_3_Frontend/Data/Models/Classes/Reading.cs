@@ -86,10 +86,8 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                 }
                 catch (Exception ex)
                 {
-                    // Logge den Fehler, um herauszufinden, was schiefgelaufen ist
                     Console.WriteLine($"Fehler: {ex.Message}");
                     Console.WriteLine($"Stacktrace: {ex.StackTrace}");
-                    // Hier kannst du auch den Typ der Ausnahme prüfen (z.B. InvalidCastException, FormatException, etc.)
                 }
                 
             }

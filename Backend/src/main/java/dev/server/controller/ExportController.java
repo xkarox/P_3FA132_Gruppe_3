@@ -3,20 +3,13 @@ package dev.server.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.jna.platform.win32.Guid;
 import dev.hv.ResponseMessages;
+import dev.hv.Serializer;
 import dev.hv.Utils;
-import dev.hv.csv.CsvFormatter;
-import dev.hv.csv.CsvParser;
-import dev.hv.database.services.CustomerService;
-import dev.hv.database.services.ReadingService;
-import dev.hv.model.ICustomer;
-import dev.hv.model.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.CustomerWrapper;
 import dev.hv.model.classes.Reading;
 import dev.hv.model.classes.ReadingWrapper;
-import dev.provider.ServiceProvider;
 import dev.server.validator.CustomerJsonSchemaValidatorService;
 import dev.server.validator.ReadingJsonSchemaValidationService;
 import jakarta.ws.rs.*;
@@ -34,11 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static dev.hv.Utils.createErrorResponse;
 
@@ -165,63 +154,18 @@ public class ExportController
 
     private String handleCsv(String csvContent) throws IOException, SQLException, ReflectiveOperationException
     {
-        boolean isDefaultReading = false;
-        boolean isCustomReading = false;
-        boolean isCustomer = false;
+        List<?> objects = Serializer.deserializeCsv(csvContent);
+        if (!objects.isEmpty()) {
+            Object firstItem = objects.getFirst();
 
-        boolean water = false;
-        boolean heat = false;
-        boolean electricity = false;
-
-        String[] customerHeader = {"UUID", "Anrede", "Vorname", "Nachname", "Geburtsdatum"};
-
-        String[] defaultReadingHeaderWater = {"Datum", "Zählerstand in m³", "Kommentar"};
-        String[] defaultReadingHeaderElectricity = {"Datum", "Zählerstand in kWh", "Kommentar"};
-        String[] defaultReadingHeaderHeat = {"Datum", "Zählerstand in MWh", "Kommentar"};
-
-        String[] customReadingHeader = {"Datum", "Zählerstand", "Kommentar", "KundenId", "Zählerart", "ZählerstandId", "Ersatz"};
-
-
-        CsvParser parser = new CsvParser();
-        parser.setCsvContent(csvContent);
-        List<String> csvCustomerHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomerHeader());
-
-        List<String> csvReadingHeader = List.copyOf((java.util.Collection<? extends String>) parser.getReadingHeader());
-
-        if (Arrays.equals(csvCustomerHeader.toArray(), customerHeader))
-        {
-            isCustomer = true;
-        }
-        else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderWater)) {
-            isDefaultReading = true;
-            water = true;
-        }
-        else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderElectricity)) {
-            isDefaultReading = true;
-            electricity = true;
-        }
-        else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderHeat)) {
-            isDefaultReading = true;
-            heat = true;
-        }
-        else if (Arrays.equals(csvReadingHeader.toArray(), customReadingHeader)) {
-            isCustomReading = true;
-        }
-        if (isDefaultReading) {
-
-            List<Reading> readings = parser.createDefaultReadingsFromCsv(heat, water, electricity);
-
-            return Utils.packIntoJsonString(readings, Reading.class);
-        }
-        else if (isCustomReading) {
-            List<Reading> readings = parser.createCustomReadingsFromCsv();
-            return Utils.packIntoJsonString(readings, Reading.class);
-        }
-
-        if (isCustomer)
-        {
-            List<Customer> customers = parser.createCustomerFromCsv();
-            return Utils.packIntoJsonString(customers, Customer.class);
+            if (firstItem instanceof Reading) {
+                List<Reading> readings = (List<Reading>) objects;
+                return Utils.packIntoJsonString(readings, Reading.class);
+            }
+            else if (firstItem instanceof Customer) {
+                List<Customer> customers = (List<Customer>) objects;
+                return Utils.packIntoJsonString(customers, Customer.class);
+            }
         }
 
         return csvContent;

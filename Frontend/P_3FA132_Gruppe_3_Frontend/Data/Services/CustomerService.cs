@@ -43,27 +43,5 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services
             };
             return JsonSerializer.Deserialize<List<Customer>>(root, options);
         }
-
-        public async Task<IEnumerable<Customer>> getAllCustomers()
-        {
-            var uri = BuildUri("customers" + "/getCustomers");
-            try
-            {
-                var response = await _httpClient.GetAsync(uri);
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonData = await response.Content.ReadAsStringAsync();;
-                    var customers =  DeserializeCustomers(jsonData!);
-                    return customers ?? Enumerable.Empty<Customer>();
-                }
-            }
-            catch (Exception e)
-            {
-                return Enumerable.Empty<Customer>();
-            }
-            return Enumerable.Empty<Customer>();
-        }
-        
-        
     }
 }
