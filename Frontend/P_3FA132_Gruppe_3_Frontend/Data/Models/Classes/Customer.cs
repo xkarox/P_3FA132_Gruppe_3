@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
+using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json.Linq;
@@ -35,11 +36,11 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
         {
             var customerJson = new
             {
-                    id = Id == Guid.Empty ? null : Id.ToString(),
-                    firstName = FirstName,
-                    lastName = LastName,
-                    birthDate = DateOfBirth == default ? null : DateOfBirth?.ToString("yyyy-MM-dd"),
-                    gender = Gender.ToString()
+                id = Id == Guid.Empty ? null : Id.ToString(),
+                firstName = FirstName,
+                lastName = LastName,
+                birthDate = DateOfBirth == default ? null : DateOfBirth?.ToString("yyyy-MM-dd"),
+                gender = Gender.ToString()
             };
 
             return customerJson;
@@ -80,10 +81,10 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 
             return customers;
         }
-        
+
         public Customer Copy()
         {
-            return (Customer) this.MemberwiseClone();
+            return (Customer)this.MemberwiseClone();
         }
     }
 }

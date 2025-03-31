@@ -7,7 +7,7 @@ public class ReadingQuery
     public String? Customer { get; set; }
 
     public DateOnly? Start { get; set; }
-    
+
     public DateOnly? End { get; set; }
 
     public KindOfMeter? KindOfMeter { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
@@ -20,7 +21,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
         public string CustomerName =>
             new StringBuilder(Customer?.FirstName).Append(' ')
                 .Append(Customer?.LastName).ToString();
-        public string FormattedDate => 
+        public string FormattedDate =>
             DateOfReading?.ToString("yyyy-MM-dd") ?? new DateOnly().ToString("yyyy-MM-dd");
         public string MeterCountWithUnit =>
             new StringBuilder(MeterCount.ToString(CultureInfo.InvariantCulture))
@@ -80,7 +81,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 
         public Reading Copy()
         {
-            return (Reading) this.MemberwiseClone();
+            return (Reading)this.MemberwiseClone();
         }
 
         public static IEnumerable<Reading> LoadJsonList(string jsonData)

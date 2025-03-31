@@ -1,6 +1,6 @@
-using System.Text;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
-using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
+using System.Text;
 
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
@@ -25,11 +25,11 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
             };
             return builder.Uri;
         }
-        
+
         protected Uri BuildUri(string relativePath, IEnumerable<KeyValuePair<string, object>> queryParams)
         {
             var queryParameterString = BuildQueryParameters(queryParams);
-            
+
             var builder = new UriBuilder(_baseUrl)
             {
                 Path = relativePath,
