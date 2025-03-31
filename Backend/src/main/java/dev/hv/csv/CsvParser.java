@@ -481,4 +481,31 @@ public class CsvParser
         return customers;
     }
 
+    public String createAllCustomerCsv() throws SQLException, IOException, ReflectiveOperationException
+    {
+        String customerHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
+        String customerValues = "";
+        this.cs = ServiceProvider.Services.getCustomerService();
+
+        List<Customer> customers = this.cs.getAll();
+        for (int i = 0; i < customers.size(); i++)
+        {
+            customerValues += customers.get(i).getId() + ";";
+            customerValues += customers.get(i).getGender() + ";";
+            customerValues += customers.get(i).getFirstName() + ";";
+            customerValues += customers.get(i).getLastName() + ";";
+            if (customers.get(i).getBirthDate() != null)
+            {
+                customerValues += customers.get(i).getBirthDate() + "\n";
+            } else
+            {
+                customerValues += "\n";
+            }
+
+        }
+        String customerCsv = "";
+        customerCsv = customerHeader + customerValues;
+        return customerCsv;
+    }
+
 }

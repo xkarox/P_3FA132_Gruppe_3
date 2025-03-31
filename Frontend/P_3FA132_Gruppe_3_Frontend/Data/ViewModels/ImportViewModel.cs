@@ -27,13 +27,13 @@ public partial class ImportViewModel(
     [ObservableProperty] private Customer? _selectedCustomer;
 
     [ObservableProperty] private Guid? _selectedCustomerId;
-    private IBrowserFile? browserFile;
+    private IBrowserFile? _browserFile;
 
-    [ObservableProperty] private bool fileIsSelected;
+    [ObservableProperty] private bool _fileIsSelected;
 
-    [ObservableProperty] private bool isCustomerCsv;
+    [ObservableProperty] private bool _isCustomerCsv;
 
-    [ObservableProperty] private bool isReadingCsv;
+    [ObservableProperty] private bool _isReadingCsv;
 
 
     public override void OnInitialized()
@@ -45,16 +45,16 @@ public partial class ImportViewModel(
     [RelayCommand]
     private async Task SelectFile(InputFileChangeEventArgs e)
     {
-        resetValues();
-        browserFile = e.File;
+        ResetValues();
+        _browserFile = e.File;
 
 
-        if (browserFile != null)
+        if (_browserFile != null)
         {
-            var fileName = browserFile.Name;
+            var fileName = _browserFile.Name;
             var extension = Path.GetExtension(fileName).ToLower();
 
-            await using var stream = browserFile.OpenReadStream();
+            await using var stream = _browserFile.OpenReadStream();
             using var reader = new StreamReader(stream);
 
             var stringContent = await reader.ReadToEndAsync();
@@ -65,26 +65,26 @@ public partial class ImportViewModel(
             {
                 var root = document.RootElement;
 
-                if (root.TryGetProperty("customers", out var Customers))
+                if (root.TryGetProperty("customers", out _))
                 {
                     IEnumerable<Customer> customers = Customer.LoadJsonList(responses);
                     for (var i = 0; i < customers.Count(); i++)
                     {
-                        _customers.Add(customers.ElementAt(i));
+                        Customers.Add(customers.ElementAt(i));
                     }
-                    isCustomerCsv = true;
+                    IsCustomerCsv = true;
                 }
-                else if (root.TryGetProperty("readings", out var Readings))
+                else if (root.TryGetProperty("readings", out _))
                 {
                     IEnumerable<Reading> readings = Reading.LoadJsonList(responses);
                     for (var i = 0; i < readings.Count(); i++)
                     {
-                        _readings.Add(readings.ElementAt(i));
+                        Readings.Add(readings.ElementAt(i));
                     }
-                    isReadingCsv = true;
+                    IsReadingCsv = true;
                 }
             }
-            fileIsSelected = true;
+            FileIsSelected = true;
         }
     }
 
@@ -92,13 +92,13 @@ public partial class ImportViewModel(
     [RelayCommand]
     private async Task Upload()
     {
-        if (isCustomerCsv)
-            for (var i = 0; i < _customers.Count; i++)
-                await customerService.Add(_customers[i]);
-        else if (isReadingCsv)
-            for (var i = 0; i < _readings.Count; i++)
-                await readingService.Add(_readings[i]);
-        resetValues();
+        if (IsCustomerCsv)
+            for (var i = 0; i < Customers.Count; i++)
+                await customerService.Add(Customers[i]);
+        else if (IsReadingCsv)
+            for (var i = 0; i < Readings.Count; i++)
+                await readingService.Add(Readings[i]);
+        ResetValues();
     }
 
     [RelayCommand]
@@ -107,13 +107,13 @@ public partial class ImportViewModel(
         SelectedCustomer = customer.Copy();
     }
 
-    private void resetValues()
+    private void ResetValues()
     {
-        fileIsSelected = false;
-        isCustomerCsv = false;
-        isReadingCsv = false;
-        _customers.Clear();
-        _readings.Clear();
-        browserFile = null;
+        FileIsSelected = false;
+        IsCustomerCsv = false;
+        IsReadingCsv = false;
+        Customers.Clear();
+        Readings.Clear();
+        _browserFile = null;
     }
 }

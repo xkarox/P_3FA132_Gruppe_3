@@ -94,7 +94,7 @@ public class ExportService
                 contentType = "text/plain";
                 break;
             default:
-                throw new ArgumentException("Unsupported file type. Allowed: json, xml, txt.");
+                throw new ArgumentException("Unsupported file type. Allowed: json, xml, csv.");
         }
         var content = new StringContent(fileContent, Encoding.UTF8, contentType);
         var response = await _httpClient.PostAsync(ExportUrl + path, content);

@@ -276,50 +276,51 @@ public class ReadingController
             marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             List<Reading> allReadings = rs.getAll();
-            List<Reading> typeReadings = new ArrayList<>();
-            switch (kindOfMeter)
-            {
-                case IReading.KindOfMeter.WASSER:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-                case IReading.KindOfMeter.STROM:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.STROM)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-                case IReading.KindOfMeter.HEIZUNG:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-                case IReading.KindOfMeter.UNBEKANNT:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-            }
+            List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
+//            List<Reading> typeReadings = new ArrayList<>();
+//            switch (kindOfMeter)
+//            {
+//                case IReading.KindOfMeter.WASSER:
+//
+//                    for (Reading r : allReadings)
+//                    {
+//                        if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER)
+//                        {
+//                            typeReadings.add(r);
+//                        }
+//                    }
+//                    break;
+//                case IReading.KindOfMeter.STROM:
+//
+//                    for (Reading r : allReadings)
+//                    {
+//                        if (r.getKindOfMeter() == IReading.KindOfMeter.STROM)
+//                        {
+//                            typeReadings.add(r);
+//                        }
+//                    }
+//                    break;
+//                case IReading.KindOfMeter.HEIZUNG:
+//
+//                    for (Reading r : allReadings)
+//                    {
+//                        if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG)
+//                        {
+//                            typeReadings.add(r);
+//                        }
+//                    }
+//                    break;
+//                case IReading.KindOfMeter.UNBEKANNT:
+//
+//                    for (Reading r : allReadings)
+//                    {
+//                        if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT)
+//                        {
+//                            typeReadings.add(r);
+//                        }
+//                    }
+//                    break;
+//            }
 
             ReadingWrapper readingsWrapper = new ReadingWrapper(typeReadings);
             StringWriter xmlWriter = new StringWriter();
