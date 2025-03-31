@@ -100,7 +100,6 @@ public class CustomerController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/getCustomers")
     public Response getCustomers() throws JsonProcessingException {
         logger.info("Received request to get all customers");
         try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
@@ -213,11 +212,46 @@ public class CustomerController {
         }
     }
 
-
     @GET
-    @Path("/createAllCustomersXml")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response createAllCustomersXml() {
+    @Path("/getCustomersFileData")
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    public Response getCustomersFileData(@QueryParam("fileType") String fileType) {
+        try {
+            if (fileType == null || fileType.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Missing Content-Type header").build();
+            }
+            return switch (fileType) {
+                case "xml" -> handleXml();
+                case "csv" -> handleCsv();
+                default -> Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
+                        .entity("Unsupported Content-Type: " + fileType)
+                        .build();
+            };
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    private Response handleCsv() {
+        try {
+            CsvParser parser = new CsvParser();
+            String csvData = parser.createAllCustomerCsv();
+            return Response.status(Response.Status.OK)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(csvData)
+                    .build();
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    private Response handleXml() {
         try (CustomerService cs = ServiceProvider.Services.getCustomerService()){
 
             JAXBContext objToConvert = JAXBContext.newInstance(CustomerWrapper.class);
@@ -237,25 +271,6 @@ public class CustomerController {
         catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while processing the XML file: " + e.getMessage())
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/createAllCustomersCsv")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createAllCustomersCsv() {
-        try {
-            CsvParser parser = new CsvParser();
-            String csvData = parser.createAllCustomerCsv();
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        }
-        catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
                     .build();
         }
     }

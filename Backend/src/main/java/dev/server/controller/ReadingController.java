@@ -243,31 +243,52 @@ public class ReadingController
     }
 
     @GET
-    @Path("/createAllReadingsCsv")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createAllReadingsCsv(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter)
-    {
-        try
-        {
-            CsvParser parser = new CsvParser();
-            String csvData = parser.createReadingsByKindOfMeter(kindOfMeter);
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        } catch (Exception e)
-        {
+    @Path("/getReadingsFileData")
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public Response getReadingsFileData(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter, @QueryParam("fileType") String fileType) {
+        try {
+            if (fileType == null || fileType.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Missing Content-Type header").build();
+            }
+            if (kindOfMeter == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Missing kindOfMeter").build();
+            }
+
+            return switch (fileType) {
+                case "json" -> handleJson(kindOfMeter);
+                case "xml" -> handleXml(kindOfMeter);
+                case "csv" -> handleCsv(kindOfMeter);
+                default -> Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
+                        .entity("Unsupported Content-Type: " + fileType)
+                        .build();
+            };
+        }
+        catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
+                    .entity("An error occurred: " + e.getMessage())
                     .build();
         }
     }
 
-    @GET
-    @Path("/createAllReadingsXml")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response createAllReadingsXml(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter)
-    {
+    private Response handleJson(IReading.KindOfMeter kindOfMeter) {
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            List<Reading> allReadings = rs.getAll();
+            List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
+
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(typeReadings, Reading.class))
+                    .build();
+
+        } catch (Exception e)
+        {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while processing the Json file: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    private Response handleXml(IReading.KindOfMeter kindOfMeter) {
         try (ReadingService rs = ServiceProvider.Services.getReadingService())
         {
 
@@ -277,50 +298,6 @@ public class ReadingController
 
             List<Reading> allReadings = rs.getAll();
             List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
-//            List<Reading> typeReadings = new ArrayList<>();
-//            switch (kindOfMeter)
-//            {
-//                case IReading.KindOfMeter.WASSER:
-//
-//                    for (Reading r : allReadings)
-//                    {
-//                        if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER)
-//                        {
-//                            typeReadings.add(r);
-//                        }
-//                    }
-//                    break;
-//                case IReading.KindOfMeter.STROM:
-//
-//                    for (Reading r : allReadings)
-//                    {
-//                        if (r.getKindOfMeter() == IReading.KindOfMeter.STROM)
-//                        {
-//                            typeReadings.add(r);
-//                        }
-//                    }
-//                    break;
-//                case IReading.KindOfMeter.HEIZUNG:
-//
-//                    for (Reading r : allReadings)
-//                    {
-//                        if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG)
-//                        {
-//                            typeReadings.add(r);
-//                        }
-//                    }
-//                    break;
-//                case IReading.KindOfMeter.UNBEKANNT:
-//
-//                    for (Reading r : allReadings)
-//                    {
-//                        if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT)
-//                        {
-//                            typeReadings.add(r);
-//                        }
-//                    }
-//                    break;
-//            }
 
             ReadingWrapper readingsWrapper = new ReadingWrapper(typeReadings);
             StringWriter xmlWriter = new StringWriter();
@@ -338,66 +315,19 @@ public class ReadingController
         }
     }
 
-    @GET
-    @Path("/createAllReadingsJson")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createAllReadingsJson(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter)
-    {
-        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+    private Response handleCsv(IReading.KindOfMeter kindOfMeter) {
+        try
         {
-            List<Reading> allReadings = rs.getAll();
-            List<Reading> typeReadings = new ArrayList<>();
-            switch (kindOfMeter)
-            {
-                case IReading.KindOfMeter.WASSER:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.WASSER)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-                case IReading.KindOfMeter.STROM:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.STROM)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-                case IReading.KindOfMeter.HEIZUNG:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-                case IReading.KindOfMeter.UNBEKANNT:
-
-                    for (Reading r : allReadings)
-                    {
-                        if (r.getKindOfMeter() == IReading.KindOfMeter.UNBEKANNT)
-                        {
-                            typeReadings.add(r);
-                        }
-                    }
-                    break;
-            }
+            CsvParser parser = new CsvParser();
+            String csvData = parser.createReadingsByKindOfMeter(kindOfMeter);
             return Response.status(Response.Status.OK)
-                    .entity(Utils.packIntoJsonString(typeReadings, Reading.class))
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(csvData)
                     .build();
-
         } catch (Exception e)
         {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the Json file: " + e.getMessage())
+                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
                     .build();
         }
     }
