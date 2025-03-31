@@ -92,7 +92,7 @@ public class DatabaseControllerTest
     void tearDown()
     {
         Server.stopServer();
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);;
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
     }
 
     @Test
