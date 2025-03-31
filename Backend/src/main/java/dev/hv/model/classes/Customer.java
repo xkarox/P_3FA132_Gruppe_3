@@ -16,6 +16,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -205,5 +206,23 @@ public class Customer implements ICustomer
                 && Objects.equals(this.getFirstName(), item.getFirstName())
                 && Objects.equals(this.getLastName(), item.getLastName())
                 && this.getGender() == item.getGender();
+    }
+
+    public String serializeToCsv()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getId().toString());
+        sb.append(";");
+        sb.append(this.getLastName());
+
+
+
+        return sb.toString();
+    }
+
+    public String test(List<Customer> customers)
+    {
+        String csVCustomer = "";
+        var test = customers.stream().map(e -> e.serializeToCsv()).toList();
     }
 }
