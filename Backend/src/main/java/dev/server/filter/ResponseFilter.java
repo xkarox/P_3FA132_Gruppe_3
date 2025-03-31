@@ -12,7 +12,6 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
@@ -38,8 +37,10 @@ public class ResponseFilter implements ContainerResponseFilter
             String userId = CryptoService.validateToken(token);
             try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
                 var user = authUserService.getById(UUID.fromString(userId));
-                if(user == null || user.getId() == null)
+                if(user == null || user.getId() == null){
                     requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                    return;
+                }
 
                 responseContext.getHeaders().add(HttpHeaders.SET_COOKIE, CryptoService.createTokenCookie(user.getId()));
             }

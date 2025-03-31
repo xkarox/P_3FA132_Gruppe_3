@@ -15,6 +15,7 @@ import jakarta.ws.rs.ext.Provider;
 import org.slf4j.MDC;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 @Secured
@@ -24,8 +25,6 @@ public class JwtFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-
         if (!AuthorisationService.DoesAuthDbExistsWrapper()){
             MDC.put("authDbExists", "false");
             return;
@@ -44,8 +43,10 @@ public class JwtFilter implements ContainerRequestFilter {
             String userId = CryptoService.validateToken(token);
             try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
                 var user = authUserService.getById(UUID.fromString(userId));
-                if(user == null)
+                if(user == null || user.getId() == null){
                     requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                    return;
+                }
 
                 MDC.put("id", userId);
                 MDC.put("username", user.getUsername());
@@ -54,7 +55,7 @@ public class JwtFilter implements ContainerRequestFilter {
                         .map(Object::toString)
                         .toArray(String[]::new)));
             }
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException | SQLException | IOException e) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
         }
     }
