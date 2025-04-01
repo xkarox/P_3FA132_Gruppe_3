@@ -1,20 +1,17 @@
-@using P_3FA132_Gruppe_3_Frontend.Data.Services
+
 @using Microsoft.AspNetCore.Components.Authorization
-@using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
+@using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inject IJSRuntime JSRuntime
-@inject UserAuthService UserAuthService
-@inject AuthStateProvider AuthState
+@inject AuthService AuthService
 
 <nav class="sidebar">
     <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
     <AuthorizeView>
         <Authorized>
-            @if (UserAuthService.FetchUserFromBrowser()?.Role == UserRole.ADMIN)
-            {
-                <SideBarItem Text="Customer Management" IconName="customers" Href="/CustomerManagementView"/>
-                <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
-                <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
-            }
+            <SideBarItem Text="Customer Management" IconName="customers" Href="/CustomerManagementView"/>
+            <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
+            <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
+        
             <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
         </Authorized>
     </AuthorizeView>
@@ -29,7 +26,7 @@
     </AuthorizeView>
 </nav>
 
-<AuthComponent Show="@showComp" LoginCallback="UserAuthService.SendAuthenticateRequestAsync"/>
+<AuthComponent Show="@showComp"/>
 
 <style>
     .sidebar {
@@ -80,8 +77,7 @@
 
     public async Task Logout()
     {
-        AuthState.Logout();
-        await UserAuthService.Logout();
+        AuthService.Logout();
         showComp = false;
         StateHasChanged();
     }

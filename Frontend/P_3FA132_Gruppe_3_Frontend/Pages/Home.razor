@@ -1,12 +1,13 @@
 ﻿@page "/"
 
+@using System.Net
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using Microsoft.AspNetCore.Components.Authorization
+@using P_3FA132_Gruppe_3_Frontend.Data.Authentication
 @inject DatabaseService DatabaseService
 @inject CustomerService CustomerService
 @inject ReadingService ReadingService
-@inject UserAuthService UserAuthService
 <PageTitle>Digital Property Management</PageTitle>
 
 <div class="home-greeting">
@@ -14,7 +15,7 @@
         </p>
     <AuthorizeView>
         <Authorized>
-            <p>@UserAuthService.FetchUserFromBrowser()?.Username</p>
+            <p>Username</p>
         </Authorized>
     </AuthorizeView>
 </div>

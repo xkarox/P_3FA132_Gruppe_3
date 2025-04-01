@@ -11,7 +11,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
     {
         public Guid Id { get; set; }
         public string Username { get; set; }
-        public UserRole Role { get; set; }
+        public string Role { get; set; }
         public List<UserPermissions>? Permissions { get; set; }
 
 
@@ -34,7 +34,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
             {
                 Id = root.GetProperty("id").GetGuid(),
                 Username = root.GetProperty("username").GetString(),
-                Role = root.GetProperty("role").GetString().ToRole(),
+                Role = root.GetProperty("role").GetString(),
                 Permissions = root.GetProperty("permissions").EnumerateArray().Select(p => p.GetString().ToUserPermissions()).ToList()
             };
 

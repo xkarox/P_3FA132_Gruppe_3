@@ -1,11 +1,10 @@
 @using Microsoft.AspNetCore.Components.Authorization
-@inject UserAuthService UserAuthService
 <div class="debug-monitor">
     <AuthorizeView>
         <NotAuthorized><div class="not-authorized">Not Authenticated</div></NotAuthorized>
         <Authorized ><div class="authorized">Authorized</div></Authorized>
     </AuthorizeView>
-    <div>User: @UserAuthService.FetchUserFromBrowser()?.Username</div>
+    <div>User: Username</div>
 </div>
 <style>
     .debug-monitor {

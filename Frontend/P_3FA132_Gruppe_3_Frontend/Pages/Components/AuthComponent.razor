@@ -2,17 +2,17 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
-@inject AuthenticationStateProvider AuthStateProvider
+@inject AuthService AuthService
 @inject NavigationManager NavManager
 
 
 <div class="overlay @(Show ? "visible" : "hidden")"></div>
 <div class="@(Show ? "visible" : "hidden") auth-component">
     <h3>Login</h3>
-    @if (LoginCallback == null)
-    {
-        <p class="error-message">@LoginCallbackNullMessage</p>
-    }
+    @* @if (LoginCallback == null) *@
+    @* { *@
+    @*     <p class="error-message">@LoginCallbackNullMessage</p> *@
+    @* } *@
 
     <label for="username-input">Username</label>
     <input id="username-input" @bind="Username" />
@@ -41,7 +41,7 @@
 
     [Parameter] public bool Show { get; set; } = false;
     [Parameter] public Func<Task>? OnSuccessfullLogin { get; set; }
-    [Parameter] public Func<string, string, Task<AuthUser?>>? LoginCallback { get; set; }
+    // [Parameter] public Func<string, string, Task<AuthUser?>>? LoginCallback { get; set; }
 
     static class AuthErrorMessages
     {
@@ -50,42 +50,12 @@
         public const string LoginFailed = "Login Failed - Please check credentials";
     }
 
-    private async Task HandleLogin()
-    {
-        if (string.IsNullOrEmpty(Username))
-        {
-            ErrorMessage = AuthErrorMessages.InvalidUsername;
-            return;
-        }
-        if (string.IsNullOrEmpty(Password))
-        {
-            ErrorMessage = AuthErrorMessages.InvalidPassword;
-            return;
-        }
-
-        if (LoginCallback == null)
-            return;
-        var loginResult = await LoginCallback(Username, Password);
-        
-        if (loginResult == null)
-        {
-            ErrorMessage = AuthErrorMessages.LoginFailed;
-            return;
-        }
-        
-        OnSuccessfullLogin?.Invoke();
-        Show = false;
-    }
-
     private async Task Login()
     {
         try
         {
-            var authStateProvider = (AuthStateProvider)AuthStateProvider;
-            await authStateProvider.LoginAsync(Username, Password);
-            
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
+            var success = await AuthService.Login(Username, Password);
+            if (success)
             {
                 Show = false;
                 NavManager.NavigateTo("/");
@@ -97,7 +67,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Login error: {ex.Message}";
+            ErrorMessage = $"AuthComponent: Login error: {ex.Message}";
         }
     }
 

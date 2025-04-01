@@ -13,8 +13,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 public partial class ReadingManagementViewModel(
     ReadingService readingService,
     CustomerService customerService,
-    UtilityService utilityService,
-    UserAuthService userAuthService)
+    UtilityService utilityService)
     : ViewModelBase
 {
     [ObservableProperty] private ObservableCollection<Reading>? _readings;
@@ -54,14 +53,7 @@ public partial class ReadingManagementViewModel(
         Readings = new ObservableCollection<Reading>();
         PaginationState = new PaginationState() { ItemsPerPage = 15 };
         ReadingQuery = new ReadingQuery();
-        var authUser = userAuthService.FetchUserFromBrowser();
-        if (authUser?.Role == UserRole.ADMIN)
-            Customers = await customerService.GetAll() ?? new List<Customer>();
-        else
-        {
-            var user = await customerService.Get(authUser.Id);
-            Customers = user != null ? [user] : [];
-        }
+        Customers = await customerService.GetAll() ?? new List<Customer>();
         var enumerable = Customers as Customer[] ?? Customers.ToArray();
         if (enumerable?.Count() >= 1)
         {
