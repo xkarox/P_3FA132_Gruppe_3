@@ -24,7 +24,7 @@ builder.Services.AddScoped<ExportService>();
 
 // Register MVVM 
 builder.Services.AddMvvm(options =>
-{ 
+{
     options.HostingModelType = BlazorHostingModelType.WebAssembly;
 });
 

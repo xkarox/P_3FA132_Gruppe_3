@@ -1,9 +1,8 @@
 ﻿using System.Globalization;
 using System.Text;
-using P_3FA132_Gruppe_3_Frontend.Data.Models;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.Json.Serialization;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 {
@@ -21,7 +20,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
         public string CustomerName =>
             new StringBuilder(Customer?.FirstName).Append(' ')
                 .Append(Customer?.LastName).ToString();
-        public string FormattedDate => 
+        public string FormattedDate =>
             DateOfReading?.ToString("yyyy-MM-dd") ?? new DateOnly().ToString("yyyy-MM-dd");
         public string MeterCountWithUnit =>
             new StringBuilder(MeterCount.ToString(CultureInfo.InvariantCulture))
@@ -61,10 +60,10 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
         public static Reading LoadJson(string jsonData, bool loadDefaultRoot = true)
         {
             using var document = JsonDocument.Parse(jsonData);
-            
+
             var root = document.RootElement;
             JsonElement readingElement;
-            
+
             if (root.TryGetProperty("reading", out readingElement))
             {
                 try
@@ -89,7 +88,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                     Console.WriteLine($"Fehler: {ex.Message}");
                     Console.WriteLine($"Stacktrace: {ex.StackTrace}");
                 }
-                
+
             }
                 try
                 {
@@ -115,7 +114,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                     Console.WriteLine($"Stacktrace: {ex.StackTrace}");
                     // Hier kannst du auch den Typ der Ausnahme prüfen (z.B. InvalidCastException, FormatException, etc.)
                 }
-            
+
 
             return null;
 
@@ -123,7 +122,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 
         public Reading Copy()
         {
-            return (Reading) this.MemberwiseClone();
+            return (Reading)this.MemberwiseClone();
         }
 
         public static IEnumerable<Reading> LoadJsonList(string jsonData)
