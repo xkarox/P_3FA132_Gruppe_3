@@ -3,9 +3,9 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using BitzArt.Blazor.Cookies;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Authentication;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 
 public class UserAuthService
 {
@@ -13,7 +13,6 @@ public class UserAuthService
     private readonly ICookieService _cookieService;
     private readonly AuthenticatedUserStorage _authUserStore;
     private readonly NavigationManager _navigationManager;
-    // private readonly AuthenticationStateProvider _authenticationStateProvider;
     
     public UserAuthService(IHttpClientFactory httpClientFactory, 
         ICookieService cookieService,
@@ -29,10 +28,8 @@ public class UserAuthService
     
     public async Task<AuthUser?> SendAuthenticateRequestAsync(string username, string password)
     {
-        // Create login request with credentials
         var loginRequest = new { username = username, password = password };
         
-        // Send request to API
         var response = await _httpClient.PostAsJsonAsync("/auth/login", loginRequest);
         
         if (response.IsSuccessStatusCode)
@@ -47,6 +44,26 @@ public class UserAuthService
             return _authUserStore.AuthenticatedUser;
         }
         
+        return null;
+    }
+
+    public async Task<AuthUser?> SendRegistrationRequestAsync(Guid id, string username, string password)
+    {
+        var userRequest = new
+        {
+            Id = id, Role = UserRole.USER, Username = username,
+            Password = password
+        };
+        
+        var response = await _httpClient.PostAsJsonAsync("/auth", userRequest);
+        
+        if (response.IsSuccessStatusCode)
+        {
+            var userString = await response.Content.ReadAsStringAsync();
+            var user = AuthUser.LoadJson(userString);
+            return user;
+        }
+
         return null;
     }
     
