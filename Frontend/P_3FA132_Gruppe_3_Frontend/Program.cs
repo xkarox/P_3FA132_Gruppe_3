@@ -14,7 +14,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 
 // Register Services for singelton use
-builder.Services.AddScoped<AuthenticatedUserStorage>();
+builder.Services.AddSingleton<AuthenticatedUserStorage>();
 
 builder.Services.AddScoped<UserAuthService>();
 builder.Services.AddScoped<AuthStateProvider>();

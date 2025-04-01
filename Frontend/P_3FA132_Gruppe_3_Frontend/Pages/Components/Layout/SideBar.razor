@@ -1,22 +1,31 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @using Microsoft.AspNetCore.Components.Authorization
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
 @inject IJSRuntime JSRuntime
 @inject UserAuthService UserAuthService
 @inject AuthStateProvider AuthState
 
 <nav class="sidebar">
     <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
-    <SideBarItem Text="Customer Management" IconName="customers"  Href="/CustomerManagementView"/>
-    <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
-    <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
-    <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
     <AuthorizeView>
+        <Authorized>
+            @if (UserAuthService.FetchUserFromBrowser()?.Role == UserRole.ADMIN)
+            {
+                <SideBarItem Text="Customer Management" IconName="customers" Href="/CustomerManagementView"/>
+                <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
+                <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
+            }
+            <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
+        </Authorized>
+    </AuthorizeView>
+    
+    <AuthorizeView>
+        <Authorized>
+            <SideBarItem Text="Logout" IconName="logout" OnClickFunc="@Logout"/>
+        </Authorized>
         <NotAuthorized>
             <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc"/>
         </NotAuthorized>
-        <Authorized>
-            <SideBarItem Text="Logout++" IconName="logout" OnClickFunc="@Logout"/>
-        </Authorized>
     </AuthorizeView>
 </nav>
 

@@ -5,14 +5,16 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.AspNetCore.Components.Web;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;  
-using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;  
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 using P_3FA132_Gruppe_3_Frontend.Data.Services;  
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
 public partial class ReadingManagementViewModel(
     ReadingService readingService,
     CustomerService customerService,
-    UtilityService utilityService)
+    UtilityService utilityService,
+    UserAuthService userAuthService)
     : ViewModelBase
 {
     [ObservableProperty] private ObservableCollection<Reading>? _readings;
@@ -52,8 +54,14 @@ public partial class ReadingManagementViewModel(
         Readings = new ObservableCollection<Reading>();
         PaginationState = new PaginationState() { ItemsPerPage = 15 };
         ReadingQuery = new ReadingQuery();
-        Customers = await customerService.GetAll() ?? new List<Customer>();
-
+        var authUser = userAuthService.FetchUserFromBrowser();
+        if (authUser?.Role == UserRole.ADMIN)
+            Customers = await customerService.GetAll() ?? new List<Customer>();
+        else
+        {
+            var user = await customerService.Get(authUser.Id);
+            Customers = user != null ? [user] : [];
+        }
         var enumerable = Customers as Customer[] ?? Customers.ToArray();
         if (enumerable?.Count() >= 1)
         {

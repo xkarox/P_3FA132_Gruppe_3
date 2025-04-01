@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Authentication;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 
-public class AuthStateProvider : AuthenticationStateProvider, IAuth
+public class AuthStateProvider : AuthenticationStateProvider
 {
     private readonly UserAuthService _userAuthService;
     private readonly AuthenticatedUserStorage _authUserStore;
