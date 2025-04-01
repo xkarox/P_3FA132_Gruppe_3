@@ -1,10 +1,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 <div class="debug-monitor">
-    <h3>Debug Monitor</h3>
-        <p>Authentication Status:</p>
+    <p>Authentication Status:</p>
     <AuthorizeView>
-        
-        
         <NotAuthorized><div class="not-authorized">Not Authenticated</div></NotAuthorized>
         <Authorized ><div class="authorized">Authorized</div></Authorized>
     </AuthorizeView>
