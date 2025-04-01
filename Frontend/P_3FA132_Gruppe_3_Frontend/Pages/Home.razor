@@ -19,13 +19,17 @@
     </AuthorizeView>
 </div>
 
-<button @onclick="SetupDatabase">Delete Data</button>
-<button @onclick="AddCustomer">Add Customer</button>
-<button @onclick="AddReading">Add Reading</button>
-<button @onclick="GetCustomer">Get Customer</button>
-<button @onclick="GetReading">Get Reading</button>
-<button @onclick="UpdateReading">UpdateReading</button>
-<button @onclick="GetAllCustomers">GetAllCustomers</button>
+<AuthorizeView>
+    <Authorized>
+        <button @onclick="SetupDatabase">Delete Data</button>
+        <button @onclick="AddCustomer">Add Customer</button>
+        <button @onclick="AddReading">Add Reading</button>
+        <button @onclick="GetCustomer">Get Customer</button>
+        <button @onclick="GetReading">Get Reading</button>
+        <button @onclick="UpdateReading">UpdateReading</button>
+        <button @onclick="GetAllCustomers">GetAllCustomers</button>
+    </Authorized>
+</AuthorizeView>
 
 @if (!string.IsNullOrEmpty(message))
 {

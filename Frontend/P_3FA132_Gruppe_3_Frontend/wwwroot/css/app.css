@@ -54,7 +54,7 @@ svg path {
 
 body {
     background-size: 100% 100%;
-    background: radial-gradient(circle at bottom, rgba(54, 52, 62, 1) 0%, rgba(39, 37, 48, 1) 23%, rgba(31, 28, 44, 1) 61%, rgba(0, 0, 0, 1) 100%) no-repeat fixed center bottom;
+    background: radial-gradient(circle at bottom, rgba(54, 52, 62, 1) 0%, rgba(39, 37, 48, 1) 23%, rgba(31, 28, 44, 1) 44%, rgba(0, 0, 0, 1) 100%) no-repeat fixed center bottom;
     min-height: 100vh;
     margin: 0;
     padding: 0;
