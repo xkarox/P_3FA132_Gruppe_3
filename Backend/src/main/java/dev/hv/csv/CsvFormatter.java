@@ -18,6 +18,7 @@ public class CsvFormatter
             {
                 String line = scanner.nextLine();
                 line = line.replace("\"", "");
+                line = line.replace(',', '.');
 
                 if (line.trim().isEmpty() || line.matches(regex))
                 {

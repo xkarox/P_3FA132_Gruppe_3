@@ -1,5 +1,6 @@
 package dev.hv.csv;
 
+import dev.hv.Serializer;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.ICustomer;
@@ -9,6 +10,7 @@ import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.csv.Csv;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,24 +41,31 @@ public class CsvParserTest {
                     "31.12.2019;722.0;;ec617965-88b4-4721-8158-ee36c38e4db3;WASSER;23451007;false;\n";
 
 
-    private static final Customer MOCKED_CUSTOMER = new Customer(UUID.randomUUID(), "Erik", "Mielke", LocalDate.of(2002, 7, 3), ICustomer.Gender.M);
-    private static final Reading MOCKED_READING1 = new Reading(UUID.randomUUID(), "comment1", MOCKED_CUSTOMER.getId(), MOCKED_CUSTOMER, LocalDate.of(1999, 3, 14), IReading.KindOfMeter.STROM, 100.0, "129393", false);
-    private static final Reading MOCKED_READING2 = new Reading(UUID.randomUUID(), "comment2", MOCKED_CUSTOMER.getId(), MOCKED_CUSTOMER, LocalDate.of(2021, 11, 2), IReading.KindOfMeter.WASSER, 1923.0, "428379", true);
+    private static final Customer MOCKED_CUSTOMER1 = new Customer(UUID.randomUUID(), "Erik", "Mielke", LocalDate.of(2002, 7, 3), ICustomer.Gender.M);
+    private static final Customer MOCKED_CUSTOMER2 = new Customer(UUID.randomUUID(), "Christopher", "Walther", LocalDate.of(1999, 3, 22), ICustomer.Gender.M);
 
-    private CsvFormatter mockFormatter;
-    private ReadingService mockReadingService;
+    private static final Reading MOCKED_READING1 = new Reading(UUID.randomUUID(), "comment1", MOCKED_CUSTOMER1.getId(), MOCKED_CUSTOMER1, LocalDate.of(1999, 3, 14), IReading.KindOfMeter.STROM, 100.0, "129393", false);
+    private static final Reading MOCKED_READING2 = new Reading(UUID.randomUUID(), "comment2", MOCKED_CUSTOMER1.getId(), MOCKED_CUSTOMER1, LocalDate.of(2021, 11, 2), IReading.KindOfMeter.WASSER, 1923.0, "428379", true);
+
+    private static CsvFormatter mockFormatter;
+    private static ReadingService mockReadingService;
+    private static CustomerService mockCustomerService;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     String formattedDate = MOCKED_READING2.getDateOfReading().format(formatter);
 
-    @BeforeEach
-    void setUp() throws SQLException, IOException
+
+
+    @BeforeAll
+    static void setUp() throws SQLException, IOException
     {
         mockFormatter = mock(CsvFormatter.class);
 
-        mockReadingService = mock(ReadingService.class);  // Hier wird der Mock initialisiert!
+        mockReadingService = mock(ReadingService.class);
+        mockCustomerService = mock(CustomerService.class);
         ServiceProvider.Services = mock(dev.hv.database.provider.InternalServiceProvider.class);
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
+        when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
     }
 
     @Test
@@ -91,10 +100,9 @@ public class CsvParserTest {
     void getCustomerHeaderTest() throws IOException
     {
         CsvParser parser = new CsvParser();
-        CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatReadingCsv(CSV_CUSTOMER_CONTENT));
+        parser.setCsvContent(CSV_CUSTOMER_CONTENT);
         List<String> expectedHeader = Arrays.asList("UUID", "Anrede", "Vorname", "Nachname", "Geburtsdatum");
-        assertIterableEquals(expectedHeader, parser.getReadingHeader());
+        assertIterableEquals(expectedHeader, parser.getCustomerHeader());
     }
 
     @Test
@@ -104,8 +112,8 @@ public class CsvParserTest {
         CsvFormatter formatter = new CsvFormatter();
         parser.setCsvContent(formatter.formatReadingCsv(CSV_READING_CONTENT));
         List<List<String>> expectedValues = List.of(
-                List.of("01.02.2018", "5,965"),
-                List.of("01.04.2018", "6,597")
+                List.of("01.02.2018", "5.965"),
+                List.of("01.04.2018", "6.597")
         );
         assertIterableEquals(expectedValues, parser.getDefaultReadingValues());
     }
@@ -152,9 +160,9 @@ public class CsvParserTest {
         Iterator<List<String>> iterator = result.iterator();
 
         assertTrue(iterator.hasNext());
-        assertEquals(List.of("01.02.2018", "5,965"), iterator.next());
+        assertEquals(List.of("01.02.2018", "5.965"), iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals(List.of("01.04.2018", "6,597"), iterator.next());
+        assertEquals(List.of("01.04.2018", "6.597"), iterator.next());
         assertFalse(iterator.hasNext());
     }
 
@@ -303,7 +311,133 @@ public class CsvParserTest {
     }
 
     @Test
-    void createReadingsByKindOfMeterWithEmptyDatabase() {
+    void createReadingsByKindOfMeterWithEmptyDatabase() throws ReflectiveOperationException, SQLException, IOException
+    {
+        CsvParser parser = new CsvParser();
+        when(mockReadingService.getAll()).thenReturn(List.of());
+
+        String result = parser.createReadingsByKindOfMeter(IReading.KindOfMeter.WASSER);
+
+        assertEquals("Datum;Zählerstand;Kommentar;KundenId;Zählerart;ZählerstandId;Ersatz\n", result);
+    }
+
+    @Test
+    void createAllCustomersCsvWithValidCustomersTest() throws ReflectiveOperationException, SQLException, IOException
+    {
+        CsvParser parser = new CsvParser();
+        List<Customer> mockCustomers = List.of(MOCKED_CUSTOMER1, MOCKED_CUSTOMER2);
+        when(mockCustomerService.getAll()).thenReturn(mockCustomers);
+
+        String expectedHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
+        String expectedData = Serializer.serializeIntoCsv(mockCustomers);
+        String expectedCsv = expectedHeader + expectedData;
+
+        String result = parser.createAllCustomerCsv();
+
+        assertEquals(expectedCsv, result);
+    }
+
+    @Test
+    void createAllCustomersCsvWithEmptyCustomersTest() throws IOException, ReflectiveOperationException, SQLException
+    {
+        CsvParser parser = new CsvParser();
+        List<Customer> mockCustomers = List.of();
+        when(mockCustomerService.getAll()).thenReturn(mockCustomers);
+
+        String expectedHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
+        String expectedData = Serializer.serializeIntoCsv(mockCustomers);
+        String expectedCsv = expectedHeader + expectedData;
+
+        String result = parser.createAllCustomerCsv();
+
+        assertEquals(expectedCsv, result);
+    }
+
+    @Test
+    void createDefaultReadingsFromCsvWithWaterKindOfMeterTest() throws ReflectiveOperationException, SQLException, IOException
+    {
+        CsvParser parser = new CsvParser();
+        parser.setCsvContent(CSV_READING_CONTENT);
+
+        List<Reading> readings = parser.createDefaultReadingsFromCsv(false, true, false);
+
+
+        assertEquals(2, readings.size());
+        Reading reading = readings.get(0);
+        assertEquals(IReading.KindOfMeter.WASSER, reading.getKindOfMeter());
+        assertEquals("5.965", reading.getMeterCount().toString());
+        assertEquals(LocalDate.parse("01.02.2018", DateTimeFormatter.ofPattern("dd.MM.yyyy")), reading.getDateOfReading());
+        assertEquals("MST-af34569", reading.getMeterId());
+
+    }
+
+    @Test
+    void createDefaultReadingsFromCsvWithElectricityKindOfMeterTest() throws IOException, ReflectiveOperationException, SQLException
+    {
+        CsvParser parser = new CsvParser();
+        parser.setCsvContent(CSV_READING_CONTENT);
+
+        List<Reading> readings = parser.createDefaultReadingsFromCsv(false, false, true);
+
+
+        assertEquals(2, readings.size());
+        Reading reading = readings.get(0);
+        assertEquals(IReading.KindOfMeter.STROM, reading.getKindOfMeter());
+        assertEquals("5.965", reading.getMeterCount().toString());
+        assertEquals(LocalDate.parse("01.02.2018", DateTimeFormatter.ofPattern("dd.MM.yyyy")), reading.getDateOfReading());
+        assertEquals("MST-af34569", reading.getMeterId());
+    }
+
+    @Test
+    void createDefaultReadingsFromCsvWithHeatKindOfMeterTest() throws IOException, ReflectiveOperationException, SQLException
+    {
+        CsvParser parser = new CsvParser();
+        parser.setCsvContent(CSV_READING_CONTENT);
+
+        List<Reading> readings = parser.createDefaultReadingsFromCsv(true, false, false);
+
+
+        assertEquals(2, readings.size());
+        Reading reading = readings.get(0);
+        assertEquals(IReading.KindOfMeter.HEIZUNG, reading.getKindOfMeter());
+        assertEquals("5.965", reading.getMeterCount().toString());
+        assertEquals(LocalDate.parse("01.02.2018", DateTimeFormatter.ofPattern("dd.MM.yyyy")), reading.getDateOfReading());
+        assertEquals("MST-af34569", reading.getMeterId());
+    }
+
+    @Test
+    void createCustomReadingsFromCsvTest() throws IOException, ReflectiveOperationException, SQLException
+    {
+        CsvParser parser = new CsvParser();
+        parser.setCsvContent(CSV_READING_CONTENT_CUSTOM);
+
+        List<Reading> readings = parser.createCustomReadingsFromCsv();
+        Reading reading = readings.get(0);
+        assertEquals(reading.getDateOfReading().toString(), "2020-10-01");
+        assertEquals(reading.getMeterCount(), 63.0);
+        assertEquals(reading.getComment(), "");
+        assertEquals(reading.getCustomerId(), null);
+        assertEquals(reading.getKindOfMeter(), IReading.KindOfMeter.WASSER);
+        assertEquals(reading.getMeterId(), "786523123");
+        assertEquals(reading.getSubstitute(), false);
+
+    }
+
+    @Test
+    void createCustomerFromCsvTest() throws IOException
+    {
+        CsvParser parser = new CsvParser();
+        parser.setCsvContent(CSV_CUSTOMER_CONTENT);
+
+        List<Customer> customers = parser.createCustomerFromCsv();
+        Customer customer = customers.get(0);
+
+        assertEquals(customer.getId().toString(), "ec617965-88b4-4721-8158-ee36c38e4db3");
+        assertEquals(customer.getGender(), ICustomer.Gender.M);
+        assertEquals(customer.getFirstName(), "Pumukel");
+        assertEquals(customer.getLastName(), "Kobold");
+        assertEquals(customer.getBirthDate().toString(), "1962-02-21");
+
 
     }
 }

@@ -221,6 +221,9 @@ public class CsvParser
         List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
 
         String readingCsv = Serializer.serializeIntoCsv(typeReadings);
+        if (readingCsv == null) {
+            return readingHeader;
+        }
 
         return readingHeader + readingCsv;
     }
@@ -304,6 +307,7 @@ public class CsvParser
 
     public List<Reading> createCustomReadingsFromCsv() throws ReflectiveOperationException, SQLException, IOException
     {
+        CustomerService cs = ServiceProvider.Services.getCustomerService();
         List<Reading> readings = new ArrayList<>();
         Iterable<List<String>> customReadingValues = getCustomReadingValues();
 
@@ -350,11 +354,10 @@ public class CsvParser
         return readings;
     }
 
-    public List<Customer> createCustomerFromCsv() throws IOException
+    public List<Customer> createCustomerFromCsv()
     {
-        CsvParser parser = new CsvParser();
         List<Customer> customers = new ArrayList<>();
-        Iterable<List<String>> customerValues = parser.getCustomerValues();
+        Iterable<List<String>> customerValues = getCustomerValues();
         for (List<String> customerList : customerValues)
         {
             Customer customer = new Customer();
