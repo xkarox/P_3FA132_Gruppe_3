@@ -64,7 +64,8 @@ body {
 
 
 header {
-    background-color: var(--bg-medium);
+    /*background-color: var(--bg-medium);*/
+    background-image: linear-gradient(to bottom right, var(--bg-light), var(--bg-light), var(--bg-dark));
     color: var(--color-primary);
     padding: 1.25rem;
     border-radius: 12px;
@@ -81,7 +82,8 @@ header h1 {
 
 
 nav {
-    background-color: var(--bg-light);
+    /*background-color: var(--bg-light);*/
+    background-image: linear-gradient(to bottom right, var(--bg-light), var(--bg-light), var(--bg-dark));
     padding: 1rem;
     border-radius: 12px;
     margin: 1rem;
@@ -94,7 +96,7 @@ nav a {
 }
 
 button {
-    background-color: var(--color-primary);
+    background-image: linear-gradient(to bottom right, var(--color-primary), var(--color-extra));
     color: var(--text-color);
     border: none;
     padding: 0.75rem 1.5rem;
