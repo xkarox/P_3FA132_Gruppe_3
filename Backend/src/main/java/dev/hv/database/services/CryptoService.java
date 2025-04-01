@@ -112,8 +112,9 @@ public class CryptoService
                 .value(updatedToken)
                 .path("/")
                 .maxAge(CryptoService.getExpirationTime())
-                .secure(true)
+                .secure(false)
                 .httpOnly(true)
+                .sameSite(NewCookie.SameSite.LAX)
                 .build();
     }
 }
