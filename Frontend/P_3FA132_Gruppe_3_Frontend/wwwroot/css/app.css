@@ -43,11 +43,15 @@ svg path {
 }
 
 body {
-    /*background-color: var(--bg-dark);*/
-    background: -webkit-radial-gradient(circle at bottom, rgba(54,52,62,1) 0%, rgba(39,37,48,1) 23%, rgba(31,28,44,1) 61%, rgba(0,0,0,1) 100%);
-    background: radial-gradient(circle at bottom, rgba(54,52,62,1) 0%, rgba(39,37,48,1) 23%, rgba(31,28,44,1) 61%, rgba(0,0,0,1) 100%);    color: var(--text-color);
+    background-size: 100% 100%;
+    background: radial-gradient(circle at bottom, rgba(54, 52, 62, 1) 0%, rgba(39, 37, 48, 1) 23%, rgba(31, 28, 44, 1) 61%, rgba(0, 0, 0, 1) 100%) no-repeat fixed center bottom;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
     font-family: 'Roboto', sans-serif;
 }
+
 
 header {
     background-color: var(--bg-medium);
