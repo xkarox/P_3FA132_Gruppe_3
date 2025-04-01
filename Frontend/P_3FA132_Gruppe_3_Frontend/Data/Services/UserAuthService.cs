@@ -4,8 +4,6 @@ using System.Security.Claims;
 using BitzArt.Blazor.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.WebAssembly.Http;
-using Newtonsoft.Json;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Authentication;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 
@@ -15,11 +13,13 @@ public class UserAuthService
     private readonly ICookieService _cookieService;
     private readonly AuthenticatedUserStorage _authUserStore;
     private readonly NavigationManager _navigationManager;
+    // private readonly AuthenticationStateProvider _authenticationStateProvider;
     
     public UserAuthService(IHttpClientFactory httpClientFactory, 
         ICookieService cookieService,
         AuthenticatedUserStorage authUserStore,
-        NavigationManager navigationManager)
+        NavigationManager navigationManager
+        )
     {
         _httpClient = httpClientFactory.CreateClient("AuthApi");
         _cookieService = cookieService;

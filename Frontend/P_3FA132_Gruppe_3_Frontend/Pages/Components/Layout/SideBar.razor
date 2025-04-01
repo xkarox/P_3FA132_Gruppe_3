@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JSRuntime
 @inject UserAuthService UserAuthService
+@inject AuthStateProvider AuthState
 
 <nav class="sidebar">
     <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
@@ -14,7 +15,7 @@
             <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc"/>
         </NotAuthorized>
         <Authorized>
-            <SideBarItem Text="Logout" IconName="logout" OnClickFunc="() => UserAuthService.Logout()"/>
+            <SideBarItem Text="Logout++" IconName="logout" OnClickFunc="@Logout"/>
         </Authorized>
     </AuthorizeView>
 </nav>
@@ -68,16 +69,18 @@
         }
     }
 
-    public async void Logout()
+    public async Task Logout()
     {
+        AuthState.Logout();
         await UserAuthService.Logout();
+        showComp = false;
         StateHasChanged();
     }
 
     public void Dispose()
     {
         _dotNetRef?.Dispose();
-    }
+    }    
 
     public Task CallbackFunc()
     {

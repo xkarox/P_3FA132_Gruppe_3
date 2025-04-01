@@ -12,13 +12,15 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddAuthorizationCore();
 
 // Register Services for singelton use
-builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
-builder.Services.AddScoped<UserAuthService>();
-builder.Services.AddScoped<JwtAuthorizationMessageHandler>();
 builder.Services.AddScoped<AuthenticatedUserStorage>();
+
+builder.Services.AddScoped<UserAuthService>();
+builder.Services.AddScoped<AuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => 
+    sp.GetRequiredService<AuthStateProvider>());
+builder.Services.AddScoped<JwtAuthorizationMessageHandler>();
 
 builder.Services.AddScoped<DatabaseService>();
 builder.Services.AddScoped<CustomerService>();
@@ -26,6 +28,8 @@ builder.Services.AddScoped<ReadingService>();
 
 builder.Services.AddScoped<UtilityService>();
 
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
 // Register MVVM 
 builder.Services.AddMvvm(options =>
 { 
