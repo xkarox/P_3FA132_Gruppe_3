@@ -1,5 +1,7 @@
 package dev.server.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
@@ -64,6 +66,41 @@ public class CustomerController {
                     .build();
         } catch (JsonProcessingException | SQLException | RuntimeException e) {
             logger.error("Error adding customer: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
+        } catch (IOException e) {
+            logger.error("Internal server error: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+
+    @POST
+    @Path("/batch")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addCustomerBatch(String batchCustomers) throws JsonProcessingException
+    {
+        logger.info("Received request to add customers: {}", batchCustomers);
+            try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+            {
+                ObjectMapper mapper = new ObjectMapper();
+                List<Customer> objectList = mapper.readValue(batchCustomers, new TypeReference<List<Customer>>() {});
+
+                for (Customer customer : objectList)
+                {
+                    if (customer.getId() == null)
+                    {
+                        customer.setId(UUID.randomUUID());
+                    }
+                }
+                cs.addCustomerBatch(objectList);
+
+                return Response.status(Response.Status.CREATED)
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }  catch (JsonProcessingException | SQLException | RuntimeException e) {
+            logger.error("Error adding customers: {}", e.getMessage(), e);
             return createErrorResponse(Response.Status.BAD_REQUEST,
                     ResponseMessages.ControllerBadRequest.toString());
         } catch (IOException e) {

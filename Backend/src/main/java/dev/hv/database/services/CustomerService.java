@@ -8,6 +8,7 @@ import dev.hv.model.classes.Reading;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>
@@ -44,6 +45,45 @@ public class CustomerService extends AbstractBaseService<Customer>
         }
 
         return item;
+    }
+
+    public void addCustomerBatch(List<Customer> items) throws SQLException
+    {
+        if (items == null || items.isEmpty())
+            throw new IllegalArgumentException("Customer is null and cannot be inserted.");
+
+        String tableName = items.getFirst().getSerializedTableName();
+        String sqlStatement = "INSERT INTO " + tableName +
+                " (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?);";
+
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
+        {
+            for (int i = 0; i < items.size(); i++)
+            {
+                Customer item = items.get(i);
+                stmt.setString(1, item.getId().toString());
+                stmt.setString(2, item.getFirstName());
+                stmt.setString(3, item.getLastName());
+                stmt.setDate(4, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
+                stmt.setString(5, String.valueOf(item.getGender().ordinal()));
+                stmt.addBatch();
+            }
+
+            boolean commitState = this._dbConnection.getConnection().getAutoCommit();
+            try{
+                // Disable auto commit for rollback on failure in batch
+                this._dbConnection.getConnection().setAutoCommit(false);
+                stmt.executeBatch();
+                this._dbConnection.getConnection().commit();
+            } catch (SQLException e) {
+                this._dbConnection.getConnection().rollback();
+                throw new SQLException("Fehler beim Rollback der Transaktion");
+
+            } finally {
+                // Reset to original state
+                this._dbConnection.getConnection().setAutoCommit(commitState);
+            }
+        }
     }
 
     @Override
