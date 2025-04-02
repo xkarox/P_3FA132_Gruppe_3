@@ -60,7 +60,8 @@ public class AuthorisationService
 
     public static boolean CanUserAccessResource(UUID effectedUserId)
     {
-        if (AuthDbFlag() || Objects.equals(MDC.get("id"), effectedUserId.toString()))
+        String idString = effectedUserId == null ? "Das wird nie diesen Wert haben xD" : effectedUserId.toString();
+        if (AuthDbFlag() || Objects.equals(MDC.get("id"), idString))
             return true;
         return IsUserAdmin();
     }
