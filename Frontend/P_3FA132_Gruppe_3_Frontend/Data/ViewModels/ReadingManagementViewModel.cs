@@ -51,7 +51,7 @@ public partial class ReadingManagementViewModel(
     public override async void OnInitialized()
     {
         Readings = new ObservableCollection<Reading>();
-        PaginationState = new PaginationState() { ItemsPerPage = 15 };
+        PaginationState = new PaginationState() { ItemsPerPage = 7 };
         ReadingQuery = new ReadingQuery();
         Customers = await customerService.GetAll() ?? new List<Customer>();
         var enumerable = Customers as Customer[] ?? Customers.ToArray();

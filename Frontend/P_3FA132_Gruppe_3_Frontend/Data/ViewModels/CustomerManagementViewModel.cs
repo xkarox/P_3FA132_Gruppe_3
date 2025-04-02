@@ -45,7 +45,7 @@ public partial class CustomerManagementViewModel(
     {
         await base.OnInitializedAsync();
         
-        PaginationState = new PaginationState() { ItemsPerPage = 15 };
+        PaginationState = new PaginationState() { ItemsPerPage = 7 };
         Console.WriteLine(PaginationState);
         LoadCustomers();
     }

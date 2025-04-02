@@ -1,4 +1,6 @@
 using System.Net.Http.Json;
+using BitzArt.Blazor.Cookies;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using P_3FA132_Gruppe_3_Frontend.Data.Authentication;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
@@ -9,8 +11,11 @@ public class AuthService
 {
     private readonly HttpClient _httpClient;
     private readonly AuthenticationStateProvider _authStateProvider;
+    private readonly ICookieService _cookieService;
     
-    public AuthService(IHttpClientFactory httpClientFactory, AuthenticationStateProvider authStateProvider)
+    public AuthService(IHttpClientFactory httpClientFactory, 
+        AuthenticationStateProvider authStateProvider,
+        ICookieService cookieService)
     {
         _httpClient = httpClientFactory.CreateClient("AuthApi");
         _authStateProvider = authStateProvider;
