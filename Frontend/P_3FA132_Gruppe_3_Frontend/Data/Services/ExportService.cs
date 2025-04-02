@@ -53,9 +53,9 @@ public class ExportService
         return await response.Content.ReadAsStringAsync();
     }
 
-    public async Task<string> ExportFile(string fileContent, string fileType)
+    public async Task<string> ExportCustomer(string fileContent, string fileType)
     {
-        const string path = "/exportFile";
+        const string path = "/upload";
         string contentType;
 
         switch (fileType.ToLower())
@@ -73,7 +73,34 @@ public class ExportService
                 throw new ArgumentException("Unsupported file type. Allowed: json, xml, csv.");
         }
         var content = new StringContent(fileContent, Encoding.UTF8, contentType);
-        var response = await _httpClient.PostAsync(ExportUrl + path, content);
+        var response = await _httpClient.PostAsync(CustomerUrl + path, content);
+
+        response.EnsureSuccessStatusCode();
+        
+        return await response.Content.ReadAsStringAsync();
+    }
+    
+    public async Task<string> ExportReading(string fileContent, string fileType)
+    {
+        const string path = "/upload";
+        string contentType;
+
+        switch (fileType.ToLower())
+        {
+            case ".json":
+                contentType = "application/json";
+                break;
+            case ".xml":
+                contentType = "application/xml";
+                break;
+            case ".csv":
+                contentType = "text/plain";
+                break;
+            default:
+                throw new ArgumentException("Unsupported file type. Allowed: json, xml, csv.");
+        }
+        var content = new StringContent(fileContent, Encoding.UTF8, contentType);
+        var response = await _httpClient.PostAsync(ReadingUrl + path, content);
 
         response.EnsureSuccessStatusCode();
         

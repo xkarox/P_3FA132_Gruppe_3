@@ -10,10 +10,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.hv.model.classes.Customer;
+import dev.hv.model.classes.CustomerWrapper;
 import dev.hv.model.classes.Reading;
+import dev.hv.model.classes.ReadingWrapper;
+import dev.server.validator.CustomerJsonSchemaValidatorService;
+import dev.server.validator.ReadingJsonSchemaValidationService;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -126,8 +136,7 @@ public class Utils
                     .entity(Utils.getObjectMapper().writeValueAsString(errorResponse))
                     .type(MediaType.APPLICATION_JSON)
                     .build();
-        }
-        catch (JsonProcessingException e)
+        } catch (JsonProcessingException e)
         {
             Map<String, String> response = new HashMap<>();
             response.put("message", ResponseMessages.ControllerInternalError.toString());
@@ -138,4 +147,108 @@ public class Utils
         }
     }
 
+    public static String handleFile(String contentType, String fileContent, String type) throws IOException, JAXBException, ReflectiveOperationException, SQLException
+    {
+        String mainContentType = contentType.split(";")[0].trim();
+
+        switch (mainContentType)
+        {
+            case MediaType.APPLICATION_JSON ->
+            {
+                return handleJson(fileContent, type);
+            }
+            case MediaType.APPLICATION_XML ->
+            {
+                return handleXml(fileContent, type);
+            }
+            case MediaType.TEXT_PLAIN ->
+            {
+                return handleCsv(fileContent, type);
+            }
+        }
+        return mainContentType;
+    }
+
+    private static String handleJson(String jsonContent, String type) throws JsonProcessingException
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(jsonContent);
+        String rootElementName = rootNode.fieldNames().next();
+
+        if (!rootElementName.equals(type))
+        {
+            return "";
+        }
+
+        Response validationResponse = validateRequestData(jsonContent, type);
+        return (validationResponse == null) ? jsonContent : "";
+    }
+
+    private static String handleXml(String xmlContent, String type) throws JAXBException, IOException, JAXBException, JsonProcessingException
+    {
+        if (type.equals("customers") && xmlContent.contains("<CustomerWrapper>"))
+        {
+            JAXBContext context = JAXBContext.newInstance(CustomerWrapper.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            CustomerWrapper wrapper = (CustomerWrapper) unmarshaller.unmarshal(new StringReader(xmlContent));
+
+            String customersJsonString = Utils.packIntoJsonString(wrapper.getCustomers(), Customer.class);
+            Response validationResponse = validateRequestData(customersJsonString, "customers");
+
+            return (validationResponse == null) ? customersJsonString : "";
+        } else if (type.equals("readings") && xmlContent.contains("<ReadingWrapper>"))
+        {
+            JAXBContext context = JAXBContext.newInstance(ReadingWrapper.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            ReadingWrapper wrapper = (ReadingWrapper) unmarshaller.unmarshal(new StringReader(xmlContent));
+
+            String readingsJsonString = Utils.packIntoJsonString(wrapper.getReadings(), Reading.class);
+            Response validationResponse = validateRequestData(readingsJsonString, "readings");
+
+            return (validationResponse == null) ? readingsJsonString : "";
+        }
+
+        return "";
+    }
+
+    private static String handleCsv(String csvContent, String type) throws IOException, ReflectiveOperationException, SQLException
+    {
+        List<?> objects = Serializer.deserializeCsv(csvContent);
+        if (!objects.isEmpty())
+        {
+            Object firstItem = objects.getFirst();
+
+            if (type.equals("readings") && firstItem instanceof Reading)
+            {
+                return Utils.packIntoJsonString((List<Reading>) objects, Reading.class);
+            } else if (type.equals("customers") && firstItem instanceof Customer)
+            {
+                return Utils.packIntoJsonString((List<Customer>) objects, Customer.class);
+            }
+        }
+        return "";
+    }
+
+    private static Response validateRequestData(String jsonString, String rootElement) throws JsonProcessingException
+    {
+        if (rootElement.equals("customers"))
+        {
+            CustomerJsonSchemaValidatorService validator = new CustomerJsonSchemaValidatorService();
+            validator.setJsonSchemaPath("schemas/customers.json");
+            validator.loadSchema(CustomerJsonSchemaValidatorService.class);
+            boolean invalid = validator.validate(jsonString);
+
+            return invalid ? createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString()) : null;
+        } else if (rootElement.equals("readings"))
+        {
+            ReadingJsonSchemaValidationService validator = new ReadingJsonSchemaValidationService();
+            validator.setJsonSchemaPath("schemas/readings.json");
+            validator.loadSchema(ReadingJsonSchemaValidationService.class);
+            boolean invalid = validator.validate(jsonString);
+
+            return invalid ? createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString()) : null;
+        }
+
+        return null;
+    }
 }

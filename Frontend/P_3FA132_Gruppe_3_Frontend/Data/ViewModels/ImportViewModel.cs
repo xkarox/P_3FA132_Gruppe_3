@@ -59,7 +59,17 @@ public partial class ImportViewModel(
 
             var stringContent = await reader.ReadToEndAsync();
 
-            var responses = await exportService.ExportFile(stringContent, extension);
+            var responses = "";
+            var fileType = DetectFileType(stringContent, extension);
+            if (fileType == "customers")
+            {
+                responses = await exportService.ExportCustomer(stringContent, extension);
+            }
+            else if (fileType == "readings")
+            {
+                responses = await exportService.ExportReading(stringContent, extension);
+            }
+            
 
             using (var document = JsonDocument.Parse(responses))
             {
@@ -115,5 +125,49 @@ public partial class ImportViewModel(
         Customers.Clear();
         Readings.Clear();
         _browserFile = null;
+    }
+
+    private string DetectFileType(string content, string extension)
+    {
+        if (extension == ".json")
+        {
+            using JsonDocument doc = JsonDocument.Parse(content);
+            if (doc.RootElement.TryGetProperty("customers", out _))
+            {
+                return "customers";
+            }
+            if (doc.RootElement.TryGetProperty("readings", out _))
+            {
+                return "readings";
+            }
+        }
+        else if (extension == ".xml")
+        {
+            if (content.Contains("<CustomerWrapper>"))
+            {
+                return "customers";
+            }
+            if (content.Contains("<ReadingWrapper>"))
+            {
+                return "readings";
+            }
+        }
+        else if (extension == ".csv")
+        {
+            var firstLine = content.Split('\n').FirstOrDefault();
+            if (firstLine != null)
+            {
+                if (firstLine.Contains("Vorname"))
+                {
+                    return "customers";
+                }
+                if (firstLine.Contains("Kunde") || firstLine.Contains("KundenId"))
+                {
+                    return "readings";
+                }
+            }
+        }
+
+        return "unknown";
     }
 }

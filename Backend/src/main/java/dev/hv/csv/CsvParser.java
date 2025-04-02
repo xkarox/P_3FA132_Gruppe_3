@@ -156,8 +156,29 @@ public class CsvParser
             if (headers.length >= 3)
             {
                 Collections.addAll(headerList, headers);
+
+            }
+            if (scanner.hasNextLine())
+            {
                 scanner.nextLine();
             }
+        }
+        return headerList;
+    }
+
+    public Iterable<String> getCustomReadingHeader()
+    {
+        CsvFormatter formatter = new CsvFormatter();
+        setCsvContent(formatter.formatReadingCsv(this.getCsvContent()));
+        List<String> headerList = new ArrayList<>();
+        Scanner scanner = new Scanner(this.csvContent);
+        String line;
+
+        if (scanner.hasNextLine())
+        {
+            line = scanner.nextLine().replace("\"", "");
+            String[] headers = line.split("[;,]");
+            Collections.addAll(headerList, headers);
         }
         return headerList;
     }
@@ -342,10 +363,11 @@ public class CsvParser
             }
             if (customReadingList.size() > 3)
             {
-                if (cs.getById(UUID.fromString(customReadingList.get(3))) != null) {
+                if (cs.getById(UUID.fromString(customReadingList.get(3))) != null)
+                {
                     reading.setCustomer(cs.getById(UUID.fromString(customReadingList.get(3))));
-                }
-                else {
+                } else
+                {
                     Customer customer = new Customer(UUID.fromString(customReadingList.get(3)));
                     reading.setCustomer(customer);
                 }
@@ -399,12 +421,15 @@ public class CsvParser
                 switch (customerList.get(1))
                 {
                     case "Herr":
+                    case "M":
                         customer.setGender(ICustomer.Gender.M);
                         break;
                     case "Frau":
+                    case "W":
                         customer.setGender(ICustomer.Gender.W);
                         break;
                     case "k.A.":
+                    case "U":
                         customer.setGender(ICustomer.Gender.U);
                         break;
                 }

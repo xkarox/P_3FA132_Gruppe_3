@@ -72,7 +72,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                     {
                         Id = root.GetProperty("id").GetGuid(),
                         Comment = root.GetProperty("comment").ValueKind == JsonValueKind.Null ? null : root.GetProperty("comment").GetString(),
-                        CustomerId = root.GetProperty("customerId").ValueKind == JsonValueKind.Null ? null : root.GetProperty("customerId").GetGuid(),
+                        // CustomerId = root.GetProperty("customerId").ValueKind == JsonValueKind.Null ? null : root.GetProperty("customerId").GetGuid(),
                         Customer = root.GetProperty("customer").ValueKind == JsonValueKind.Null ? null : Customer.LoadJson(root.ToString()),
                         DateOfReading = root.GetProperty("dateOfReading").ValueKind == JsonValueKind.Null ? null : DateOnly.Parse(root.GetProperty("dateOfReading").GetString()),
                         KindOfMeter = Enum.Parse<KindOfMeter>(root.GetProperty("kindOfMeter").GetString()),
@@ -97,7 +97,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                         Id = root.GetProperty("id").ValueKind == JsonValueKind.Null ? Guid.Empty : root.GetProperty("id").GetGuid(),
                         Comment = root.GetProperty("comment").ValueKind == JsonValueKind.Null ? null : root.GetProperty("comment").GetString(),
                         Customer = root.GetProperty("customer").ValueKind == JsonValueKind.Null ? null : Customer.LoadJson(root.ToString()),
-                        CustomerId = root.GetProperty("customerId").ValueKind == JsonValueKind.Null ? root.GetProperty("customer").GetProperty("id").GetGuid() : root.GetProperty("customerId").GetGuid(),
+                        // CustomerId = root.GetProperty("customerId").ValueKind == JsonValueKind.Null ? root.GetProperty("customer").GetProperty("id").GetGuid() : root.GetProperty("customerId").GetGuid(),
                         DateOfReading = root.GetProperty("dateOfReading").ValueKind == JsonValueKind.Null ? null : DateOnly.Parse(root.GetProperty("dateOfReading").GetString()),
                         KindOfMeter = Enum.Parse<KindOfMeter>(root.GetProperty("kindOfMeter").GetString()),
                         MeterCount = root.GetProperty("meterCount").GetDouble(),

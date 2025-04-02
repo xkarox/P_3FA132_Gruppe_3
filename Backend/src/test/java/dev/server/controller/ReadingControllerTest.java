@@ -615,7 +615,220 @@ public class ReadingControllerTest
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(500, response.statusCode(), "Returned status code should be 5090 Internal Server Error");
+        assertEquals(500, response.statusCode(), "Returned status code should be 500 Internal Server Error");
         assertTrue(response.body().contains("Internal Server IOError"));
+    }
+
+    @Test
+    void getReadingsFileDataJson() throws IOException, InterruptedException
+    {
+        String url = _url + "/getReadingsFileData?kindOfMeter=WASSER&fileType=json";
+        String url1 = _url + "/getReadingsFileData?kindOfMeter=STROM&fileType=json";
+        String url2 = _url + "/getReadingsFileData?kindOfMeter=HEIZUNG&fileType=json";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpRequest request1 = HttpRequest.newBuilder()
+                .uri(URI.create(url1))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+
+        HttpRequest request2 = HttpRequest.newBuilder()
+                .uri(URI.create(url2))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+
+        HttpResponse<String> response1 = _httpClient.send(request1, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response1.statusCode());
+
+        HttpResponse<String> response2 = _httpClient.send(request2, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response2.statusCode());
+    }
+
+
+    @Test
+    void getReadingsFileDataXml() throws IOException, InterruptedException
+    {
+        String url = _url + "/getReadingsFileData?kindOfMeter=WASSER&fileType=xml";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void getReadingsFileDataCsv() throws IOException, InterruptedException
+    {
+        String url = _url + "/getReadingsFileData?kindOfMeter=WASSER&fileType=csv";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void getReadingsFileDataBadRequestTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/getReadingsFileData?kindOfMeter=&fileType=csv";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
+
+        String url2 = _url + "/getReadingsFileData?kindOfMeter=&fileType=";
+
+        HttpRequest request2 = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response2 = _httpClient.send(request2, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.statusCode());
+    }
+
+    @Test
+    void getReadingsFileDataInternalServerErrorTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/getReadingsFileData?kindOfMeter=WASSER&fileType=exe";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void uploadReadingFileJsonTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/upload";
+        String jsonInput = "{\n" +
+                "  \"readings\": [\n" +
+                "    {\n" +
+                "      \"id\": \"b3bec254-dd57-47bc-85b0-01d84a85f509\",\n" +
+                "      \"comment\": null,\n" +
+                "      \"customer\": {\n" +
+                "        \"id\": \"ec617965-88b4-4721-8158-ee36c38e4db3\",\n" +
+                "        \"firstName\": \"Pumukel\",\n" +
+                "        \"lastName\": \"Kobold\",\n" +
+                "        \"birthDate\": null,\n" +
+                "        \"gender\": \"M\"\n" +
+                "      },\n" +
+                "      \"dateOfReading\": \"2019-02-01\",\n" +
+                "      \"kindOfMeter\": \"STROM\",\n" +
+                "      \"meterCount\": 19471,\n" +
+                "      \"meterId\": \"MST-af34569\",\n" +
+                "      \"substitute\": false\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonInput))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void uploadReadingFileXmlTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/upload";
+        String xmlInput = "<ReadingWrapper>\n" +
+                "<Readings>\n" +
+                "<Id>b3bec254-dd57-47bc-85b0-01d84a85f509</Id>\n" +
+                "<Customer>\n" +
+                "<Id>ec617965-88b4-4721-8158-ee36c38e4db3</Id>\n" +
+                "<FirstName>Pumukel</FirstName>\n" +
+                "<LastName>Kobold</LastName>\n" +
+                "<Gender>M</Gender>\n" +
+                "</Customer>\n" +
+                "<DateOfReading>2019-02-01</DateOfReading>\n" +
+                "<KindOfMeter>STROM</KindOfMeter>\n" +
+                "<MeterCount>19471.0</MeterCount>\n" +
+                "<MeterId>MST-af34569</MeterId>\n" +
+                "<Substitute>false</Substitute>\n" +
+                "</Readings>\n" +
+                "</ReadingWrapper>";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/xml")
+                .POST(HttpRequest.BodyPublishers.ofString(xmlInput))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void uploadReadingFileCsvTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/upload";
+        String csvInput = "Datum;Zählerstand;Kommentar;KundenId;Zählerart;ZählerstandId;Ersatz\n" +
+                "01.10.2020;63.0;;ec617965-88b4-4721-8158-ee36c38e4db3;WASSER;786523123;false;\n";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "text/plain")
+                .POST(HttpRequest.BodyPublishers.ofString(csvInput))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void uploadReadingFileBadRequestJsonTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/upload";
+
+        String invalidJson = "{\"reading\": []}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(invalidJson))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
     }
 }

@@ -14,6 +14,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -245,16 +246,21 @@ public class ReadingController
     @GET
     @Path("/getReadingsFileData")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response getReadingsFileData(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter, @QueryParam("fileType") String fileType) {
-        try {
-            if (fileType == null || fileType.isEmpty()) {
+    public Response getReadingsFileData(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter, @QueryParam("fileType") String fileType)
+    {
+        try
+        {
+            if (fileType == null || fileType.isEmpty())
+            {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing Content-Type header").build();
             }
-            if (kindOfMeter == null) {
+            if (kindOfMeter == null)
+            {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing kindOfMeter").build();
             }
 
-            return switch (fileType) {
+            return switch (fileType)
+            {
                 case "json" -> handleJson(kindOfMeter);
                 case "xml" -> handleXml(kindOfMeter);
                 case "csv" -> handleCsv(kindOfMeter);
@@ -262,73 +268,77 @@ public class ReadingController
                         .entity("Unsupported Content-Type: " + fileType)
                         .build();
             };
-        }
-        catch (Exception e) {
+        } catch (Exception e)
+        {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred: " + e.getMessage())
                     .build();
         }
     }
 
-    private Response handleJson(IReading.KindOfMeter kindOfMeter) {
-        try (ReadingService rs = ServiceProvider.Services.getReadingService())
-        {
-            List<Reading> allReadings = rs.getAll();
-            List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
+    private Response handleJson(IReading.KindOfMeter kindOfMeter) throws SQLException, IOException, ReflectiveOperationException
+    {
+        ReadingService rs = ServiceProvider.Services.getReadingService();
+        List<Reading> allReadings = rs.getAll();
+        List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
 
-            return Response.status(Response.Status.OK)
-                    .entity(Utils.packIntoJsonString(typeReadings, Reading.class))
-                    .build();
+        return Response.status(Response.Status.OK)
+                .entity(Utils.packIntoJsonString(typeReadings, Reading.class))
+                .build();
 
-        } catch (Exception e)
-        {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the Json file: " + e.getMessage())
-                    .build();
-        }
     }
 
-    private Response handleXml(IReading.KindOfMeter kindOfMeter) {
-        try (ReadingService rs = ServiceProvider.Services.getReadingService())
-        {
+    private Response handleXml(IReading.KindOfMeter kindOfMeter) throws SQLException, IOException, JAXBException, ReflectiveOperationException
+    {
 
-            JAXBContext objToConvert = JAXBContext.newInstance(ReadingWrapper.class);
-            Marshaller marshallerObj = objToConvert.createMarshaller();
-            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        ReadingService rs = ServiceProvider.Services.getReadingService();
+        JAXBContext objToConvert = JAXBContext.newInstance(ReadingWrapper.class);
+        Marshaller marshallerObj = objToConvert.createMarshaller();
+        marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            List<Reading> allReadings = rs.getAll();
-            List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
+        List<Reading> allReadings = rs.getAll();
+        List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
 
-            ReadingWrapper readingsWrapper = new ReadingWrapper(typeReadings);
-            StringWriter xmlWriter = new StringWriter();
-            marshallerObj.marshal(readingsWrapper, xmlWriter);
+        ReadingWrapper readingsWrapper = new ReadingWrapper(typeReadings);
+        StringWriter xmlWriter = new StringWriter();
+        marshallerObj.marshal(readingsWrapper, xmlWriter);
 
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.APPLICATION_XML)
-                    .entity(xmlWriter.toString())
-                    .build();
-        } catch (Exception e)
-        {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the XML file: " + e.getMessage())
-                    .build();
-        }
+        return Response.status(Response.Status.OK)
+                .type(MediaType.APPLICATION_XML)
+                .entity(xmlWriter.toString())
+                .build();
     }
 
-    private Response handleCsv(IReading.KindOfMeter kindOfMeter) {
-        try
+    private Response handleCsv(IReading.KindOfMeter kindOfMeter) throws IOException, ReflectiveOperationException, SQLException
+    {
+        CsvParser parser = new CsvParser();
+        String csvData = parser.createReadingsByKindOfMeter(kindOfMeter);
+        return Response.status(Response.Status.OK)
+                .type(MediaType.TEXT_PLAIN)
+                .entity(csvData)
+                .build();
+    }
+
+    @POST
+    @Path("/upload")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadReadingFile(@HeaderParam("Content-Type") String contentType, String fileContent) throws IOException, JAXBException, ReflectiveOperationException, SQLException
+    {
+        String jsonResponse = handleFile(contentType, fileContent, "readings");
+        if (jsonResponse.isEmpty())
         {
-            CsvParser parser = new CsvParser();
-            String csvData = parser.createReadingsByKindOfMeter(kindOfMeter);
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.TEXT_PLAIN)
-                    .entity(csvData)
-                    .build();
-        } catch (Exception e)
-        {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the CSV file: " + e.getMessage())
-                    .build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(ResponseMessages.ControllerBadRequest.toString()).build();
         }
+        return Response.status(Response.Status.OK)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(jsonResponse)
+                .build();
+    }
+
+    private String handleFile(String contentType, String fileContent, String type) throws IOException, JAXBException, ReflectiveOperationException, SQLException, JAXBException
+    {
+        return Utils.handleFile(contentType, fileContent, type);
     }
 }

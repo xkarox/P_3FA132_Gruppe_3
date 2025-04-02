@@ -150,6 +150,7 @@ public class Serializer
         List<String> csvCustomerHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomerHeader());
 
         List<String> csvReadingHeader = List.copyOf((java.util.Collection<? extends String>) parser.getReadingHeader());
+        List<String> csvCustomReadingHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomReadingHeader());
 
         if (Arrays.equals(csvCustomerHeader.toArray(), customerHeader))
         {
@@ -166,7 +167,7 @@ public class Serializer
         {
             isDefaultReading = true;
             heat = true;
-        } else if (Arrays.equals(csvReadingHeader.toArray(), customReadingHeader))
+        } else if (Arrays.equals(csvCustomReadingHeader.toArray(), customReadingHeader))
         {
             isCustomReading = true;
         }

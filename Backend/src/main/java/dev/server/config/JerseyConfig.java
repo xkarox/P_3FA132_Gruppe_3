@@ -18,7 +18,6 @@ public class JerseyConfig extends ResourceConfig
         register(CustomerController.class);
         register(ReadingController.class);
         register(DatabaseController.class);
-        register(ExportController.class);
 
         // Register filter
         packages("dev.hv.server.filter");
