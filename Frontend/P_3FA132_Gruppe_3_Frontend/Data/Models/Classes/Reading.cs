@@ -47,6 +47,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                 id = Id == Guid.Empty ? null : Id.ToString(),
                 comment = Comment,
                 customer = Customer == null ? null : Customer.BuildFormate(),
+                customerId = CustomerId,
                 dateOfReading = DateOfReading == default ? null : DateOfReading?.ToString("yyyy-MM-dd"),
                 kindOfMeter = KindOfMeter.ToString(),
                 meterCount = MeterCount,
