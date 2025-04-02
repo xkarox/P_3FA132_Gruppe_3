@@ -99,10 +99,6 @@ public class Reading implements IReading
     @Nullable
     public UUID getCustomerId()
     {
-        if(this._customerId == null)
-        {
-            return this._customer == null ? null : this._customer.getId();
-        }
         return this._customerId;
     }
 
