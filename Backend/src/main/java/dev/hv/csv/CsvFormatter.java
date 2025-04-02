@@ -28,7 +28,7 @@ public class CsvFormatter
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error processing CSV file", e);
         }
 
         return formattedContent.toString();
@@ -55,7 +55,7 @@ public class CsvFormatter
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error processing CSV file", e);
         }
 
         return formattedContent.toString();

@@ -39,7 +39,6 @@ public class Reading implements IReading
     private String _comment;
 
     @XmlTransient
-    @JsonProperty("customerId")
     @IFieldInfo(fieldName = "customerId", fieldType = String.class)
     private UUID _customerId;
 

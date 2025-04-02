@@ -177,40 +177,6 @@ public class CustomerController {
                     ResponseMessages.ControllerInternalError.toString());
         }
     }
-    @GET
-    @Path ("/getCustomersQuery")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCustomersQuery(@QueryParam("firstname") String firstName,
-                                      @QueryParam("lastname") String lastName) throws JsonProcessingException
-    {
-        logger.info("Received request to get readings with parameters - firstName: {}, lastName: {}",
-                firstName, lastName);
-
-        try {
-            String firstN = null;
-            if (firstName != null) {
-                firstN = firstName;
-            }
-
-            String lastN = null;
-            if (lastName != null) {
-                lastN = lastName;
-            }
-
-            try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
-                Collection<Customer> queryResults = cs.queryCustomers(Optional.ofNullable(firstN), Optional.ofNullable(lastN));
-                logger.info("Readings retrieved successfully");
-                return Response.status(Response.Status.OK)
-                        .entity(Utils.packIntoJsonString(queryResults, Customer.class))
-                        .build();
-            }
-        }
-        catch (SQLException | IOException | ReflectiveOperationException e) {
-            logger.error("Error retrieving customers: {}", e.getMessage(), e);
-            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
-                    ResponseMessages.ControllerInternalError.toString());
-        }
-    }
 
     @GET
     @Path("/getCustomersFileData")

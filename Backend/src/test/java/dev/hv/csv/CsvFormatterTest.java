@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CsvFormatterTest
@@ -138,5 +139,17 @@ public class CsvFormatterTest
             int actualLines = formattedContent.split("\n").length;
             assertEquals(expectedLines, actualLines, "Formatted line count mismatch");
         }
+    }
+
+    @Test
+    void formatReadingThrowsErrorTest() {
+        CsvFormatter formatter = new CsvFormatter();
+        assertThrows(RuntimeException.class, () -> formatter.formatReadingCsv(null));
+    }
+
+    @Test
+    void formatCustomerThrowsErrorTest() {
+        CsvFormatter formatter = new CsvFormatter();
+        assertThrows(RuntimeException.class, () -> formatter.formatCustomerCsv(null));
     }
 }

@@ -25,8 +25,9 @@ import static org.mockito.Mockito.when;
 public class CsvParserTest {
     private static final String CSV_CUSTOMER_CONTENT =
             "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n" +
-                    "ec617965-88b4-4721-8158-ee36c38e4db3,Herr,Pumukel,Kobold,21.02.1962\n" +
-                    "848c39a1-0cbb-427a-ac6f-a88941943dc8,Herr,André,Schöne,16.02.1928\n";
+                    "ec617965-88b4-4721-8158-ee36c38e4db3,Frau,Anna,Test,21.02.1962\n" +
+                    "848c39a1-0cbb-427a-ac6f-a88941943dc8,Herr,André,Schöne,16.02.1928\n" +
+                    "228c39a1-0cab-135d-ac6f-a88941943dc8,k.A.,Kein,Plan,16.02.1928\n";
 
     private static final String CSV_READING_CONTENT =
             "\"Kunde\";\"ec617965-88b4-4721-8158-ee36c38e4db3\";\n" +
@@ -38,7 +39,8 @@ public class CsvParserTest {
     private static final String CSV_READING_CONTENT_CUSTOM =
             "Datum;Zählerstand;Kommentar;KundenId;Zählerart;ZählerstandId;Ersatz\n" +
                     "01.10.2020;63.0;;ec617965-88b4-4721-8158-ee36c38e4db3;WASSER;786523123;false;\n" +
-                    "31.12.2019;722.0;;ec617965-88b4-4721-8158-ee36c38e4db3;WASSER;23451007;false;\n";
+                    "31.12.2019;722.0;;ec717965-88b4-4721-8158-ee36c38e4db3;STROM;23451007;true;\n" +
+                    "31.12.2019;722.0;;ec817965-88b4-4721-8158-ee36c38e4db3;HEIZUNG;23451007;false;\n";
 
 
     private static final Customer MOCKED_CUSTOMER1 = new Customer(UUID.randomUUID(), "Erik", "Mielke", LocalDate.of(2002, 7, 3), ICustomer.Gender.M);
@@ -87,11 +89,10 @@ public class CsvParserTest {
     }
 
     @Test
-    void getReadingHeaderTest() throws IOException
+    void getReadingHeaderValidTest() throws IOException
     {
         CsvParser parser = new CsvParser();
-        CsvFormatter formatter = new CsvFormatter();
-        parser.setCsvContent(formatter.formatReadingCsv(CSV_READING_CONTENT));
+        parser.setCsvContent(CSV_READING_CONTENT);
         List<String> expectedHeader = Arrays.asList("Datum", "Zählerstand in m³", "Kommentar");
         assertIterableEquals(expectedHeader, parser.getReadingHeader());
     }
@@ -188,7 +189,9 @@ public class CsvParserTest {
         assertTrue(iterator.hasNext());
         assertEquals(List.of("01.10.2020", "63.0", "", "ec617965-88b4-4721-8158-ee36c38e4db3", "WASSER", "786523123", "false"), iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals(List.of("31.12.2019", "722.0", "", "ec617965-88b4-4721-8158-ee36c38e4db3", "WASSER", "23451007", "false"), iterator.next());
+        assertEquals(List.of("31.12.2019", "722.0", "", "ec717965-88b4-4721-8158-ee36c38e4db3", "STROM", "23451007", "true"), iterator.next());
+        assertTrue(iterator.hasNext());
+        assertEquals(List.of("31.12.2019", "722.0", "", "ec817965-88b4-4721-8158-ee36c38e4db3", "HEIZUNG", "23451007", "false"), iterator.next());
         assertFalse(iterator.hasNext());
     }
 
@@ -212,9 +215,11 @@ public class CsvParserTest {
         Iterator<List<String>> iterator = result.iterator();
 
         assertTrue(iterator.hasNext());
-        assertEquals(List.of("ec617965-88b4-4721-8158-ee36c38e4db3", "Herr", "Pumukel", "Kobold", "21.02.1962"), iterator.next());
+        assertEquals(List.of("ec617965-88b4-4721-8158-ee36c38e4db3", "Frau", "Anna", "Test", "21.02.1962"), iterator.next());
         assertTrue(iterator.hasNext());
         assertEquals(List.of("848c39a1-0cbb-427a-ac6f-a88941943dc8", "Herr", "André", "Schöne", "16.02.1928"), iterator.next());
+        assertTrue(iterator.hasNext());
+        assertEquals(List.of("228c39a1-0cab-135d-ac6f-a88941943dc8", "k.A.", "Kein", "Plan", "16.02.1928"), iterator.next());
         assertFalse(iterator.hasNext());
     }
 
@@ -303,7 +308,7 @@ public class CsvParserTest {
         String expectedReading2 = formattedDate + ";"
                 + MOCKED_READING2.getMeterCount() + ";"
                 + MOCKED_READING2.getComment() + ";"
-                + MOCKED_READING2.getCustomerId() + ";"
+                + MOCKED_READING2.getCustomer().getId() + ";"
                 + MOCKED_READING2.getKindOfMeter() + ";"
                 + MOCKED_READING2.getMeterId() + ";"
                 + MOCKED_READING2.getSubstitute();
@@ -416,10 +421,28 @@ public class CsvParserTest {
         assertEquals(reading.getDateOfReading().toString(), "2020-10-01");
         assertEquals(reading.getMeterCount(), 63.0);
         assertEquals(reading.getComment(), "");
-        assertEquals(reading.getCustomerId(), null);
+        assertEquals(reading.getCustomer().getId(), UUID.fromString("ec617965-88b4-4721-8158-ee36c38e4db3"));
         assertEquals(reading.getKindOfMeter(), IReading.KindOfMeter.WASSER);
         assertEquals(reading.getMeterId(), "786523123");
         assertEquals(reading.getSubstitute(), false);
+
+        Reading reading1 = readings.get(1);
+        assertEquals(reading1.getDateOfReading().toString(), "2019-12-31");
+        assertEquals(reading1.getMeterCount(), 722);
+        assertEquals(reading1.getComment(), "");
+        assertEquals(reading1.getCustomer().getId(), UUID.fromString("ec717965-88b4-4721-8158-ee36c38e4db3"));
+        assertEquals(reading1.getKindOfMeter(), IReading.KindOfMeter.STROM);
+        assertEquals(reading1.getMeterId(), "23451007");
+        assertEquals(reading1.getSubstitute(), true);
+
+        Reading reading2 = readings.get(2);
+        assertEquals(reading2.getDateOfReading().toString(), "2019-12-31");
+        assertEquals(reading2.getMeterCount(), 722.0);
+        assertEquals(reading2.getComment(), "");
+        assertEquals(reading2.getCustomer().getId(), UUID.fromString("ec817965-88b4-4721-8158-ee36c38e4db3"));
+        assertEquals(reading2.getKindOfMeter(), IReading.KindOfMeter.HEIZUNG);
+        assertEquals(reading2.getMeterId(), "23451007");
+        assertEquals(reading2.getSubstitute(), false);
 
     }
 
@@ -433,9 +456,9 @@ public class CsvParserTest {
         Customer customer = customers.get(0);
 
         assertEquals(customer.getId().toString(), "ec617965-88b4-4721-8158-ee36c38e4db3");
-        assertEquals(customer.getGender(), ICustomer.Gender.M);
-        assertEquals(customer.getFirstName(), "Pumukel");
-        assertEquals(customer.getLastName(), "Kobold");
+        assertEquals(customer.getGender(), ICustomer.Gender.W);
+        assertEquals(customer.getFirstName(), "Anna");
+        assertEquals(customer.getLastName(), "Test");
         assertEquals(customer.getBirthDate().toString(), "1962-02-21");
 
 

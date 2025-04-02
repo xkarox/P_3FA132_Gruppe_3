@@ -27,10 +27,10 @@ public class Serializer
         }
         Object firstItem = items.get(0);
         StringBuilder csvContent = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         if (firstItem instanceof Reading)
         {
             List<Reading> readings = (List<Reading>) items;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
             for (Reading reading : readings)
             {
@@ -55,9 +55,9 @@ public class Serializer
                 {
                     csvContent.append(";");
                 }
-                if (reading.getCustomerId() != null)
+                if (reading.getCustomer() != null)
                 {
-                    csvContent.append(reading.getCustomerId()).append(";");
+                    csvContent.append(reading.getCustomer().getId()).append(";");
                 } else
                 {
                     csvContent.append(";");
@@ -78,10 +78,7 @@ public class Serializer
                 }
                 if (reading.getSubstitute() != null)
                 {
-                    csvContent.append(reading.getSubstitute()).append(";");
-                } else
-                {
-                    csvContent.append(";");
+                    csvContent.append(reading.getSubstitute());
                 }
                 csvContent.append("\n");
             }
@@ -121,10 +118,7 @@ public class Serializer
                 }
                 if (customer.getBirthDate() != null)
                 {
-                    csvContent.append(customer.getBirthDate());
-                } else
-                {
-                    csvContent.append(";");
+                    csvContent.append(customer.getBirthDate().format(formatter));
                 }
                 csvContent.append("\n");
             }

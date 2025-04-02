@@ -100,23 +100,4 @@ public class CustomerService extends AbstractBaseService<Customer>
             this._provider.releaseCustomerService(this);
         }
     }
-
-    public Collection<Customer> queryCustomers(Optional<String> firstName,
-                                               Optional<String> lastName) throws ReflectiveOperationException, SQLException, IOException
-    {
-        StringBuilder whereClauseBuilder = new StringBuilder("WHERE ");
-
-
-        firstName.ifPresent(firstN ->
-                whereClauseBuilder.append("firstName = '").append(firstN).append("'"));
-
-        if (firstName.isPresent() && lastName.isPresent()) {
-            whereClauseBuilder.append(" AND ");
-        }
-
-        lastName.ifPresent(lastN ->
-                whereClauseBuilder.append("lastName = '").append(lastN).append("'"));
-
-        return this._dbConnection.getAllObjectsFromDbTableWithFilter(Customer.class, whereClauseBuilder.toString());
-    }
 }

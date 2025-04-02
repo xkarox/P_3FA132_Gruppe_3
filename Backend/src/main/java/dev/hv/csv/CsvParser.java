@@ -68,7 +68,8 @@ public class CsvParser
         this.csvContent = csvContent;
     }
 
-    public String getCsvContent() {
+    public String getCsvContent()
+    {
         return this.csvContent;
     }
 
@@ -80,7 +81,8 @@ public class CsvParser
         Scanner scanner = new Scanner(this.csvContent);
 
         int linesToSkip = 3;
-        while (scanner.hasNextLine() && linesToSkip > 0) {
+        while (scanner.hasNextLine() && linesToSkip > 0)
+        {
             scanner.nextLine();
             linesToSkip--;
         }
@@ -94,17 +96,20 @@ public class CsvParser
         return valuesList;
     }
 
-    public Iterable<List<String>> getCustomReadingValues() {
+    public Iterable<List<String>> getCustomReadingValues()
+    {
         CsvFormatter formatter = new CsvFormatter();
         setCsvContent(formatter.formatReadingCsv(this.getCsvContent()));
         List<List<String>> valuesList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
 
-        if (scanner.hasNextLine()) {
+        if (scanner.hasNextLine())
+        {
             scanner.nextLine();
         }
 
-        while (scanner.hasNextLine()) {
+        while (scanner.hasNextLine())
+        {
             String line = scanner.nextLine();
             List<String> values = Arrays.stream(line.split(Separator.READING_SEPARATOR.toString())).toList();
             valuesList.add(values);
@@ -142,8 +147,6 @@ public class CsvParser
         setCsvContent(formatter.formatReadingCsv(this.getCsvContent()));
         List<String> headerList = new ArrayList<>();
         Scanner scanner = new Scanner(this.csvContent);
-
-        String separatorRegex = "^[;,]+$";
         String line;
 
         while (scanner.hasNextLine())
@@ -153,10 +156,6 @@ public class CsvParser
             if (headers.length >= 3)
             {
                 Collections.addAll(headerList, headers);
-                break;
-            }
-            if (!line.matches(separatorRegex))
-            {
                 scanner.nextLine();
             }
         }
@@ -185,22 +184,19 @@ public class CsvParser
         int lineCount = 0;
         Scanner scanner = new Scanner(this.csvContent);
 
-        if (Objects.equals(this.getSeparator(), Separator.READING_SEPARATOR.toString()))
+        while (scanner.hasNextLine() && lineCount < LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber())
         {
-            while (scanner.hasNextLine() && lineCount < LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber())
+            String line = scanner.nextLine();
+            lineCount++;
+
+            line = line.replace("\"", "");
+            String[] parts = line.split(Separator.READING_SEPARATOR.toString());
+
+            if (parts.length == LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber())
             {
-                String line = scanner.nextLine();
-                lineCount++;
-
-                line = line.replace("\"", "");
-                String[] parts = line.split(Separator.READING_SEPARATOR.toString());
-
-                if (parts.length == LineNumbers.METADATA_READING_NUMBER_OF_VALUES.getNumber())
-                {
-                    Map<String, String> dataMap = new HashMap<>();
-                    dataMap.put(parts[0], parts[1]);
-                    metaDataList.add(dataMap);
-                }
+                Map<String, String> dataMap = new HashMap<>();
+                dataMap.put(parts[0], parts[1]);
+                metaDataList.add(dataMap);
             }
         }
         return metaDataList;
@@ -221,7 +217,8 @@ public class CsvParser
         List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
 
         String readingCsv = Serializer.serializeIntoCsv(typeReadings);
-        if (readingCsv == null) {
+        if (readingCsv == null)
+        {
             return readingHeader;
         }
 
@@ -251,20 +248,32 @@ public class CsvParser
         Map<String, String> customerMetadata = new HashMap<>();
         Map<String, String> meterIdMetaData = new HashMap<>();
 
-        if (iterator.hasNext()) {
+        if (iterator.hasNext())
+        {
             customerMetadata = iterator.next();
 
         }
 
-        if (iterator.hasNext()) {
+        if (iterator.hasNext())
+        {
             meterIdMetaData = iterator.next();
             meterId = meterIdMetaData.get("Zählernummer");
 
         }
 
-        for (List<String> defaultReadingList : defaultReadingValues) {
+        for (List<String> defaultReadingList : defaultReadingValues)
+        {
             Reading reading = new Reading();
-            reading.setCustomer(cs.getById(UUID.fromString(customerMetadata.get("Kunde"))));
+
+            if (cs.getById(UUID.fromString(customerMetadata.get("Kunde"))) != null)
+            {
+                reading.setCustomer(cs.getById(UUID.fromString(customerMetadata.get("Kunde"))));
+            } else
+            {
+                Customer customer = new Customer(UUID.fromString(customerMetadata.get("Kunde")));
+                reading.setCustomer(customer);
+            }
+
             reading.setMeterId(meterIdMetaData.get("Zählernummer"));
             reading.setSubstitute(false);
 
@@ -273,17 +282,19 @@ public class CsvParser
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
                 reading.setDateOfReading(LocalDate.parse(defaultReadingList.getFirst(), dateTimeFormatter));
             }
-            if (defaultReadingList.size() > 1) {
-                if (water) {
+            if (defaultReadingList.size() > 1)
+            {
+                if (water)
+                {
                     reading.setKindOfMeter(IReading.KindOfMeter.WASSER);
-                }
-                else if (heat) {
+                } else if (heat)
+                {
                     reading.setKindOfMeter(IReading.KindOfMeter.HEIZUNG);
-                }
-                else if (electricity) {
+                } else if (electricity)
+                {
                     reading.setKindOfMeter(IReading.KindOfMeter.STROM);
-                }
-                else {
+                } else
+                {
                     reading.setKindOfMeter(IReading.KindOfMeter.UNBEKANNT);
                 }
                 reading.setMeterCount(Double.parseDouble(defaultReadingList.get(1)));
@@ -293,7 +304,8 @@ public class CsvParser
                 Pattern pattern = Pattern.compile("Nummer\\s+(\\S+)");
                 Matcher matcher = pattern.matcher(defaultReadingList.get(2));
 
-                if (matcher.find()) {
+                if (matcher.find())
+                {
                     meterId = matcher.group(1);
                 }
 
@@ -311,24 +323,38 @@ public class CsvParser
         List<Reading> readings = new ArrayList<>();
         Iterable<List<String>> customReadingValues = getCustomReadingValues();
 
-        for (List<String> customReadingList : customReadingValues) {
+        for (List<String> customReadingList : customReadingValues)
+        {
             Reading reading = new Reading();
 
-            if (customReadingList.size() > 0) {
+            if (customReadingList.size() > 0)
+            {
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
                 reading.setDateOfReading(LocalDate.parse(customReadingList.getFirst(), dateTimeFormatter));
             }
-            if (customReadingList.size() > 1) {
+            if (customReadingList.size() > 1)
+            {
                 reading.setMeterCount(Double.parseDouble(customReadingList.get(1)));
             }
-            if (customReadingList.size() > 2) {
+            if (customReadingList.size() > 2)
+            {
                 reading.setComment(customReadingList.get(2));
             }
-            if (customReadingList.size() > 3) {
-                reading.setCustomer(cs.getById(UUID.fromString(customReadingList.get(3))));
+            if (customReadingList.size() > 3)
+            {
+                if (cs.getById(UUID.fromString(customReadingList.get(3))) != null) {
+                    reading.setCustomer(cs.getById(UUID.fromString(customReadingList.get(3))));
+                }
+                else {
+                    Customer customer = new Customer(UUID.fromString(customReadingList.get(3)));
+                    reading.setCustomer(customer);
+                }
+
             }
-            if (customReadingList.size() > 4) {
-                switch (customReadingList.get(4)) {
+            if (customReadingList.size() > 4)
+            {
+                switch (customReadingList.get(4))
+                {
                     case "STROM":
                         reading.setKindOfMeter(IReading.KindOfMeter.STROM);
                         break;
@@ -343,11 +369,14 @@ public class CsvParser
                         break;
                 }
             }
-            if (customReadingList.size() > 5) {
+            if (customReadingList.size() > 5)
+            {
                 reading.setMeterId(customReadingList.get(5));
             }
-            if (customReadingList.size() > 6) {
-                reading.setSubstitute(Boolean.parseBoolean(customReadingList.get(5)));
+            if (customReadingList.size() > 6)
+            {
+                String capitalizedBoolean = customReadingList.get(6).substring(0, 1).toUpperCase() + customReadingList.get(6).substring(1);
+                reading.setSubstitute(Boolean.parseBoolean(capitalizedBoolean));
             }
             readings.add(reading);
         }
@@ -367,7 +396,8 @@ public class CsvParser
             }
             if (customerList.size() > 1)
             {
-                switch(customerList.get(1)) {
+                switch (customerList.get(1))
+                {
                     case "Herr":
                         customer.setGender(ICustomer.Gender.M);
                         break;
