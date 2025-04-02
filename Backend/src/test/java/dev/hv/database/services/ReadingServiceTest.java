@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 public class ReadingServiceTest
 {
 
-    /*
     private Reading _testReading;
     private Reading _testReadingWithoutCustomer;
     private Customer _testCustomer;
@@ -289,5 +288,4 @@ public class ReadingServiceTest
         }
     }
 
-     */
 }
