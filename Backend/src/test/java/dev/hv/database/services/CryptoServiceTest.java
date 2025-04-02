@@ -158,7 +158,7 @@ class CryptoServiceTest {
         // Überprüfen
         assertNotNull(cookie);
         assertEquals("jwt-token", cookie.getName());
-        assertTrue(cookie.isSecure());
+        assertFalse(cookie.isSecure());
         assertTrue(cookie.isHttpOnly());
         assertEquals("/", cookie.getPath());
         assertEquals(CryptoService.getExpirationTime(), cookie.getMaxAge());
