@@ -1,11 +1,9 @@
 @using System.ComponentModel
+@using System.Diagnostics.Metrics
+@using P_3FA132_Gruppe_3_Frontend.Data.Enums
 @using P_3FA132_Gruppe_3_Frontend.Data.Models
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes.Analytics
-@using ChartJs.Blazor;
-@using ChartJs.Blazor.Common
-@using ChartJs.Blazor.PieChart
-@using ChartJs.Blazor.Util
 
 <div class="reading-type-donut-widget chart">
     <Chart Config="_config"></Chart>
@@ -14,27 +12,29 @@
 @code {
     [EditorRequired] [Parameter] public List<ReadingTypeData> Items { get; set; }
 
-    private PieConfig _config;
+    private PieChartConfig _config;
     
     protected override void OnInitialized()
     {
-        _config = new PieConfig
+        _config = new PieChartConfig()
         {
             Options = new PieOptions
             {
                 Responsive = true,
                 MaintainAspectRatio = false,
-                Title = new OptionsTitle
+                Plugins = new Plugins()
                 {
-                    Display = true,
-                    Text = "Number of readings per type"
-                },
-                
+                    Title = new Title()
+                    {
+                        Text = "Total Readings per Type",
+                        Display = true,
+                    },
+                }
             }
         };
         
         var random = new Random();
-        var data = new List<int>();
+        var data = new List<decimal?>();
         var backgroundColors = new List<string>();
         
         foreach (var type in Enum.GetNames<KindOfMeter>())
@@ -42,12 +42,13 @@
             _config.Data.Labels.Add(type);
             var item = Items.Where(i => i.Type == type.ToKindOfMeter()).ToArray()[0];
             data.Add(item.Value);
-            backgroundColors.Add(ColorUtil.ColorHexString((byte)random.Next(0, 255), (byte)random.Next(0, 255), (byte)random.Next(0, 255) ) );
+            backgroundColors.Add(MeterColor.GetByEnumValue(type.ToKindOfMeter()));
         }
         
-        var dataset = new PieDataset<int>(data)
+        var dataset = new PieDataset()
         {
-            BackgroundColor = backgroundColors.ToArray()
+            Data = data,
+            BackgroundColor = backgroundColors.ToList()
         };
         
         _config.Data.Datasets.Add(dataset);

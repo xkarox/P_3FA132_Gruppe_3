@@ -5,7 +5,7 @@
 @inherits Blazing.Mvvm.Components.MvvmComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.AnalyticsViewModel>
 
 <div class="analytics-widgets">
-    <div class="reading-type-donut analytics-widget-container card">
+    <div class="reading-activity card">
         @if(ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
@@ -15,7 +15,7 @@
             <ReadingActivity Data="ViewModel.Readings"></ReadingActivity>
         }
     </div>
-    <div class="reading-type-donut analytics-widget-container card">
+    <div class="total-readings analytics-widget-container card">
         @if (ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
@@ -94,15 +94,35 @@
                                               : DateOnly.MinValue!)"></RecentReading>
         }
     </div>
-    <div class="usage analytics-widget-container card">
+    <div class="usage card">
         @if (ViewModel.Loading)
         {
             <LoadingSpinner></LoadingSpinner>
         }
         else
         {
-            <Usage Items="ViewModel.UsagePerMonthReadings"></Usage>
+            <Usage Items="ViewModel.UsagePerMonthReadings" KindOfMeter="KindOfMeter.WASSER"></Usage>
         }
+    </div>
+    <div class="usage card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <Usage Items="ViewModel.UsagePerMonthReadings" KindOfMeter="KindOfMeter.STROM"></Usage>
+        }
+    </div>
+    <div class="usage card">
+            @if (ViewModel.Loading)
+            {
+                <LoadingSpinner></LoadingSpinner>
+            }
+            else
+            {
+                <Usage Items="ViewModel.UsagePerMonthReadings" KindOfMeter="KindOfMeter.HEIZUNG"></Usage>
+            }
     </div>
 
 </div>

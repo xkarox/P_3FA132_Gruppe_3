@@ -1,63 +1,64 @@
+@using P_3FA132_Gruppe_3_Frontend.Data.Enums
 @using P_3FA132_Gruppe_3_Frontend.Data.Models
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
-@using ChartJs.Blazor;
-@using ChartJs.Blazor.Common
-@using ChartJs.Blazor.LineChart
-@using ChartJs.Blazor.Util
 
 
-<div class="reading-activity-widget chart">
-    <Chart Config="_config"></Chart>
-</div>
+<Chart Config="_config"></Chart>
 
 
 @code {
     [EditorRequired] [Parameter] public List<Reading> Data { get; set; }
-    private LineConfig _config;
+    private LineChartConfig? _config;
     
     protected override void OnInitialized()
     {
-        _config = new LineConfig()
+        _config = new LineChartConfig()
         {
-            Options = new LineOptions()
+            Options = new Options()
             {
                 Responsive = true,
                 MaintainAspectRatio = false,
-                Title = new OptionsTitle()
+                Height = "100%",
+                Plugins = new Plugins()
                 {
-                    Display = true,
-                    Text = "Reading Activity"
+                    Title = new Title()
+                    {
+                        Display = true,
+                        Text = "Reading Activity by Month"
+                    }
                 }
             }
         };
         var months = new[] 
             { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-        var colors = new List<string>();
         foreach (var month in months)
         {
             _config.Data.Labels.Add(month);
-            var random = new Random();
-            colors.Add(ColorUtil.ColorHexString((byte)random.Next(0, 255), (byte)random.Next(0, 255), (byte)random.Next(0, 255)));
         }
         
-        var colorCounter = 0;
         foreach (var type in Enum.GetNames<KindOfMeter>())
         {
-            var data = new List<int>();
+            var data = new List<decimal?>();
             foreach (var month in new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12})
             {
+                var monthInt = Data[0].DateOfReading!.Value.Month;
                 var numOfReadings = Data.Count(dataPoint => dataPoint.DateOfReading!.Value.Month == month && dataPoint.KindOfMeter == type.ToKindOfMeter());
                 data.Add(numOfReadings);
             }
             
-            LineDataset<int> dataset = new LineDataset<int>(data)
+            LineDataset dataset = new LineDataset()
             {
+                Data = data,
                 Label = type,
                 Fill = false,
-                BorderColor = colors[colorCounter++]
+                BorderColor = MeterColor.GetByEnumValue(type.ToKindOfMeter()),
+                BackgroundColor = MeterColor.GetByEnumValue(type.ToKindOfMeter())
             };
             
             _config.Data.Datasets.Add(dataset);
         }
+        StateHasChanged();
+        
+        
     }
 }

@@ -1,19 +1,17 @@
-@using ChartJs.Blazor.BarChart
-@using ChartJs.Blazor;
-@using ChartJs.Blazor.BarChart.Axes
-@using ChartJs.Blazor.Common
-@using ChartJs.Blazor.Common.Axes
-@using ChartJs.Blazor.Common.Enums
+@using System.Diagnostics
+@using P_3FA132_Gruppe_3_Frontend.Data.Enums
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
-
-<div class="usage-bar-widget chart">
-    <Chart Config="_config" ref="@_chart"></Chart>
-</div>
+@using PSC.Blazor.Components.Chartjs.Interfaces
+<Chart Config="_config"></Chart>
 
 @code {
     [EditorRequired] [Parameter] public List<Reading> Items { get; set; }
-    private Chart _chart;
-    private BarConfig _config;
+    [EditorRequired] [Parameter] public KindOfMeter KindOfMeter { get; set; }
+
+    private string? BackgroundColor;
+    
+    private BarChartConfig _config;
     private string[] monthLabels = new []
     {
         "January", "February", "March", "April", "May", "June",
@@ -23,32 +21,37 @@
  
     protected override void OnInitialized()
     {
-        _config = new BarConfig()
+        BackgroundColor = MeterColor.GetByEnumValue(KindOfMeter);
+        _config = new BarChartConfig()
         {
-            Options = new BarOptions()
+            Options = new Options()
             {
                 Responsive = true,
                 MaintainAspectRatio = false,
-                Legend = new Legend
+                Plugins = new Plugins()
                 {
-                    Position = Position.Top,
-                    Display = true,
-                },
-                Title = new OptionsTitle
-                {
-                    Display = true,
-                    Text = "Usage per Month"
-                },
+                    Title = new Title
+                    {
+                        Display = true,
+                        Text = $"Usage for {KindOfMeter.ToString()}"
+                    },
+                    Legend = new Legend
+                    {
+                        Position = LegendPosition.Bar,
+                        Display = true,
+                    },
+                }
             },
+            
         };
         
-        // var data = CalculateAverageUsagePerMonth();
-        var data = new int[] { 20, 30, 20, 10, 5, 35, 70, 35, 60, 70, 80, 50, };
-        IDataset<int> dataset1 = new BarDataset<int>(data, horizontal: true)
+        var data = CalculateAverageUsagePerMonth();
+        BarDataset dataset1 = new BarDataset()
         {
-            Label = "My first dataset",
-            BackgroundColor = "rgba(1, 0, 1, 1.0)",
-            BorderColor = "rgba(245, 40, 145, 1)",
+            Label = $"Usage for {KindOfMeter.ToString()}",
+            Data = data,
+            BackgroundColor = [BackgroundColor],
+            BorderColor = [BackgroundColor],
             BorderWidth = 10,
         };
 
@@ -57,21 +60,24 @@
             _config.Data.Labels.Add(month);
         }
         _config.Data.Datasets.Add(dataset1);
+        Console.WriteLine();
     }
+    
 
-    private IEnumerable<int> CalculateAverageUsagePerMonth()
+    private List<decimal?> CalculateAverageUsagePerMonth()
     {
-        var avgPerMonth = new int[12];
+        var avgPerMonth = new decimal?[12];
         for (var i = 0; i < 12; i++)
         {
             var i1 = i;
-            var currentReadings = Items.Where(reading => reading.DateOfReading!.Value.Month == i1 + 1);
+            var currentReadings = Items.Where(reading => reading.DateOfReading!.Value.Month == i1 + 1 && reading.KindOfMeter == KindOfMeter);
             var readingCount = currentReadings.Count();
             var sum = currentReadings.Sum(reading => reading.MeterCount);
+            if (readingCount == 0)
+                readingCount = 1;
             Console.WriteLine($"{sum} / {readingCount}");
             avgPerMonth[i] = (int)(sum / readingCount);
         }
-        
-        return avgPerMonth;
+        return avgPerMonth.ToList();
     }
 }
