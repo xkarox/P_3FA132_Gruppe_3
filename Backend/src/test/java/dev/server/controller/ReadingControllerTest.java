@@ -537,7 +537,7 @@ public class ReadingControllerTest
         assertEquals(3, unpackedResponse.size(), "The response should contain 3 elements");
         assertTrue(unpackedResponse.contains(this._reading));
         assertEquals(IReading.KindOfMeter.STROM, reading.getKindOfMeter(), "Meter type should be STROM");
-        assertEquals(reading.getCustomerId(), customer.getId(), "The customer id should match");
+        assertEquals(reading.getCustomer().getId(), customer.getId(), "The customer id should match");
         assertTrue(endDate.isAfter(reading.getDateOfReading()) && startDate.isBefore(reading.getDateOfReading()), "The reading date should be between the start and end dates");
     }
 

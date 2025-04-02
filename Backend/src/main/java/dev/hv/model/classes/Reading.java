@@ -30,7 +30,6 @@ public class Reading implements IReading
     @IFieldInfo(fieldName = "comment", fieldType = String.class)
     private String _comment;
 
-    @JsonProperty("customerId")
     @IFieldInfo(fieldName = "customerId", fieldType = String.class)
     private UUID _customerId;
 
