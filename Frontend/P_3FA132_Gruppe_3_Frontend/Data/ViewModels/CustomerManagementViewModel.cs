@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using Blazing.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 using P_3FA132_Gruppe_3_Frontend.Data.Services;
+using System.Collections.ObjectModel;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
@@ -25,20 +25,22 @@ public partial class CustomerManagementViewModel(
     [ObservableProperty] private Customer? _selectedCustomer;
 
     [ObservableProperty] private Customer? _newCustomer;
-    
-    [ObservableProperty]   
-    private PaginationState? _paginationState;  
-    
-    [ObservableProperty] private IEnumerable<string> _excludedProperties =
+
+    [ObservableProperty]
+    private PaginationState? _paginationState;
+
+    [ObservableProperty]
+    private IEnumerable<string> _excludedProperties =
     [
-        
+
     ];
-    
-    [ObservableProperty] private IEnumerable<string> _readOnlyProperties =
+
+    [ObservableProperty]
+    private IEnumerable<string> _readOnlyProperties =
     [
         "Id"
     ];
-    
+
     [ObservableProperty] private int _maxStringLength = 12;
 
     public override async void OnInitialized()
@@ -115,38 +117,38 @@ public partial class CustomerManagementViewModel(
             NewCustomer = null;
         }
     }
-    
+
     [RelayCommand]
     private void AbortNewCustomerCallback()
     {
         NewCustomer = null;
     }
-    
-    [RelayCommand] 
+
+    [RelayCommand]
     private async Task CopyValue((string value, MouseEventArgs e) parameters)
     {
         await utilityService.CopyToClipboard(
             parameters.value, parameters.e.ClientX, parameters.e.ClientY);
     }
-    
-    [RelayCommand] 
+
+    [RelayCommand]
     private async Task ShowFullString((string value, MouseEventArgs e) parameters)
     {
-        if(parameters.value.Length >= MaxStringLength)
+        if (parameters.value.Length >= MaxStringLength)
             await utilityService.ShowNotificationHover(
                 parameters.value, parameters.e.ClientX, parameters.e.ClientY);
     }
-    
-    [RelayCommand] 
+
+    [RelayCommand]
     private async Task RemoveFullStringNotification()
     {
         await utilityService.RemoveNotificationHover();
     }
-    
+
     public string TruncateString(string value)
     {
         if (string.IsNullOrEmpty(value)) return value;
         return value.Length <= MaxStringLength ? value : value[..MaxStringLength] + "...";
     }
-    
+
 }

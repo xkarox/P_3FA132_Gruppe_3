@@ -36,7 +36,7 @@ builder.Services.AddScoped<UtilityService>();
 
 
 builder.Services.AddMvvm(options =>
-{ 
+{
     options.HostingModelType = BlazorHostingModelType.WebAssembly;
 });
 
