@@ -41,7 +41,7 @@ class CryptoServiceTest {
 
     @Test
     void getExpirationTime() {
-        assertEquals(3600000, CryptoService.getExpirationTime());
+        assertEquals(300000, CryptoService.getExpirationTime());
     }
 
     @Test

@@ -54,6 +54,7 @@ public class AuthenticationController
 
             authInfo.setPassword(null);
             var userDto = new AuthUserDto(authInfo);
+            userDto.setPassword(null);
 
             return Response.ok()
                     .header(HttpHeaders.SET_COOKIE,CryptoService.createTokenCookie(authInfo.getId()))
