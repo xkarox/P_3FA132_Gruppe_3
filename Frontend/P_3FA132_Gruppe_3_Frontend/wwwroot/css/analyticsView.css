@@ -27,7 +27,6 @@
 
 .total-readings {
     grid-column: span 3;
-    height: 30rem;
     color: var(--color-primary);
 }
 
