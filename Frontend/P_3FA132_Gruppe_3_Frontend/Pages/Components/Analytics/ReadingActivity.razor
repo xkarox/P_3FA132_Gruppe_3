@@ -42,7 +42,11 @@
             foreach (var month in new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12})
             {
                 var monthInt = Data[0].DateOfReading!.Value.Month;
-                var numOfReadings = Data.Count(dataPoint => dataPoint.DateOfReading!.Value.Month == month && dataPoint.KindOfMeter == type.ToKindOfMeter());
+                var currentYear = DateTime.Now.Year;
+                var numOfReadings = Data.Count(dataPoint => 
+                    dataPoint.DateOfReading!.Value.Month == month && 
+                    dataPoint.DateOfReading!.Value.Year == currentYear &&
+                    dataPoint.KindOfMeter == type.ToKindOfMeter());
                 data.Add(numOfReadings);
             }
             
