@@ -1,10 +1,9 @@
 package dev.server.controller;
 
-import com.sun.jna.platform.win32.Guid;
 import dev.hv.ResponseMessages;
+import dev.hv.Serializer;
 import dev.hv.csv.CsvParser;
 import dev.hv.database.services.ReadingService;
-import dev.hv.model.classes.CustomerWrapper;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
@@ -12,9 +11,7 @@ import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.Customer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.server.validator.CustomerJsonSchemaValidatorService;
-import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +20,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.*;
@@ -204,7 +200,7 @@ public class CustomerController
     }
 
     @GET
-    @Path("/getCustomersFileData")
+    @Path("/createCustomers")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     public Response getCustomersFileData(@QueryParam("fileType") String fileType)
     {
@@ -214,14 +210,37 @@ public class CustomerController
             {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing Content-Type header").build();
             }
-            return switch (fileType)
+            switch (fileType)
             {
-                case "xml" -> handleXml();
-                case "csv" -> handleCsv();
-                default -> Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
-                        .entity("Unsupported Content-Type: " + fileType)
-                        .build();
-            };
+                case "xml":
+                {
+                    String customerXmlString = getCustomerXmlData();
+                    return Response.status(Response.Status.OK)
+                            .type(MediaType.APPLICATION_XML)
+                            .entity(customerXmlString)
+                            .build();
+
+                }
+                case "csv": {
+                    String customerCsvString = getCustomerCsvData();
+                    return Response.status(Response.Status.OK)
+                            .type(MediaType.APPLICATION_XML)
+                            .entity(customerCsvString)
+                            .build();
+                }
+                case "json": {
+                    String customerJsonString = getCustomerJsonData();
+                    return Response.status(Response.Status.OK)
+                            .type(MediaType.APPLICATION_XML)
+                            .entity(customerJsonString)
+                            .build();
+                }
+                default: {
+                    return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
+                            .entity("Unsupported Content-Type: " + fileType)
+                            .build();
+                }
+            }
         } catch (Exception e)
         {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -230,53 +249,60 @@ public class CustomerController
         }
     }
 
-    private Response handleCsv() throws IOException, ReflectiveOperationException, SQLException
+    private String getCustomerCsvData() throws IOException, ReflectiveOperationException, SQLException
     {
         CsvParser parser = new CsvParser();
-        String csvData = parser.createAllCustomerCsv();
-        return Response.status(Response.Status.OK)
-                .type(MediaType.TEXT_PLAIN)
-                .entity(csvData)
-                .build();
-
+        return parser.createAllCustomerCsv();
     }
 
-    private Response handleXml() throws SQLException, IOException, JAXBException, ReflectiveOperationException
+    private String getCustomerXmlData() throws SQLException, IOException, JAXBException, ReflectiveOperationException
     {
-            CustomerService cs = ServiceProvider.Services.getCustomerService();
-            JAXBContext objToConvert = JAXBContext.newInstance(CustomerWrapper.class);
-            Marshaller marshallerObj = objToConvert.createMarshaller();
-            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        CustomerService cs = ServiceProvider.Services.getCustomerService();
+        List<Customer> customers = cs.getAll();
 
-            List<Customer> customers = cs.getAll();
-            CustomerWrapper customerWrapper = new CustomerWrapper(customers);
-            StringWriter xmlWriter = new StringWriter();
-            marshallerObj.marshal(customerWrapper, xmlWriter);
+        return Serializer.serializeIntoXml(customers);
+    }
 
-            return Response.status(Response.Status.OK)
-                    .type(MediaType.APPLICATION_XML)
-                    .entity(xmlWriter.toString())
-                    .build();
+    private String getCustomerJsonData() throws SQLException, IOException, ReflectiveOperationException
+    {
+        CustomerService cs = ServiceProvider.Services.getCustomerService();
+        List<Customer> customers = cs.getAll();
+        return Utils.packIntoJsonString(customers, Customer.class);
     }
 
     @POST
-    @Path("/upload")
+    @Path("/importCustomer")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN})
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadCustomerFile(@HeaderParam("Content-Type") String contentType, String fileContent) throws IOException, JAXBException, ReflectiveOperationException, SQLException
     {
-        String jsonResponse = handleFile(contentType, fileContent, "customers");
-        if (jsonResponse.isEmpty())
-        {
+        if (contentType.isEmpty() || fileContent.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(ResponseMessages.ControllerBadRequest.toString()).build();
         }
-        return Response.ok(jsonResponse).build();
+        String fileType = formatContentType(contentType);
+        String jsonContent = "";
+
+        if (fileType.equals("json") || fileType.equals("xml") || fileType.equals("csv"))
+        {
+            List<Customer> customers = (List<Customer>) Serializer.deserializeFile(contentType, fileContent, Customer.class);
+            jsonContent = Utils.packIntoJsonString(customers, Customer.class);
+        }
+
+        return Response.ok(jsonContent).build();
     }
 
-    private String handleFile(String contentType, String fileContent, String type) throws IOException, JAXBException, ReflectiveOperationException, SQLException, JAXBException
-    {
-        return Utils.handleFile(contentType, fileContent, type);
+    private String formatContentType(String contentType) {
+        if (contentType.contains("text/plain")) {
+            return "csv";
+        }
+        else if (contentType.contains("application/xml")) {
+            return "xml";
+        }
+        else if (contentType.contains("application/json")) {
+            return "json";
+        }
+        return "";
     }
 
 }

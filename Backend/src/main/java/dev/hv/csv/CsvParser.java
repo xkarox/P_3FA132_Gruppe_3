@@ -444,11 +444,14 @@ public class CsvParser
             }
             if (customerList.size() > 4)
             {
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                customer.setBirthDate(LocalDate.parse(customerList.get(4), dateTimeFormatter));
-            } else
-            {
-                customer.setBirthDate(null);
+                if (customerList.get(4).equals("null")) {
+                    customer.setBirthDate(null);
+                }
+                else {
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                    customer.setBirthDate(LocalDate.parse(customerList.get(4), dateTimeFormatter));
+                }
+
             }
 
             customers.add(customer);

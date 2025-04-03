@@ -1,9 +1,7 @@
 package dev.hv;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.hv.model.IId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -147,89 +145,9 @@ public class Utils
         }
     }
 
-    public static String handleFile(String contentType, String fileContent, String type) throws IOException, JAXBException, ReflectiveOperationException, SQLException
-    {
-        String mainContentType = contentType.split(";")[0].trim();
 
-        switch (mainContentType)
-        {
-            case MediaType.APPLICATION_JSON ->
-            {
-                return handleJson(fileContent, type);
-            }
-            case MediaType.APPLICATION_XML ->
-            {
-                return handleXml(fileContent, type);
-            }
-            case MediaType.TEXT_PLAIN ->
-            {
-                return handleCsv(fileContent, type);
-            }
-        }
-        return mainContentType;
-    }
 
-    private static String handleJson(String jsonContent, String type) throws JsonProcessingException
-    {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(jsonContent);
-        String rootElementName = rootNode.fieldNames().next();
-
-        if (!rootElementName.equals(type))
-        {
-            return "";
-        }
-
-        Response validationResponse = validateRequestData(jsonContent, type);
-        return (validationResponse == null) ? jsonContent : "";
-    }
-
-    private static String handleXml(String xmlContent, String type) throws JAXBException, IOException, JAXBException, JsonProcessingException
-    {
-        if (type.equals("customers") && xmlContent.contains("<CustomerWrapper>"))
-        {
-            JAXBContext context = JAXBContext.newInstance(CustomerWrapper.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            CustomerWrapper wrapper = (CustomerWrapper) unmarshaller.unmarshal(new StringReader(xmlContent));
-
-            String customersJsonString = Utils.packIntoJsonString(wrapper.getCustomers(), Customer.class);
-            Response validationResponse = validateRequestData(customersJsonString, "customers");
-
-            return (validationResponse == null) ? customersJsonString : "";
-        } else if (type.equals("readings") && xmlContent.contains("<ReadingWrapper>"))
-        {
-            JAXBContext context = JAXBContext.newInstance(ReadingWrapper.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            ReadingWrapper wrapper = (ReadingWrapper) unmarshaller.unmarshal(new StringReader(xmlContent));
-
-            String readingsJsonString = Utils.packIntoJsonString(wrapper.getReadings(), Reading.class);
-            Response validationResponse = validateRequestData(readingsJsonString, "readings");
-
-            return (validationResponse == null) ? readingsJsonString : "";
-        }
-
-        return "";
-    }
-
-    private static String handleCsv(String csvContent, String type) throws IOException, ReflectiveOperationException, SQLException
-    {
-        List<?> objects = Serializer.deserializeCsv(csvContent, type);
-        if (!objects.isEmpty())
-        {
-            Object firstItem = objects.getFirst();
-
-            if (type.equals("readings") && firstItem instanceof Reading)
-            {
-                return Utils.packIntoJsonString((List<Reading>) objects, Reading.class);
-            } else if (type.equals("customers") && firstItem instanceof Customer)
-            {
-                return Utils.packIntoJsonString((List<Customer>) objects, Customer.class);
-            }
-        }
-        return "";
-    }
-
-    private static Response validateRequestData(String jsonString, String rootElement) throws JsonProcessingException
+    private static Response validateSchema(String jsonString, String rootElement) throws JsonProcessingException
     {
         if (rootElement.equals("customers"))
         {

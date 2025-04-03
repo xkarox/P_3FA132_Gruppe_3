@@ -1,9 +1,11 @@
 package dev.server.controller;
 
 import dev.hv.ResponseMessages;
+import dev.hv.Serializer;
 import dev.hv.Utils;
 import dev.hv.csv.CsvParser;
 import dev.hv.model.IReading;
+import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.ReadingWrapper;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
@@ -244,7 +246,7 @@ public class ReadingController
     }
 
     @GET
-    @Path("/getReadingsFileData")
+    @Path("/createReadings")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response getReadingsFileData(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter, @QueryParam("fileType") String fileType)
     {
@@ -259,15 +261,37 @@ public class ReadingController
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing kindOfMeter").build();
             }
 
-            return switch (fileType)
+            switch (fileType)
             {
-                case "json" -> handleJson(kindOfMeter);
-                case "xml" -> handleXml(kindOfMeter);
-                case "csv" -> handleCsv(kindOfMeter);
-                default -> Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
-                        .entity("Unsupported Content-Type: " + fileType)
-                        .build();
-            };
+                case "xml":
+                {
+                    String readingXmlString = getReadingXmlData(kindOfMeter);
+                    return Response.status(Response.Status.OK)
+                            .type(MediaType.APPLICATION_XML)
+                            .entity(readingXmlString)
+                            .build();
+
+                }
+                case "csv": {
+                    String readingCsvString = getReadingCsvData(kindOfMeter);
+                    return Response.status(Response.Status.OK)
+                            .type(MediaType.APPLICATION_XML)
+                            .entity(readingCsvString)
+                            .build();
+                }
+                case "json": {
+                    String readingJsonString = getReadingJsonData(kindOfMeter);
+                    return Response.status(Response.Status.OK)
+                            .type(MediaType.APPLICATION_XML)
+                            .entity(readingJsonString)
+                            .build();
+                }
+                default: {
+                    return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
+                            .entity("Unsupported Content-Type: " + fileType)
+                            .build();
+                }
+            }
         } catch (Exception e)
         {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -276,69 +300,62 @@ public class ReadingController
         }
     }
 
-    private Response handleJson(IReading.KindOfMeter kindOfMeter) throws SQLException, IOException, ReflectiveOperationException
+    private String getReadingJsonData(IReading.KindOfMeter kindOfMeter) throws IOException, ReflectiveOperationException, SQLException
+    {
+        ReadingService rs = ServiceProvider.Services.getReadingService();
+        List<Reading> allReadings = rs.getAll();
+        List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
+        return Utils.packIntoJsonString(typeReadings, Reading.class);
+    }
+
+    private String getReadingXmlData(IReading.KindOfMeter kindOfMeter) throws JAXBException, ReflectiveOperationException, SQLException, IOException
     {
         ReadingService rs = ServiceProvider.Services.getReadingService();
         List<Reading> allReadings = rs.getAll();
         List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
 
-        return Response.status(Response.Status.OK)
-                .entity(Utils.packIntoJsonString(typeReadings, Reading.class))
-                .build();
-
+        return Serializer.serializeIntoXml(typeReadings);
     }
 
-    private Response handleXml(IReading.KindOfMeter kindOfMeter) throws SQLException, IOException, JAXBException, ReflectiveOperationException
-    {
-
-        ReadingService rs = ServiceProvider.Services.getReadingService();
-        JAXBContext objToConvert = JAXBContext.newInstance(ReadingWrapper.class);
-        Marshaller marshallerObj = objToConvert.createMarshaller();
-        marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        List<Reading> allReadings = rs.getAll();
-        List<Reading> typeReadings = allReadings.stream().filter(e -> e.getKindOfMeter() == kindOfMeter).toList();
-
-        ReadingWrapper readingsWrapper = new ReadingWrapper(typeReadings);
-        StringWriter xmlWriter = new StringWriter();
-        marshallerObj.marshal(readingsWrapper, xmlWriter);
-
-        return Response.status(Response.Status.OK)
-                .type(MediaType.APPLICATION_XML)
-                .entity(xmlWriter.toString())
-                .build();
-    }
-
-    private Response handleCsv(IReading.KindOfMeter kindOfMeter) throws IOException, ReflectiveOperationException, SQLException
+    private String getReadingCsvData(IReading.KindOfMeter kindOfMeter) throws IOException, ReflectiveOperationException, SQLException
     {
         CsvParser parser = new CsvParser();
-        String csvData = parser.createReadingsByKindOfMeter(kindOfMeter);
-        return Response.status(Response.Status.OK)
-                .type(MediaType.TEXT_PLAIN)
-                .entity(csvData)
-                .build();
+        return parser.createReadingsByKindOfMeter(kindOfMeter);
     }
 
+
     @POST
-    @Path("/upload")
+    @Path("/importReadings")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN})
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadReadingFile(@HeaderParam("Content-Type") String contentType, String fileContent) throws IOException, JAXBException, ReflectiveOperationException, SQLException
     {
-        String jsonResponse = handleFile(contentType, fileContent, "readings");
-        if (jsonResponse.isEmpty())
-        {
+        if (contentType.isEmpty() || fileContent.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(ResponseMessages.ControllerBadRequest.toString()).build();
         }
-        return Response.status(Response.Status.OK)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(jsonResponse)
-                .build();
+        String fileType = formatContentType(contentType);
+        String jsonContent = "";
+
+        if (fileType.equals("json") || fileType.equals("xml") || fileType.equals("csv"))
+        {
+            List<Reading> readings = (List<Reading>) Serializer.deserializeFile(contentType, fileContent, Reading.class);
+            jsonContent = Utils.packIntoJsonString(readings, Reading.class);
+        }
+
+        return Response.ok(jsonContent).build();
     }
 
-    private String handleFile(String contentType, String fileContent, String type) throws IOException, ReflectiveOperationException, SQLException, JAXBException
-    {
-        return Utils.handleFile(contentType, fileContent, type);
+    private String formatContentType(String contentType) {
+        if (contentType.contains("text/plain")) {
+            return "csv";
+        }
+        else if (contentType.contains("application/xml")) {
+            return "xml";
+        }
+        else if (contentType.contains("application/json")) {
+            return "json";
+        }
+        return "";
     }
 }
