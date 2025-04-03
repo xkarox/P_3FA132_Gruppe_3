@@ -618,4 +618,43 @@ public class ReadingControllerTest
         assertEquals(500, response.statusCode(), "Returned status code should be 5090 Internal Server Error");
         assertTrue(response.body().contains("Internal Server IOError"));
     }
+
+    @Test
+    void addBatch() throws IOException, SQLException
+    {
+        ReadingController cc = new ReadingController();
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ReadingService mockedCs = mock(ReadingService.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+
+        when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockedCs);
+        doNothing().when(mockedCs).addReadingsBatch(anyList());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(null).getStatus());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch("").getStatus());
+
+        String jsonString = "[\n" +
+                "    {\n" +
+                "    \"id\": null,\n" +
+                "    \"comment\": \"Level is over 9k >.>\",\n" +
+                "    \"customer\": {\n" +
+                "        \"id\":\"33829434-4f9b-41e2-a58c-75e88d4e0b9b\",\n" +
+                "        \"firstName\":\"Latten\",\n" +
+                "        \"lastName\":\"Sep\",\n" +
+                "        \"birthDate\":\"1995-05-06\",\n" +
+                "        \"gender\":\"M\"\n" +
+                "        },\n" +
+                "    \"dateOfReading\": \"2024-01-04\",\n" +
+                "    \"kindOfMeter\": \"WASSER\",\n" +
+                "    \"meterCount\": 625197.7,\n" +
+                "    \"meterId\": \"X1D3-ABCD\",\n" +
+                "    \"substitute\": false\n" +
+                "    }\n" +
+                "]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
+        when(cc.addReadingBatch(any())).thenThrow(new SQLException("SQL Error"));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
+        when(cc.addReadingBatch(any())).thenThrow(new IOException("IO Error"));
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
+    }
 }

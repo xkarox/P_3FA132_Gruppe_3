@@ -1,8 +1,14 @@
 package dev.server.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
+import dev.hv.database.services.CustomerService;
 import dev.hv.model.IReading;
+import dev.hv.model.classes.Customer;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
@@ -60,6 +66,35 @@ public class ReadingController {
                     .build();
         } catch (JsonProcessingException | SQLException | ReflectiveOperationException e) {
             logger.error("Error adding reading: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
+        } catch (IOException e) {
+            logger.error("Internal server error: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+    @POST
+    @Path("/batch")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addReadingBatch(String batchReadings) throws JsonProcessingException
+    {
+        logger.info("Received request to add readings: {}", batchReadings);
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            List<Reading> objectList = mapper.readValue(batchReadings, new TypeReference<List<Reading>>() {});
+
+            rs.addReadingsBatch(objectList);
+
+            return Response.status(Response.Status.CREATED)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }  catch (JsonProcessingException | SQLException | RuntimeException e) {
+            logger.error("Error adding readings: {}", e.getMessage(), e);
             return createErrorResponse(Response.Status.BAD_REQUEST,
                     ResponseMessages.ControllerBadRequest.toString());
         } catch (IOException e) {

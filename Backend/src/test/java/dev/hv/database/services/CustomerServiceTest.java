@@ -80,6 +80,36 @@ public class CustomerServiceTest
     }
 
     @Test
+    void batchAdd() throws SQLException, IOException, ReflectiveOperationException
+    {
+        var secCustomer = new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now(), Gender.W);
+        List<Customer> customers = new ArrayList<>(){{
+            add(_testCustomer);
+            add(secCustomer);
+        }};
+
+        Customer brokenCustomer = new Customer(UUID.randomUUID(), "Azz\\§\\§\\", "Doe", LocalDate.now(), Gender.W);
+
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            assertDoesNotThrow(() -> cs.addCustomerBatch(customers));
+            assertEquals(2, cs.getAll().size(), "Should be 2 because 2 customers were added");
+            ServiceProvider.Services.getDatabaseConnection().truncateAllTables();
+            assertEquals(0, cs.getAll().size(), "Should be 0 because all tables were truncated");
+
+            assertThrows(IllegalArgumentException.class, () -> cs.addCustomerBatch(null));
+            assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
+
+            assertThrows(IllegalArgumentException.class, () -> cs.addCustomerBatch(new ArrayList<>()));
+            assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
+
+            customers.add(brokenCustomer);
+            assertThrows(SQLException.class, () -> cs.addCustomerBatch(customers));
+            assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
+        }
+    }
+
+    @Test
     void updateTest() throws ReflectiveOperationException, SQLException, IOException
     {
         try (CustomerService cs = ServiceProvider.Services.getCustomerService())

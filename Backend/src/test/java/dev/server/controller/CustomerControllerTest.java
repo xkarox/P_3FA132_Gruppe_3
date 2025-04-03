@@ -24,6 +24,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dev.server.Server;
@@ -549,6 +550,30 @@ public class CustomerControllerTest
         JsonNode reading2Node = readingsNode.get(1);
         assertEquals(reading2.getKindOfMeter().toString(), reading2Node.get("kindOfMeter").asText(), "Second reading kindOfMeter should match");
         assertEquals(reading2.getMeterCount(), reading2Node.get("meterCount").asInt(), "Second reading meterCount should match");
+    }
+
+    @Test
+    void addBatch() throws IOException, SQLException
+    {
+        CustomerController cc = new CustomerController();
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        CustomerService mockedCs = mock(CustomerService.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+
+        when(mockedInternalServiceProvider.getCustomerService()).thenReturn(mockedCs);
+        doNothing().when(mockedCs).addCustomerBatch(anyList());
+        String jsonString = "[{\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch(null).getStatus());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch("").getStatus());
+
+        jsonString = "[{\"id\":\"c402c76f-be2d-412c-ac63-2065e64f6da6\",\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+        when(cc.addCustomerBatch(any())).thenThrow(new SQLException("SQL Error"));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+        when(cc.addCustomerBatch(any())).thenThrow(new IOException("IO Error"));
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
     }
 
     @Test
