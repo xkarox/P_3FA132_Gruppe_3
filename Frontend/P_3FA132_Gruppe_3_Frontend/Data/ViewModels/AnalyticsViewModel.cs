@@ -45,7 +45,6 @@ public partial class AnalyticsViewModel(
 
         var readings = await readingService.GetAll();
         Readings = readings?.ToList();
-        // Readings = GenerateDummyData(1000);
         
         foreach (var type in Enum.GetValues<KindOfMeter>())
         {
