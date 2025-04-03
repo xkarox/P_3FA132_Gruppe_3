@@ -20,7 +20,7 @@ import java.util.UUID;
 @Secured
 @Provider
 @Priority(6)
-public class ResponseFilter implements ContainerResponseFilter
+public class TokenRefreshFilter implements ContainerResponseFilter
 {
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException

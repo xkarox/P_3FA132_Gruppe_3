@@ -20,7 +20,7 @@ import java.util.UUID;
 public class CryptoService
 {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final int  EXPIRATION_TIME = 3600000; // 1 Hour
+    private static final int  EXPIRATION_TIME = 300000;
     private static final Random random = new Random();
 
     public static int getExpirationTime()

@@ -32,7 +32,7 @@ public class AuthenticationController
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(String userBody) throws JsonProcessingException
     {
-        logger.info("Received request to login user: {}", userBody);
+        logger.info("Received request to login user");
         try (AuthUserService as = ServiceProvider.getAuthUserService())
         {
             AuthUserDto user = mapper.readValue(userBody, AuthUserDto.class);

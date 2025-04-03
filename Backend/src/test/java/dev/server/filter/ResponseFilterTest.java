@@ -29,7 +29,7 @@ class ResponseFilterTest
 {
     private ContainerRequestContext _crc;
     private ContainerResponseContext _cResponseC;
-    private ResponseFilter _responseFilter;
+    private TokenRefreshFilter _responseFilter;
     private static MockedStatic<AuthorisationService> _mockAuth;
     private static MockedStatic<CryptoService> _crypto;
     private static MockedStatic<ServiceProvider> _serviceProvider;
@@ -49,7 +49,7 @@ class ResponseFilterTest
         MDC.clear();
         _crc = mock(ContainerRequestContext.class);
         _cResponseC = mock(ContainerResponseContext.class);
-        _responseFilter = new ResponseFilter();
+        _responseFilter = new TokenRefreshFilter();
 
         _cookies = new HashMap<>();
         _cookies.put("jwt-token", null);
