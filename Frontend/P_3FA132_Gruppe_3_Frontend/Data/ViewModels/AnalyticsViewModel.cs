@@ -44,7 +44,7 @@ public partial class AnalyticsViewModel(
         CustomerCount = customers!.Count();
 
         var readings = await readingService.GetAll();
-        Readings = readings?.ToList();
+        Readings = readings != null ? readings.ToList() : new ();
         
         foreach (var type in Enum.GetValues<KindOfMeter>())
         {
