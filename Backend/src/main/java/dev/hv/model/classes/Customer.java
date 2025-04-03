@@ -8,25 +8,34 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.hv.model.classes.deserializer.LocalDateDeserializer;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 // Req. Nr.: 1
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Customer implements ICustomer
 {
+    @XmlElement(name = "Id")
     @JsonProperty("id")
     @IFieldInfo(fieldName = "id", fieldType = String.class)
     private UUID _id;
 
+    @XmlElement(name = "FirstName")
     @JsonProperty("firstName")
     @IFieldInfo(fieldName = "firstName", fieldType = String.class)
     private String _firstName;
 
+    @XmlElement(name = "LastName")
     @JsonProperty("lastName")
     @IFieldInfo(fieldName = "lastName", fieldType = String.class)
     private String _lastName;
@@ -34,8 +43,11 @@ public class Customer implements ICustomer
     @JsonProperty("birthDate")
     @IFieldInfo(fieldName = "birthDate", fieldType = LocalDate.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
+    @XmlElement(name = "BirthDate")
     private LocalDate _birthDate;
 
+    @XmlElement(name = "Gender")
     @JsonProperty("gender")
     @IFieldInfo(fieldName = "gender", fieldType = int.class)
     private Gender _gender;

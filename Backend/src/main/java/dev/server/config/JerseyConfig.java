@@ -1,9 +1,7 @@
 package dev.server.config;
 
 import dev.hv.model.classes.Reading;
-import dev.server.controller.CustomerController;
-import dev.server.controller.DatabaseController;
-import dev.server.controller.ReadingController;
+import dev.server.controller.*;
 import dev.server.filter.CORSFilter;
 import dev.server.filter.LoggingFilter;
 import dev.server.filter.RequestIdFilter;

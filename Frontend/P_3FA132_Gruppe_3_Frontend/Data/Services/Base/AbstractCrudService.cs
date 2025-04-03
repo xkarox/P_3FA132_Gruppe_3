@@ -42,6 +42,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
         private async Task<T?> GetObject(T item, HttpMethod methode)
         {
             byte[] itemBytes = Encoding.UTF8.GetBytes(item.ToJson());
+            
             HttpResponseMessage response;
             switch (methode)
             {

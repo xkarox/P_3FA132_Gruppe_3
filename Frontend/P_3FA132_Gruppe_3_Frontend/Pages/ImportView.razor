@@ -1,0 +1,77 @@
+@page "/ImportView"
+@using System.Globalization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ImportViewModel>
+
+<PageTitle>Import</PageTitle>
+<h3>ImportView</h3>
+
+<p>Select a file you want to import...</p>
+<InputFile OnChange="ViewModel.SelectFileCommand.ExecuteAsync">Upload</InputFile>
+
+@if (ViewModel.IsReadingCsv)
+{
+    <QuickGrid Items="ViewModel.Readings!.AsQueryable()" Pagination="ViewModel.PaginationState">
+        <TemplateColumn Context="reading" Title="Date of reading">
+            <span>
+                @reading.DateOfReading
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="reading" Title="Meter count">
+            <span>
+                  @reading.MeterCount.ToString("F1", CultureInfo.InvariantCulture)
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="reading" Title="Comment">
+            <span>
+                @reading.Comment
+            </span>
+        </TemplateColumn>
+    </QuickGrid>
+}
+
+@if (ViewModel.IsCustomerCsv)
+{
+    <QuickGrid Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState">
+        <TemplateColumn Context="customer" Title="UUID">
+            <span>
+                @customer.Id
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Gender">
+            <span>
+                @customer.Gender
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="First name">
+            <span>
+                @customer.FirstName
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Last name">
+            <span>
+                @customer.LastName
+            </span>
+        </TemplateColumn>
+        <TemplateColumn Context="customer" Title="Date of birth">
+            <span>
+                @customer.DateOfBirth
+            </span>
+        </TemplateColumn>
+    </QuickGrid>
+}
+
+@if (ViewModel.FileIsSelected)
+{
+    <div class="quickgrid-pagination">
+        <Paginator State="ViewModel.PaginationState"/>
+    </div>  
+    <button @onclick="ViewModel.UploadCommand.ExecuteAsync">Upload</button>
+}
+
+
+
+@code {
+
+
+}
