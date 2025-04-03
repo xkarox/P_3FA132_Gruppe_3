@@ -126,7 +126,7 @@ public class Serializer
         return csvContent.toString();
     }
 
-    public static List<?> deserializeCsv(String csv) throws IOException, ReflectiveOperationException, SQLException
+    public static List<?> deserializeCsv(String csv, String type) throws IOException, ReflectiveOperationException, SQLException
     {
         CsvParser parser = new CsvParser();
         parser.setCsvContent(csv);
@@ -147,44 +147,53 @@ public class Serializer
 
         String[] customReadingHeader = {"Datum", "Zählerstand", "Kommentar", "KundenId", "Zählerart", "ZählerstandId", "Ersatz"};
 
-        List<String> csvCustomerHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomerHeader());
+        if (type.equals("readings")) {
+            List<String> csvReadingHeader = List.copyOf((java.util.Collection<? extends String>) parser.getReadingHeader());
+            List<String> csvCustomReadingHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomReadingHeader());
 
-        List<String> csvReadingHeader = List.copyOf((java.util.Collection<? extends String>) parser.getReadingHeader());
-        List<String> csvCustomReadingHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomReadingHeader());
+            if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderWater))
+            {
+                isDefaultReading = true;
+                water = true;
+            } else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderElectricity))
+            {
+                isDefaultReading = true;
+                electricity = true;
+            } else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderHeat))
+            {
+                isDefaultReading = true;
+                heat = true;
+            } else if (Arrays.equals(csvCustomReadingHeader.toArray(), customReadingHeader))
+            {
+                isCustomReading = true;
+            }
 
-        if (Arrays.equals(csvCustomerHeader.toArray(), customerHeader))
-        {
-            isCustomer = true;
-        } else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderWater))
-        {
-            isDefaultReading = true;
-            water = true;
-        } else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderElectricity))
-        {
-            isDefaultReading = true;
-            electricity = true;
-        } else if (Arrays.equals(csvReadingHeader.toArray(), defaultReadingHeaderHeat))
-        {
-            isDefaultReading = true;
-            heat = true;
-        } else if (Arrays.equals(csvCustomReadingHeader.toArray(), customReadingHeader))
-        {
-            isCustomReading = true;
+            if (isDefaultReading)
+            {
+                List<Reading> readings = parser.createDefaultReadingsFromCsv(heat, water, electricity);
+                return readings;
+            } else if (isCustomReading)
+            {
+                List<Reading> readings = parser.createCustomReadingsFromCsv();
+                return readings;
+            }
+
+
+
         }
+        else if (type.equals("customers")) {
+            List<String> csvCustomerHeader = List.copyOf((java.util.Collection<? extends String>) parser.getCustomerHeader());
 
-        if (isDefaultReading)
-        {
-            List<Reading> readings = parser.createDefaultReadingsFromCsv(heat, water, electricity);
-            return readings;
-        } else if (isCustomReading)
-        {
-            List<Reading> readings = parser.createCustomReadingsFromCsv();
-            return readings;
-        }
-        if (isCustomer)
-        {
-            List<Customer> customers = parser.createCustomerFromCsv();
-            return customers;
+            if (Arrays.equals(csvCustomerHeader.toArray(), customerHeader))
+            {
+                isCustomer = true;
+            }
+
+            if (isCustomer)
+            {
+                List<Customer> customers = parser.createCustomerFromCsv();
+                return customers;
+            }
         }
         return null;
     }

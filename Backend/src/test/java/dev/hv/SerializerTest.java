@@ -40,7 +40,7 @@ public class SerializerTest
         when(parserMock.getCustomerHeader()).thenReturn(Arrays.asList("UUID", "Anrede", "Vorname", "Nachname", "Geburtsdatum"));
         when(parserMock.createCustomerFromCsv()).thenReturn(expectedCustomers);
 
-        List<?> result = Serializer.deserializeCsv(csv);
+        List<?> result = Serializer.deserializeCsv(csv, "customers");
 
         assertNotNull(result);
         assertEquals(expectedCustomers, result);
@@ -52,7 +52,7 @@ public class SerializerTest
         String metaData = "Kunde;ec617965-88b4-4721-8158-ee36c38e4db3\n" +
                 "Zählernummer;112233\n";
         String csv = metaData + "Datum;Zählerstand in m³;Kommentar\n25.03.2024;100;Test";
-        List<?> result = Serializer.deserializeCsv(csv);
+        List<?> result = Serializer.deserializeCsv(csv, "readings");
 
         Reading reading = (Reading) result.get(0);
 
@@ -70,7 +70,7 @@ public class SerializerTest
         String metaData = "Kunde;ec617965-88b4-4721-8158-ee36c38e4db3\n" +
                 "Zählernummer;112233\n";
         String csv = metaData + "Datum;Zählerstand in MWh;Kommentar\n25.03.2024;100;Test";
-        List<?> result = Serializer.deserializeCsv(csv);
+        List<?> result = Serializer.deserializeCsv(csv, "readings");
 
         Reading reading = (Reading) result.get(0);
 
@@ -89,7 +89,7 @@ public class SerializerTest
         String metaData = "Kunde;ec617965-88b4-4721-8158-ee36c38e4db3\n" +
                 "Zählernummer;112233\n";
         String csv = metaData + "Datum;Zählerstand in kWh;Kommentar\n25.03.2024;100;Test";
-        List<?> result = Serializer.deserializeCsv(csv);
+        List<?> result = Serializer.deserializeCsv(csv, "readings");
 
         Reading reading = (Reading) result.get(0);
 
@@ -108,7 +108,7 @@ public class SerializerTest
         String metaData = "Kunde;ec617965-88b4-4721-8158-ee36c38e4db3\n" +
                 "Zählernummer;112233\n";
         String csv = metaData + "Datum;Zählerstand in kWh;Kommentar\n25.03.2024;100;Test";
-        List<?> result = Serializer.deserializeCsv(csv);
+        List<?> result = Serializer.deserializeCsv(csv, "readings");
 
         Reading reading = (Reading) result.get(0);
 

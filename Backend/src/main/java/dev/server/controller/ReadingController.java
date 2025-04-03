@@ -337,7 +337,7 @@ public class ReadingController
                 .build();
     }
 
-    private String handleFile(String contentType, String fileContent, String type) throws IOException, JAXBException, ReflectiveOperationException, SQLException, JAXBException
+    private String handleFile(String contentType, String fileContent, String type) throws IOException, ReflectiveOperationException, SQLException, JAXBException
     {
         return Utils.handleFile(contentType, fileContent, type);
     }

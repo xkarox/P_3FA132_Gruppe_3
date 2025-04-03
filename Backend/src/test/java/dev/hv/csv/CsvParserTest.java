@@ -1,6 +1,7 @@
 package dev.hv.csv;
 
 import dev.hv.Serializer;
+import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.ICustomer;
@@ -13,6 +14,7 @@ import org.junit.jupiter.params.shadow.com.univocity.parsers.csv.Csv;
 import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
+import java.security.Provider;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CsvParserTest {
+
     private static final String CSV_CUSTOMER_CONTENT =
             "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n" +
                     "ec617965-88b4-4721-8158-ee36c38e4db3,Frau,Anna,Test,21.02.1962\n" +
@@ -58,8 +61,8 @@ public class CsvParserTest {
 
 
 
-    @BeforeAll
-    static void setUp() throws SQLException, IOException
+    @BeforeEach
+    void setUp() throws SQLException, IOException
     {
         mockFormatter = mock(CsvFormatter.class);
 
@@ -69,6 +72,13 @@ public class CsvParserTest {
         when(ServiceProvider.Services.getReadingService()).thenReturn(mockReadingService);
         when(ServiceProvider.Services.getCustomerService()).thenReturn(mockCustomerService);
     }
+
+    @AfterEach
+    void tearDown() {
+        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
+    }
+
+
 
     @Test
     void getReadingSeparatorTest() throws IOException
@@ -463,4 +473,5 @@ public class CsvParserTest {
 
 
     }
+
 }

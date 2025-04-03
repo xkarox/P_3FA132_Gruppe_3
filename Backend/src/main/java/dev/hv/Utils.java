@@ -213,7 +213,7 @@ public class Utils
 
     private static String handleCsv(String csvContent, String type) throws IOException, ReflectiveOperationException, SQLException
     {
-        List<?> objects = Serializer.deserializeCsv(csvContent);
+        List<?> objects = Serializer.deserializeCsv(csvContent, type);
         if (!objects.isEmpty())
         {
             Object firstItem = objects.getFirst();
