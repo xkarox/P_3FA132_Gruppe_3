@@ -337,38 +337,6 @@ public class CsvParserTest {
     }
 
     @Test
-    void createAllCustomersCsvWithValidCustomersTest() throws ReflectiveOperationException, SQLException, IOException
-    {
-        CsvParser parser = new CsvParser();
-        List<Customer> mockCustomers = List.of(MOCKED_CUSTOMER1, MOCKED_CUSTOMER2);
-        when(mockCustomerService.getAll()).thenReturn(mockCustomers);
-
-        String expectedHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
-        String expectedData = Serializer.serializeIntoCsv(mockCustomers);
-        String expectedCsv = expectedHeader + expectedData;
-
-        String result = parser.createAllCustomerCsv();
-
-        assertEquals(expectedCsv, result);
-    }
-
-    @Test
-    void createAllCustomersCsvWithEmptyCustomersTest() throws IOException, ReflectiveOperationException, SQLException
-    {
-        CsvParser parser = new CsvParser();
-        List<Customer> mockCustomers = List.of();
-        when(mockCustomerService.getAll()).thenReturn(mockCustomers);
-
-        String expectedHeader = "UUID;Anrede;Vorname;Nachname;Geburtsdatum\n";
-        String expectedData = Serializer.serializeIntoCsv(mockCustomers);
-        String expectedCsv = expectedHeader + expectedData;
-
-        String result = parser.createAllCustomerCsv();
-
-        assertEquals(expectedCsv, result);
-    }
-
-    @Test
     void createDefaultReadingsFromCsvWithWaterKindOfMeterTest() throws ReflectiveOperationException, SQLException, IOException
     {
         CsvParser parser = new CsvParser();

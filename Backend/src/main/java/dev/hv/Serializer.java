@@ -21,71 +21,91 @@ import java.util.*;
 
 public class Serializer
 {
-    public static String serializeIntoCsv(List<?> items)
+    public static String serializeIntoCsv(List<? extends IDbItem> items)
     {
         if (items.isEmpty())
         {
             return null;
         }
         Object firstItem = items.get(0);
-        StringBuilder csvContent = new StringBuilder();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        String serializedCsv = "";
+
         if (firstItem instanceof Reading)
         {
             List<Reading> readings = (List<Reading>) items;
+            serializedCsv = serializeReadings(readings);
 
-            for (Reading reading : readings)
-            {
-                csvContent.append(reading.getDateOfReading().format(formatter)).append(";");
-                csvContent.append(reading.getMeterCount()).append(";");
-                csvContent.append(reading.getComment()).append(";");
-                csvContent.append(reading.getCustomer().getId()).append(";");
-                csvContent.append(reading.getKindOfMeter()).append(";");
-                csvContent.append(reading.getMeterId()).append(";");
-                csvContent.append(reading.getSubstitute());
-                csvContent.append("\n");
-            }
         } else if (firstItem instanceof Customer)
         {
             List<Customer> customers = (List<Customer>) items;
+            serializedCsv = serializeCustomers(customers);
 
-            for (Customer customer : customers)
-            {
-                csvContent.append(customer.getId() != null ? customer.getId() : "null").append(";");
-                csvContent.append(customer.getGender() != null ? customer.getGender() : "null").append(";");
-                csvContent.append(customer.getFirstName() != null ? customer.getFirstName() : "null").append(";");
-                csvContent.append(customer.getLastName() != null ? customer.getLastName() : "null").append(";");
-                csvContent.append(customer.getBirthDate() != null ? customer.getBirthDate().format(formatter) : "null").append(";");
-                csvContent.append("\n");
-            }
+        }
+        return serializedCsv;
+    }
+
+    private static String serializeCustomers(List<Customer> customers) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        StringBuilder csvContent = new StringBuilder();
+        for (Customer customer : customers)
+        {
+            csvContent.append(customer.getId() != null ? customer.getId() : "null").append(";");
+            csvContent.append(customer.getGender()).append(";");
+            csvContent.append(customer.getFirstName() != null ? customer.getFirstName() : "null").append(";");
+            csvContent.append(customer.getLastName() != null ? customer.getLastName() : "null").append(";");
+            csvContent.append(customer.getBirthDate() != null ? customer.getBirthDate().format(formatter) : "null");
+            csvContent.append("\n");
+        }
+        return csvContent.toString();
+    }
+
+    private static String serializeReadings(List<Reading> readings) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        StringBuilder csvContent = new StringBuilder();
+
+        for (Reading reading : readings)
+        {
+            csvContent.append(reading.getDateOfReading().format(formatter)).append(";");
+            csvContent.append(reading.getMeterCount()).append(";");
+            csvContent.append(reading.getComment()).append(";");
+            csvContent.append(reading.getCustomer().getId()).append(";");
+            csvContent.append(reading.getKindOfMeter()).append(";");
+            csvContent.append(reading.getMeterId()).append(";");
+            csvContent.append(reading.getSubstitute());
+            csvContent.append("\n");
         }
         return csvContent.toString();
     }
 
     public static String serializeIntoXml(List<? extends IDbItem> objects) throws JAXBException
     {
-        Object firstItem = objects.get(0);
-        if (firstItem instanceof Customer) {
-            JAXBContext objToConvert = JAXBContext.newInstance(CustomerWrapper.class);
-            Marshaller marshallerObj = objToConvert.createMarshaller();
-            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        if (objects.size() > 0) {
+            Object firstItem = objects.getFirst();
+            if (firstItem instanceof Customer) {
+                JAXBContext objToConvert = JAXBContext.newInstance(CustomerWrapper.class);
+                Marshaller marshallerObj = objToConvert.createMarshaller();
+                marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            CustomerWrapper customerWrapper = new CustomerWrapper((List<Customer>) objects);
-            StringWriter xmlWriter = new StringWriter();
-            marshallerObj.marshal(customerWrapper, xmlWriter);
-            return xmlWriter.toString();
-        }
-        else if (firstItem instanceof Reading) {
-            JAXBContext objToConvert = JAXBContext.newInstance(ReadingWrapper.class);
-            Marshaller marshallerObj = objToConvert.createMarshaller();
-            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+                CustomerWrapper customerWrapper = new CustomerWrapper((List<Customer>) objects);
+                StringWriter xmlWriter = new StringWriter();
+                marshallerObj.marshal(customerWrapper, xmlWriter);
+                return xmlWriter.toString();
+            }
+            else if (firstItem instanceof Reading) {
+                JAXBContext objToConvert = JAXBContext.newInstance(ReadingWrapper.class);
+                Marshaller marshallerObj = objToConvert.createMarshaller();
+                marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            ReadingWrapper readingWrapper = new ReadingWrapper((List<Reading>) objects);
-            StringWriter xmlWriter = new StringWriter();
-            marshallerObj.marshal(readingWrapper, xmlWriter);
-            return xmlWriter.toString();
+                ReadingWrapper readingWrapper = new ReadingWrapper((List<Reading>) objects);
+                StringWriter xmlWriter = new StringWriter();
+                marshallerObj.marshal(readingWrapper, xmlWriter);
+                return xmlWriter.toString();
+            }
+            return null;
         }
         return null;
+
     }
 
     public static List<? extends IDbItem> deserializeFile(String fileType, String fileContent, Class objectType) throws IOException, JAXBException, ReflectiveOperationException, SQLException

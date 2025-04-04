@@ -582,78 +582,16 @@ public class CustomerControllerTest
 
     }
 
+
     @Test
-    void getCustomerFileDataMissingFileTypeTest() throws IOException, InterruptedException
+    void exportCustomersXmlTest() throws IOException, InterruptedException
     {
-        String url = _url + "/" + "getCustomersFileData?fileType=";
+        String url = _url + "/exportCustomers?fileType=xml";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
                 .GET()
-                .build();
-
-        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
-    }
-
-    @Test
-    void getCustomerFileDataCsvTest() throws IOException, InterruptedException
-    {
-        String url = _url + "/" + "getCustomersFileData?fileType=csv";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-
-        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
-    }
-
-
-    @Test
-    void getCustomerFileDataXmlTest() throws IOException, InterruptedException
-    {
-        String url = _url + "/" + "getCustomersFileData?fileType=xml";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-
-        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
-    }
-
-    @Test
-    void getCustomerFileDataUnsupportedTypeTest() throws IOException, InterruptedException {
-        String url = _url + "/getCustomersFileData?fileType=invalidType";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-
-        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), response.statusCode());
-    }
-
-
-    @Test
-    void uploadCustomerFileJsonTest() throws IOException, InterruptedException
-    {
-        String url = _url + "/upload";
-        String jsonInput = "{\"customers\": [{\"id\": \"ec617965-88b4-4721-8158-ee36c38e4db3\", \"firstName\": \"Anna\", \"lastName\": \"Test\", \"gender\": \"W\", \"dateOfBirth\": \"1962-02-21\"}]}";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonInput))
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -662,10 +600,83 @@ public class CustomerControllerTest
     }
 
     @Test
-    void uploadCustomerFileXmlTest() throws IOException, InterruptedException
+    void exportCustomersJsonTest() throws IOException, InterruptedException
     {
-        String url = _url + "/upload";
-        String xmlInput = "<CustomerWrapper>\n" +
+        {
+            String url = _url + "/exportCustomers?fileType=json";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void exportCustomersCsvTest() throws IOException, InterruptedException
+    {
+        {
+            String url = _url + "/exportCustomers?fileType=csv";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void exportCustomersUnsupportedMediaTypeTest() throws IOException, InterruptedException
+    {
+        {
+            String url = _url + "/exportCustomers?fileType=undefined";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void exportCustomersBadRequestTest() throws IOException, InterruptedException
+    {
+        {
+            String url = _url + "/exportCustomers?fileType=";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void validateCustomersXmlTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        String validXml = "<CustomerWrapper>\n" +
                 "    <Customers>\n" +
                 "        <Id>ec617965-88b4-4721-8158-ee36c38e4db3</Id>\n" +
                 "        <FirstName>Anna</FirstName>\n" +
@@ -678,7 +689,7 @@ public class CustomerControllerTest
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/xml")
-                .POST(HttpRequest.BodyPublishers.ofString(xmlInput))
+                .POST(HttpRequest.BodyPublishers.ofString(validXml))
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -687,16 +698,35 @@ public class CustomerControllerTest
     }
 
     @Test
-    void uploadCustomerFileCsvTest() throws IOException, InterruptedException
+    void validateCustomersJsonTest() throws IOException, InterruptedException
     {
-        String url = _url + "/upload";
-        String csvInput = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n" +
+        String url = _url + "/validateCustomers";
+
+        String validJson = "{\"customers\": [{\"id\": \"ec617965-88b4-4721-8158-ee36c38e4db3\", \"firstName\": \"Anna\", \"lastName\": \"Test\", \"gender\": \"W\", \"birthDate\": \"1962-02-21\"}]}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(validJson))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void validateCustomersCsvTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        String validCsv = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n" +
                 "ec617965-88b4-4721-8158-ee36c38e4db3,Frau,Anna,Test,21.02.1962\n";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "text/plain")
-                .POST(HttpRequest.BodyPublishers.ofString(csvInput))
+                .POST(HttpRequest.BodyPublishers.ofString(validCsv))
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -705,16 +735,33 @@ public class CustomerControllerTest
     }
 
     @Test
-    void uploadCustomerFileBadRequestJsonTest() throws IOException, InterruptedException
+    void validateCustomersMissingContentTypeTest() throws IOException, InterruptedException
     {
-        String url = _url + "/upload";
+        String url = _url + "/validateCustomers";
 
-        String invalidJson = "{\"custom\": []}";
+        String validCsv = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n" +
+                "ec617965-88b4-4721-8158-ee36c38e4db3,Frau,Anna,Test,21.02.1962\n";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(invalidJson))
+                .header("Content-Type", "")
+                .POST(HttpRequest.BodyPublishers.ofString(validCsv))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void validateCustomersMissingBodyTypeTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "text/plain")
+                .POST(HttpRequest.BodyPublishers.ofString(""))
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());

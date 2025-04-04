@@ -13,7 +13,6 @@ public class ExportService
     private readonly HttpClient _httpClient;
     private const string CustomerUrl = "http://localhost:8080/customers";
     private const string ReadingUrl = "http://localhost:8080/readings";
-    private const string ExportUrl = "http://localhost:8080/export";
 
     public ExportService(HttpClient httpClient)
     {
@@ -22,7 +21,7 @@ public class ExportService
 
     public async Task<string> CreateAllCustomers(string fileType)
     {
-        const string path = "/createCustomers";
+        const string path = "/exportCustomers";
         var url = $"{CustomerUrl}{path}?fileType={fileType.ToLower()}";
 
         var response = await _httpClient.GetAsync(url);
@@ -33,7 +32,7 @@ public class ExportService
 
     public async Task<string> CreateAllReadings(KindOfMeter kindOfMeter, string fileType)
     {
-        const string path = "/createReadings";
+        const string path = "/exportReadings";
         var url = $"{ReadingUrl}{path}?kindOfMeter={kindOfMeter}&fileType={fileType.ToLower()}";
 
         var response = await _httpClient.GetAsync(url);
@@ -44,7 +43,7 @@ public class ExportService
 
     public async Task<string> ImportCustomer(string fileContent, string fileType)
     {
-        const string path = "/importCustomer";
+        const string path = "/validateCustomers";
         string contentType;
 
         switch (fileType.ToLower())
@@ -72,7 +71,7 @@ public class ExportService
 
     public async Task<string> ImportReading(string fileContent, string fileType)
     {
-        const string path = "/importReadings";
+        const string path = "/validateReadings";
         string contentType;
 
         switch (fileType.ToLower())

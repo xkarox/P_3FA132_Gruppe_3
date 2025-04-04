@@ -145,28 +145,16 @@ public class Utils
         }
     }
 
-
-
-    private static Response validateSchema(String jsonString, String rootElement) throws JsonProcessingException
-    {
-        if (rootElement.equals("customers"))
-        {
-            CustomerJsonSchemaValidatorService validator = new CustomerJsonSchemaValidatorService();
-            validator.setJsonSchemaPath("schemas/customers.json");
-            validator.loadSchema(CustomerJsonSchemaValidatorService.class);
-            boolean invalid = validator.validate(jsonString);
-
-            return invalid ? createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString()) : null;
-        } else if (rootElement.equals("readings"))
-        {
-            ReadingJsonSchemaValidationService validator = new ReadingJsonSchemaValidationService();
-            validator.setJsonSchemaPath("schemas/readings.json");
-            validator.loadSchema(ReadingJsonSchemaValidationService.class);
-            boolean invalid = validator.validate(jsonString);
-
-            return invalid ? createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerBadRequest.toString()) : null;
+    public static String formatContentType(String contentType) {
+        if (contentType.contains("text/plain")) {
+            return "csv";
         }
-
-        return null;
+        else if (contentType.contains("application/xml")) {
+            return "xml";
+        }
+        else if (contentType.contains("application/json")) {
+            return "json";
+        }
+        return "";
     }
 }

@@ -246,9 +246,9 @@ public class ReadingController
     }
 
     @GET
-    @Path("/createReadings")
+    @Path("/exportReadings")
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response getReadingsFileData(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter, @QueryParam("fileType") String fileType)
+    public Response exportReadings(@QueryParam("kindOfMeter") IReading.KindOfMeter kindOfMeter, @QueryParam("fileType") String fileType)
     {
         try
         {
@@ -325,16 +325,16 @@ public class ReadingController
 
 
     @POST
-    @Path("/importReadings")
+    @Path("/validateReadings")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN})
     @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadReadingFile(@HeaderParam("Content-Type") String contentType, String fileContent) throws IOException, JAXBException, ReflectiveOperationException, SQLException
+    public Response validateReadings(@HeaderParam("Content-Type") String contentType, String fileContent) throws IOException, JAXBException, ReflectiveOperationException, SQLException
     {
-        if (contentType.isEmpty() || fileContent.isEmpty()) {
+        if (contentType.trim().isEmpty() || fileContent.trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(ResponseMessages.ControllerBadRequest.toString()).build();
         }
-        String fileType = formatContentType(contentType);
+        String fileType = Utils.formatContentType(contentType);
         String jsonContent = "";
 
         if (fileType.equals("json") || fileType.equals("xml") || fileType.equals("csv"))
@@ -346,16 +346,4 @@ public class ReadingController
         return Response.ok(jsonContent).build();
     }
 
-    private String formatContentType(String contentType) {
-        if (contentType.contains("text/plain")) {
-            return "csv";
-        }
-        else if (contentType.contains("application/xml")) {
-            return "xml";
-        }
-        else if (contentType.contains("application/json")) {
-            return "json";
-        }
-        return "";
-    }
 }
