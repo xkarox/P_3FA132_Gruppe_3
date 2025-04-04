@@ -211,7 +211,7 @@ public class SerializerTest
 
         assertEquals(expectedReading.getDateOfReading(), actualReading.getDateOfReading());
         assertEquals(expectedReading.getMeterCount(), actualReading.getMeterCount());
-        assertEquals(actualReading.getComment(), "null");
+        assertEquals(actualReading.getComment(), null);
         assertEquals(expectedReading.getCustomer(), actualReading.getCustomer());
         assertEquals(expectedReading.getKindOfMeter(), actualReading.getKindOfMeter());
         assertEquals(expectedReading.getMeterId(), actualReading.getMeterId());

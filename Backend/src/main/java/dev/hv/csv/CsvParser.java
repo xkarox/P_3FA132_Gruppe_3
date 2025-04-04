@@ -359,7 +359,13 @@ public class CsvParser
             }
             if (customReadingList.size() > 2)
             {
-                reading.setComment(customReadingList.get(2));
+                if (customReadingList.get(2).equals("null")) {
+                    reading.setComment(null);
+                }
+                else {
+                    reading.setComment(customReadingList.get(2));
+                }
+
             }
             if (customReadingList.size() > 3)
             {
