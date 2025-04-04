@@ -8,7 +8,22 @@
     --color-tertiary: #D1C4E9;  /* Softer Amethyst - Tertiary accent */
     --bg-dark: #121212;
     
-    --border-radius: 8px;
+    --color-extra: #7a51c2;
+    --color-extra-extra: #5419bd;
+    
+    --border-radius: 24px;/* Nearly black - Background */
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+.home-greeting {
+    background-image: linear-gradient(to bottom right, white, white, var(--color-extra-extra), var(--color-extra-extra));
+    font-weight: bold;
+    color: transparent;
+    background-clip: text;
+    display: flex; justify-content: center; align-content: center; font-size: clamp(3rem, 10vw, 20rem);
 }
 
 .visible {
@@ -48,33 +63,36 @@ svg:not(.apexcharts-svg) path {
     fill: var(--color-primary);
 }
 
-html {
-    /*background: #000000;*/
-}
-
 body {
-    /*background-color: var(--bg-dark);*/
-    background: -webkit-radial-gradient(circle at bottom, rgba(54,52,62,1) 0%, rgba(39,37,48,1) 23%, rgba(31,28,44,1) 61%, rgba(0,0,0,1) 100%);
-    background: radial-gradient(circle at bottom, rgba(54,52,62,1) 0%, rgba(39,37,48,1) 23%, rgba(31,28,44,1) 61%, rgba(0,0,0,1) 100%);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-position: center center;
+    background-size: 100% 100%;
+    background: radial-gradient(circle at bottom, rgba(54, 52, 62, 1) 0%, rgba(39, 37, 48, 1) 23%, rgba(31, 28, 44, 1) 44%, rgba(0, 0, 0, 1) 100%) no-repeat fixed center bottom;
+    /*min-height: 100vh;*/
+    /*max-height: 100vh;*/
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+    background-size: cover;
+    margin: 0;
+    padding: 0;
     color: var(--text-color);
     font-family: 'Roboto', sans-serif;
-    overscroll-behavior-y: none;
 }
 
+
 header {
-    background-color: var(--bg-medium);
+    /*background-color: var(--bg-medium);*/
+    /*background-image: linear-gradient(to bottom right, var(--bg-light), var(--bg-light), var(--bg-dark));*/
     color: var(--color-primary);
     padding: 1.25rem;
-    border-radius: 12px;
-    margin: 1rem;
+    border-radius: var(--border-radius);
+    margin: 1rem 1rem 0.5rem 1rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--color-primary);
+    background:
+            linear-gradient(to bottom right, var(--bg-light), var(--bg-light), var(--bg-dark)) padding-box,
+            linear-gradient(to bottom right,var(--bg-light), var(--color-extra-extra), var(--color-extra-extra)) border-box;
+    border: 4px solid transparent;
     display: flex;
     align-items: center;
 }
+
 
 header h1 {
     margin-left: 1.5rem;
@@ -82,12 +100,16 @@ header h1 {
 
 
 nav {
-    background-color: var(--bg-light);
+    /*background-color: var(--bg-light);*/
+    /*background-image: linear-gradient(to bottom right, var(--bg-light), var(--bg-light), var(--bg-dark));*/
+    background:
+            linear-gradient(to bottom right, var(--bg-light), var(--bg-light), var(--bg-dark)) padding-box,
+            linear-gradient(to bottom right, var(--bg-light), var(--color-extra-extra), var(--color-extra-extra)) border-box;
     padding: 1rem;
-    border-radius: 12px;
-    margin: 1rem;
+    border-radius: var(--border-radius);
+    margin: 0.5rem 1rem 1rem 1rem;
     backdrop-filter: blur(8px);
-    border: 1px solid var(--color-primary);
+    border: 4px solid transparent;
 }
 nav a {
     text-decoration: none;
@@ -95,7 +117,7 @@ nav a {
 }
 
 button {
-    background-color: var(--color-primary);
+    background-image: linear-gradient(to bottom right, var(--color-primary), var(--color-extra));
     color: var(--text-color);
     border: none;
     padding: 0.75rem 1.5rem;
@@ -165,8 +187,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 button[type="submit"] {
     background-color: var(--color-primary);
+    border: 1px solid var(--color-extra-extra);
     color: var(--text-color);
-    border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-weight: 500;
@@ -179,6 +201,11 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background-color: var(--color-secondary);
     transform: translateY(-1px);
+}
+
+img, video, svg {
+    max-width: 100%;
+    height: auto;
 }
 
 

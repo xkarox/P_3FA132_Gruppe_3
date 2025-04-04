@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Components.Authorization
+<div class="debug-monitor">
+    <AuthorizeView>
+        <NotAuthorized><div class="not-authorized">Not Authenticated</div></NotAuthorized>
+        <Authorized ><div class="authorized">Authorized</div></Authorized>
+    </AuthorizeView>
+    <div>User: Username</div>
+</div>
+<style>
+    .debug-monitor {
+        z-index: 9999999999999999999999999999999999999999999999999999;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+    }
+    
+    .authorized {
+        color:  lime;
+    }
+    
+    .not-authorized {
+        color:  red;
+    }
+</style>
+
+@code {
+    
+}

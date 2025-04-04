@@ -6,15 +6,15 @@ using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 {
-    public abstract class AbstractBaseService<T> where T : IBaseClass<T>
+    public abstract class AbstractBaseService
     {
         private readonly string _baseUrl = "http://localhost:8080";
         protected readonly Uri _endpointUrl;
         protected readonly HttpClient _httpClient;
 
-        public AbstractBaseService(HttpClient httpClient, string endpointUrl)
+        public AbstractBaseService(IHttpClientFactory httpClientFactory, string endpointUrl)
         {
-            _httpClient = httpClient;
+            _httpClient =  httpClientFactory.CreateClient("AuthApi");
             _endpointUrl = BuildUri(endpointUrl);
         }
 

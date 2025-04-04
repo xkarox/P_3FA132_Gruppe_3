@@ -8,7 +8,6 @@
 @inject IJSRuntime Js
 @inject UtilityService UtilityService
 
-<h3>CustomerManagement</h3>
 <div class="overlay @(ViewModel.SelectedCustomer != null ? "visible" : "hidden")"></div>
 <EntityManagement
     Item="ViewModel.SelectedCustomer"
@@ -43,7 +42,7 @@
 @* <div class="grid-controls add-button"> *@
 @* </div> *@
 
-<QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()">
+<QuickGrid TGridItem="Customer" Items="ViewModel.Customers!.AsQueryable()" Pagination="ViewModel.PaginationState">
     @if (ViewModel.ShowCustomerColumns.ShowId)
     {
         <TemplateColumn Context="customer" Title="Id">
