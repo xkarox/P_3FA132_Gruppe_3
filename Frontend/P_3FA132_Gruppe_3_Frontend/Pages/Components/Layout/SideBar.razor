@@ -21,7 +21,7 @@
             <SideBarItem Text="Logout" IconName="logout" OnClickFunc="@Logout"/>
         </Authorized>
         <NotAuthorized>
-            <SideBarItem Text="Login" IconName="login" OnClickFunc="@CallbackFunc"/>
+            <SideBarItem Text="Login" IconName="login" OnClickFunc="@OpenLoginModal"/>
         </NotAuthorized>
     </AuthorizeView>
 </nav>
@@ -89,9 +89,11 @@
         _dotNetRef?.Dispose();
     }    
 
-    public Task CallbackFunc()
+    public Task OpenLoginModal()
     {
-        showComp = !showComp;
+        showComp = true;
+        Console.WriteLine($"ShowComp = {showComp}");
+        StateHasChanged();
         return Task.CompletedTask;
     }
 }

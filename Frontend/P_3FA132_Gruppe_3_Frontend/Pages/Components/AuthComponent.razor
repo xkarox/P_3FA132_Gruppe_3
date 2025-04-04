@@ -38,10 +38,10 @@
     [Parameter] public bool Show { get; set; } = false;
     [Parameter] public Func<Task>? OnSuccessfullLogin { get; set; }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
+    public override Task SetParametersAsync(ParameterView parameters)
     {
-        if(!AuthService.IsAuthenticationEnabled)
-            await Login();
+        AutoLogin();
+        return base.SetParametersAsync(parameters);
     }
 
     static class AuthErrorMessages
@@ -49,6 +49,12 @@
         public const string InvalidUsername = "Please input a valid Username";
         public const string InvalidPassword = "Please input a valid Password";
         public const string LoginFailed = "Login Failed - Please check credentials";
+    }
+
+    private async Task AutoLogin()
+    {
+        if(!await AuthService.AuthenticationEnabled())
+            await Login();
     }
 
     private async Task Login()
