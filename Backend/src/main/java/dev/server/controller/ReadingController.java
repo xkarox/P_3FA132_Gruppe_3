@@ -1,9 +1,13 @@
 package dev.server.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.interfaces.IReading;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
@@ -69,6 +73,38 @@ public class ReadingController {
                     .build();
         } catch (JsonProcessingException | SQLException | ReflectiveOperationException e) {
             logger.error("Error adding reading: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.BAD_REQUEST,
+                    ResponseMessages.ControllerBadRequest.toString());
+        } catch (IOException e) {
+            logger.error("Internal server error: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
+    @POST
+    @Path("/batch")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addReadingBatch(String batchReadings) throws JsonProcessingException
+    {
+        if (!AuthorisationService.IsUserAdmin()) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+        logger.info("Received request to add readings: {}", batchReadings);
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            List<Reading> objectList = mapper.readValue(batchReadings, new TypeReference<List<Reading>>() {});
+
+            rs.addBatch(objectList);
+
+            return Response.status(Response.Status.CREATED)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }  catch (JsonProcessingException | SQLException | RuntimeException e) {
+            logger.error("Error adding readings: {}", e.getMessage(), e);
             return createErrorResponse(Response.Status.BAD_REQUEST,
                     ResponseMessages.ControllerBadRequest.toString());
         } catch (IOException e) {
@@ -172,6 +208,23 @@ public class ReadingController {
         }
     }
 
+    private Response getReadings() throws JsonProcessingException {
+        logger.info("Receieved request to get all readings");
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            Collection<Reading> readings = rs.getAll();
+            logger.info("Readings retrieved successfully");
+            return Response.status(Response.Status.OK)
+                    .entity(Utils.packIntoJsonString(readings, Reading.class))
+                    .build();
+        } catch (IOException | ReflectiveOperationException | SQLException e)
+        {
+            logger.error("Error retrieving readings: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                    ResponseMessages.ControllerInternalError.toString());
+        }
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReadings(@QueryParam("customer") String customerId,
@@ -180,10 +233,14 @@ public class ReadingController {
                                 @QueryParam("kindOfMeter") Integer kindOfMeter) throws JsonProcessingException {
         logger.info("Received request to get readings with parameters - customer: {}, start: {}, end: {}, kindOfMeter: {}",
                 customerId, startDate, endDate, kindOfMeter);
-
+                
         if (!AuthorisationService.IsUserAdmin())
-            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+                    return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
 
+        if(customerId == null && startDate == null && endDate == null && kindOfMeter == null)
+            return getReadings();
+
+        
         try {
             UUID id = customerId != null ? UUID.fromString(customerId) : null;
 

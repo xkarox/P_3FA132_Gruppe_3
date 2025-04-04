@@ -73,28 +73,6 @@ public class AuthUserService extends AbstractBaseService<AuthUser>
         return item;
     }
 
-    // ToDo: Why oh why
-//    public AuthUser addBlankUser(Customer customer) throws SQLException, ReflectiveOperationException, IOException
-//    {
-//        if (customer == null)
-//            throw new IllegalArgumentException("Customer is null and cannot be inserted.");
-//
-//        AuthUser item = CreateNewAuthInformation(customer);
-//
-//        String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
-//                " (id, username, password, role) VALUES (?, ?, ?, ?);";
-//
-//        try(PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)){
-//            stmt.setString(1, item.getId().toString());
-//            stmt.setString(2, item.getUsername());
-//            stmt.setString(3, null);
-//            stmt.setString(4, UserRoles.USER.toString());
-//            this._dbConnection.executePreparedStatementCommand(stmt, 1);
-//        }
-//
-//        return item;
-//    }
-
     @Override
     public AuthUser update(AuthUser item) throws SQLException
     {

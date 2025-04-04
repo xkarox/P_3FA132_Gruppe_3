@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,8 +28,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
 
 public class CustomerServiceTest
 {
@@ -77,6 +78,44 @@ public class CustomerServiceTest
                 assertNotNull(customerFromDb, "Customer should not be null after being added to the database.");
                 assertEquals(this._testCustomer, customerFromDb, "Customer are not equal");
             }
+        }
+    }
+
+    @Test
+    void batchAdd() throws SQLException, IOException, ReflectiveOperationException
+    {
+        var secCustomer = new Customer(UUID.randomUUID(), "Jane", "Doe", LocalDate.now(), Gender.W);
+        List<Customer> customers = new ArrayList<>(){{
+            add(_testCustomer);
+            add(secCustomer);
+        }};
+
+        Customer brokenCustomer = new Customer(UUID.randomUUID(), "Azz\\§\\§\\", "Doe", LocalDate.now(), Gender.W);
+
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            assertDoesNotThrow(() -> cs.addBatch(customers));
+            assertEquals(2, cs.getAll().size(), "Should be 2 because 2 customers were added");
+            ServiceProvider.Services.getDatabaseConnection().truncateAllTables();
+            assertEquals(0, cs.getAll().size(), "Should be 0 because all tables were truncated");
+
+            assertThrows(IllegalArgumentException.class, () -> cs.addBatch(null));
+            assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
+
+            assertThrows(IllegalArgumentException.class, () -> cs.addBatch(new ArrayList<>()));
+            assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
+
+
+            Connection spyCon = spy(cs._dbConnection.getConnection());
+            doThrow(new SQLException("Test exception")).when(spyCon).commit();
+
+            Field privateConnection = DatabaseConnection.class.getDeclaredField("_connection");
+            privateConnection.setAccessible(true);
+            privateConnection.set(cs._dbConnection, spyCon);
+
+            customers.add(brokenCustomer);
+            assertThrows(SQLException.class, () -> cs.addBatch(customers));
+            assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
         }
     }
 

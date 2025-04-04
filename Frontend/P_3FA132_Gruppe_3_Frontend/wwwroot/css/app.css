@@ -48,7 +48,18 @@
     cursor: pointer;
 }
 
-svg path {
+.card {
+    /*border: 1px solid var(--color-primary);*/
+    /*background-color: var(--bg-light);*/
+    background:
+            linear-gradient(to bottom right, var(--bg-light), var(--bg-light), var(--bg-dark)) padding-box,
+            linear-gradient(to bottom right,var(--bg-light), var(--color-primary), var(--color-primary)) border-box;
+    border: 4px solid transparent;
+    color: var(--color-primary);
+    border-radius: var(--border-radius);
+}
+
+svg:not(.apexcharts-svg) path {
     fill: var(--color-primary);
 }
 

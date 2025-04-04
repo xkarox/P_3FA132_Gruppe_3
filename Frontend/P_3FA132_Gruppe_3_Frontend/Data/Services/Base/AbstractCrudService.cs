@@ -28,7 +28,6 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 
         public async Task<IEnumerable<T>?> GetAll()
         {
-            // ToDo: Throw if Reading -> Just Customer implemented
             return await GetObjects(HttpMethod.GETALL);
         }
 

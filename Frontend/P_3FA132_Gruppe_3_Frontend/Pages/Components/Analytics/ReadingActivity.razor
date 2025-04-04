@@ -1,0 +1,69 @@
+@using P_3FA132_Gruppe_3_Frontend.Data.Enums
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
+
+
+<Chart Config="_config"></Chart>
+
+
+@code {
+    [EditorRequired] [Parameter] public List<Reading> Data { get; set; }
+    private LineChartConfig? _config;
+    
+    protected override void OnInitialized()
+    {
+        _config = new LineChartConfig()
+        {
+            Options = new Options()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                Height = "100%",
+                Plugins = new Plugins()
+                {
+                    Title = new Title()
+                    {
+                        Display = true,
+                        Text = "Reading Activity by Month"
+                    }
+                }
+            }
+        };
+        var months = new[] 
+            { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+        foreach (var month in months)
+        {
+            _config.Data.Labels.Add(month);
+        }
+        
+        foreach (var type in Enum.GetNames<KindOfMeter>())
+        {
+            var data = new List<decimal?>();
+            foreach (var month in new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12})
+            {
+                var monthInt = Data[0].DateOfReading!.Value.Month;
+                var currentYear = DateTime.Now.Year;
+                var numOfReadings = Data.Count(dataPoint => 
+                    dataPoint.DateOfReading!.Value.Month == month && 
+                    dataPoint.DateOfReading!.Value.Year == currentYear &&
+                    dataPoint.KindOfMeter == type.ToKindOfMeter());
+                data.Add(numOfReadings);
+            }
+            
+            LineDataset dataset = new LineDataset()
+            {
+                Data = data,
+                Label = type,
+                Fill = false,
+                BorderColor = MeterColor.GetByEnumValue(type.ToKindOfMeter()),
+                BackgroundColor = MeterColor.GetByEnumValue(type.ToKindOfMeter())
+            };
+            
+            _config.Data.Datasets.Add(dataset);
+        }
+        StateHasChanged();
+        
+        
+    }
+}

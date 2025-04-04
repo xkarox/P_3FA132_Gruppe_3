@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 public class CustomerService extends AbstractBaseService<Customer>
@@ -33,20 +34,61 @@ public class CustomerService extends AbstractBaseService<Customer>
         if (item == null)
             throw new IllegalArgumentException("Customer is null and cannot be inserted.");
 
-        String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
-                " (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?);";
-
+        String sqlStatement = CustomerSqlQuery(item.getSerializedTableName());
         try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
         {
-            stmt.setString(1, item.getId().toString());
-            stmt.setString(2, item.getFirstName());
-            stmt.setString(3, item.getLastName());
-            stmt.setDate(4, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
-            stmt.setString(5, String.valueOf(item.getGender().ordinal()));
+            addCustomerToPreparedStatement(stmt, item);
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
 
         return item;
+    }
+
+    public static String CustomerSqlQuery(String tableName)
+    {
+        return "INSERT INTO " + tableName + " (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?);";
+    }
+
+    public void addCustomerToPreparedStatement(PreparedStatement stmt, Customer item) throws SQLException
+    {
+        stmt.setString(1, item.getId().toString());
+        stmt.setString(2, item.getFirstName());
+        stmt.setString(3, item.getLastName());
+        stmt.setDate(4, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
+        stmt.setString(5, String.valueOf(item.getGender().ordinal()));
+    }
+
+    public void addBatch(List<Customer> items) throws SQLException
+    {
+        if (items == null || items.isEmpty())
+            throw new IllegalArgumentException("Customers are null or empty and cannot be inserted.");
+
+        String tableName = items.getFirst().getSerializedTableName();
+        String sqlStatement = CustomerSqlQuery(tableName);
+
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
+        {
+            for (Customer item : items)
+            {
+                addCustomerToPreparedStatement(stmt, item);
+                stmt.addBatch();
+            }
+
+            boolean commitState = this._dbConnection.getConnection().getAutoCommit();
+            try{
+                // Disable auto commit for rollback on failure in batch
+                this._dbConnection.getConnection().setAutoCommit(false);
+                stmt.executeBatch();
+                this._dbConnection.getConnection().commit();
+            } catch (SQLException e) {
+                this._dbConnection.getConnection().rollback();
+                throw new SQLException("Error, rolling back commits");
+
+            } finally {
+                // Reset to original state
+                this._dbConnection.getConnection().setAutoCommit(commitState);
+            }
+        }
     }
 
     @Override

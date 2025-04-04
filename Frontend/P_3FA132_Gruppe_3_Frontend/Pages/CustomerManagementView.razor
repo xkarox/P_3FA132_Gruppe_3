@@ -3,6 +3,7 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Models
 @using P_3FA132_Gruppe_3_Frontend.Pages.Components
+@using P_3FA132_Gruppe_3_Frontend.Data.Enums
 @inherits Blazing.Mvvm.Components.MvvmComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.CustomerManagementViewModel>
 @inject IJSRuntime Js
 @inject UtilityService UtilityService
@@ -94,8 +95,8 @@
     {
         <TemplateColumn Context="customer" Title="Gender">
             <span
-                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji(), e)); }"
-                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji(), e)); }"
+                @onclick="@((e) => { ViewModel.CopyValueCommand.Execute((customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji(), e)); })"
+                @onmouseenter="@((e) => { ViewModel.ShowFullStringCommand.Execute((customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji(), e)); })"
                 @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
                 class="clickable">
                 @ViewModel.TruncateString(customer.Gender.ToDescriptionString() + customer.Gender.ToEmoji())

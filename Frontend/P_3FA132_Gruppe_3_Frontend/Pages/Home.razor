@@ -1,12 +1,7 @@
 ﻿@page "/"
 
-@using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
-@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using Microsoft.AspNetCore.Components.Authorization
-@inject DatabaseService DatabaseService
-@inject CustomerService CustomerService
-@inject ReadingService ReadingService
 @inject AuthService  AuthService
 <PageTitle>Digital Property Management</PageTitle>
 
@@ -20,33 +15,7 @@
     </AuthorizeView>
 </div>
 
-@if (!string.IsNullOrEmpty(message))
-{
-    <p>@message</p>
-}
-
 
 
 @code {
-    private string message;
-    private Guid customerId;
-    private string jsonString = @"{
-        ""reading"": {
-            ""id"": ""b8704102-48b1-4053-9efd-ec6f10f09af9"",
-            ""comment"": null,
-            ""customerId"": null,
-            ""customer"": {
-                ""id"": ""40f13c73-56a5-4aee-88d1-1833d704986f"",
-                ""firstName"": ""Max"",
-                ""lastName"": ""Mustermann"",
-                ""birthDate"": null,
-                ""gender"": ""M""
-            },
-            ""dateOfReading"": ""2024-12-16"",
-            ""kindOfMeter"": ""STROM"",
-            ""meterCount"": 100.0,
-            ""meterId"": ""hallo"",
-            ""substitute"": true
-        }
-    }";
 }
