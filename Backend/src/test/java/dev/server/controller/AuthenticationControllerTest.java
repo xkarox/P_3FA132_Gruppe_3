@@ -1,5 +1,6 @@
 package dev.server.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.Utils;
@@ -345,6 +346,29 @@ class AuthenticationControllerTest
         assertUnauthorized(_authController.delete(UUID.randomUUID()));
         assertUnauthorized(_authController.update(""));
         assertUnauthorized(_authController.getAllUsers());
+    }
+
+    @Test
+    void getAuthStatus() throws SQLException, JsonProcessingException
+    {
+        _mockedServiceProvider.when(ServiceProvider::getAuthUserService).thenReturn(_mockedAuthUserService);
+        when(_mockedAuthUserService.checkIfAuthDatabaseExists()).thenReturn(true);
+        var res = _authController.getAuthStatus();
+        assertEquals(200, res.getStatus());
+        assertEquals("true", res.getEntity());
+
+        when(_mockedAuthUserService.checkIfAuthDatabaseExists()).thenReturn(false);
+        res = _authController.getAuthStatus();
+        assertEquals(200, res.getStatus());
+        assertEquals("false", res.getEntity());
+
+        when(_mockedAuthUserService.checkIfAuthDatabaseExists()).thenThrow(new SQLException());
+        res = _authController.getAuthStatus();
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), res.getStatus());
+
+        _mockedServiceProvider.when(ServiceProvider::getAuthUserService).thenThrow(new IOException());
+        res = _authController.getAuthStatus();
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), res.getStatus());
     }
 
     private void registerMockedServices() throws SQLException, IOException
