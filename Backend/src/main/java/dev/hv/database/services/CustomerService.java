@@ -2,9 +2,12 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
+import dev.hv.model.classes.Authentification.AuthUser;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
+import dev.provider.ServiceProvider;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -65,6 +68,7 @@ public class CustomerService extends AbstractBaseService<Customer>
 
             this._dbConnection.executePreparedStatementCommand(stmt, 1);
         }
+
         return item;
     }
 
@@ -86,6 +90,14 @@ public class CustomerService extends AbstractBaseService<Customer>
             stmt.setString(1, customerId.toString());
 
             this._dbConnection.executePreparedStatementCommand(stmt);
+        }
+
+        try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
+            if (authUserService.checkIfAuthDatabaseExists())
+                authUserService.remove(new AuthUser(customerId));
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 

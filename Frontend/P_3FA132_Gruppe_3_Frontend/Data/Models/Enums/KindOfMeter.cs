@@ -1,4 +1,4 @@
-﻿namespace P_3FA132_Gruppe_3_Frontend.Data.Models
+﻿namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
 {
     public enum KindOfMeter
     {

@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
 using System.Text;
-using System.Text.Json;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 {

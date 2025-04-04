@@ -2,7 +2,7 @@ package dev.hv.database.services;
 
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
@@ -65,7 +65,6 @@ public class ReadingService extends AbstractBaseService<Reading>
         }
         return item;
     }
-
 
     public List<Reading> getReadingsByCustomerId(UUID id) throws ReflectiveOperationException, SQLException, IOException
     {

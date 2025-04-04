@@ -1,7 +1,7 @@
 package dev.hv.database.mocks;
 
-import dev.hv.model.IId;
-import dev.hv.model.decorator.IFieldInfo;
+import dev.hv.model.interfaces.IId;
+import dev.hv.model.interfaces.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 
 import java.util.UUID;
