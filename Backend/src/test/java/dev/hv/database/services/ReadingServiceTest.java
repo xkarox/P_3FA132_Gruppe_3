@@ -9,7 +9,6 @@ import dev.hv.model.IReading.KindOfMeter;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,30 +116,30 @@ public class ReadingServiceTest
         {
             try (ReadingService rs = ServiceProvider.Services.getReadingService())
             {
-                assertThrows(IllegalArgumentException.class, () -> rs.addReadingsBatch(null));
-                assertThrows(IllegalArgumentException.class, () -> rs.addReadingsBatch(new ArrayList<>()));
-                assertThrows(IllegalArgumentException.class, () -> rs.addReadingsBatch(readings));
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(null));
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(new ArrayList<>()));
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(readings));
 
 
                 readings.clear();
                 readings.add(_testReading);
 
-                assertDoesNotThrow(() -> rs.addReadingsBatch(readings));
+                assertDoesNotThrow(() -> rs.addBatch(readings));
                 assertEquals(1, cs.getAll().size());
                 assertEquals(1, rs.getAll().size());
 
                 readings.clear();
                 testReading1.setCustomer(_testCustomer);
                 readings.add(testReading1);
-                rs.addReadingsBatch(readings);
+                rs.addBatch(readings);
                 assertEquals(1, cs.getAll().size());
                 assertEquals(2, rs.getAll().size());
 
-                assertThrows(IllegalArgumentException.class, () -> rs.addReadingsBatch(readings));
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(readings));
 
                 readings.getFirst().getCustomer().setId(UUID.randomUUID());
                 readings.getFirst().setId(UUID.randomUUID());
-                assertDoesNotThrow(() -> rs.addReadingsBatch(readings));
+                assertDoesNotThrow(() -> rs.addBatch(readings));
                 assertEquals(2, cs.getAll().size());
                 assertEquals(3, rs.getAll().size());
             }
@@ -164,7 +163,7 @@ public class ReadingServiceTest
                 privateConnection.set(rs._dbConnection, spyCon);
 
                 readings.add(_testReading);
-                assertThrows(SQLException.class, () -> rs.addReadingsBatch(readings));
+                assertThrows(SQLException.class, () -> rs.addBatch(readings));
                 assertEquals(0, cs.getAll().size());
                 assertEquals(0, rs.getAll().size());
             }

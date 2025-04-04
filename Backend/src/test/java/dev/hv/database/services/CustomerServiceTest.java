@@ -93,15 +93,15 @@ public class CustomerServiceTest
 
         try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
-            assertDoesNotThrow(() -> cs.addCustomerBatch(customers));
+            assertDoesNotThrow(() -> cs.addBatch(customers));
             assertEquals(2, cs.getAll().size(), "Should be 2 because 2 customers were added");
             ServiceProvider.Services.getDatabaseConnection().truncateAllTables();
             assertEquals(0, cs.getAll().size(), "Should be 0 because all tables were truncated");
 
-            assertThrows(IllegalArgumentException.class, () -> cs.addCustomerBatch(null));
+            assertThrows(IllegalArgumentException.class, () -> cs.addBatch(null));
             assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
 
-            assertThrows(IllegalArgumentException.class, () -> cs.addCustomerBatch(new ArrayList<>()));
+            assertThrows(IllegalArgumentException.class, () -> cs.addBatch(new ArrayList<>()));
             assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
 
 
@@ -113,7 +113,7 @@ public class CustomerServiceTest
             privateConnection.set(cs._dbConnection, spyCon);
 
             customers.add(brokenCustomer);
-            assertThrows(SQLException.class, () -> cs.addCustomerBatch(customers));
+            assertThrows(SQLException.class, () -> cs.addBatch(customers));
             assertEquals(0, cs.getAll().size(), "Should be 0 because no customers were added");
         }
     }

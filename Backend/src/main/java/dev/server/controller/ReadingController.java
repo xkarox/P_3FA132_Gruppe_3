@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import dev.hv.ResponseMessages;
 import dev.hv.Utils;
-import dev.hv.database.services.CustomerService;
 import dev.hv.model.IReading;
-import dev.hv.model.classes.Customer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
@@ -88,7 +86,7 @@ public class ReadingController {
             mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             List<Reading> objectList = mapper.readValue(batchReadings, new TypeReference<List<Reading>>() {});
 
-            rs.addReadingsBatch(objectList);
+            rs.addBatch(objectList);
 
             return Response.status(Response.Status.CREATED)
                     .type(MediaType.APPLICATION_JSON)

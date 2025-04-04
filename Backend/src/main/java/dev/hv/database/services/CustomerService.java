@@ -55,24 +55,19 @@ public class CustomerService extends AbstractBaseService<Customer>
         stmt.setString(5, String.valueOf(item.getGender().ordinal()));
     }
 
-    public void addCustomerBatch(List<Customer> items) throws SQLException
+    public void addBatch(List<Customer> items) throws SQLException
     {
         if (items == null || items.isEmpty())
             throw new IllegalArgumentException("Customers are null or empty and cannot be inserted.");
 
         String tableName = items.getFirst().getSerializedTableName();
-        String sqlStatement = "INSERT INTO " + tableName +
-                " (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?);";
+        String sqlStatement = CustomerSqlQuery(tableName);
 
         try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
         {
             for (Customer item : items)
             {
-                stmt.setString(1, item.getId().toString());
-                stmt.setString(2, item.getFirstName());
-                stmt.setString(3, item.getLastName());
-                stmt.setDate(4, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
-                stmt.setString(5, String.valueOf(item.getGender().ordinal()));
+                addCustomerToPreparedStatement(stmt, item);
                 stmt.addBatch();
             }
 
@@ -106,7 +101,7 @@ public class CustomerService extends AbstractBaseService<Customer>
         try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
             stmt.setString(1, item.getFirstName());
             stmt.setString(2, item.getLastName());
-            stmt.setDate(3, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
+            stmt.setDate(4, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
             stmt.setInt(4, item.getGender().ordinal());
             stmt.setString(5, item.getId().toString());
 

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dev.server.Server;
@@ -561,7 +560,7 @@ public class CustomerControllerTest
         ServiceProvider.Services = mockedInternalServiceProvider;
 
         when(mockedInternalServiceProvider.getCustomerService()).thenReturn(mockedCs);
-        doNothing().when(mockedCs).addCustomerBatch(anyList());
+        doNothing().when(mockedCs).addBatch(anyList());
         String jsonString = "[{\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
         assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
 

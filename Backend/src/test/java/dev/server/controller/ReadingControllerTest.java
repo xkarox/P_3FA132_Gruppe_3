@@ -628,7 +628,7 @@ public class ReadingControllerTest
         ServiceProvider.Services = mockedInternalServiceProvider;
 
         when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockedCs);
-        doNothing().when(mockedCs).addReadingsBatch(anyList());
+        doNothing().when(mockedCs).addBatch(anyList());
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(null).getStatus());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch("").getStatus());

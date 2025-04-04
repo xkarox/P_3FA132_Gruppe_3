@@ -35,9 +35,7 @@ public class ReadingService extends AbstractBaseService<Reading>
         if (item.getCustomer() == null)
             throw new IllegalArgumentException("Creating a reading without a Customer is not possible.");
 
-        String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
-                " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount,  meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-
+        String sqlStatement = RadingSqlQuery(item.getSerializedTableName());
         boolean commitState = this._dbConnection.getConnection().getAutoCommit();
         this._dbConnection.getConnection().setAutoCommit(false);
 
@@ -77,6 +75,12 @@ public class ReadingService extends AbstractBaseService<Reading>
         return item;
     }
 
+    public static String RadingSqlQuery(String tableName)
+    {
+        return "INSERT INTO " + tableName +
+                " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount,  meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+    }
+
     public void addReadingToPreparedStatement(PreparedStatement stmt, Reading item, String customerId) throws SQLException
     {
         stmt.setString(1, item.getId().toString());
@@ -89,15 +93,13 @@ public class ReadingService extends AbstractBaseService<Reading>
         stmt.setBoolean(8, item.getSubstitute());
     }
 
-    public void addReadingsBatch(List<Reading> items) throws SQLException
+    public void addBatch(List<Reading> items) throws SQLException
     {
         if (items == null || items.isEmpty() || !items.stream().allMatch(reading -> reading.getCustomerId() != null || reading.getCustomer() != null))
             throw new IllegalArgumentException("Readings are null or empty or some do not container a customerId and thus cannot be inserted.");
 
         String tableName = items.getFirst().getSerializedTableName();
-        String sqlStatement = "INSERT INTO " + tableName +
-                " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount,  meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-
+        String sqlStatement = RadingSqlQuery(tableName);
         boolean commitState = this._dbConnection.getConnection().getAutoCommit();
         this._dbConnection.getConnection().setAutoCommit(false);
 
@@ -106,16 +108,21 @@ public class ReadingService extends AbstractBaseService<Reading>
              CustomerService cs = ServiceProvider.Services.getCustomerService())
         {
             boolean addCustomer = false;
+            HashSet<UUID> customerIds = new HashSet<>(); // Keep track which customers have been added to the batch as they cannot be queried from the db
             for (Reading item : items)
             {
                 if (item.getCustomerId() == null && item.getCustomer() != null
                         || cs.getById(item.getCustomerId()) == null && item.getCustomer() != null)
                 {
                     UUID customerId = item.getCustomerId() == null ? UUID.randomUUID() : item.getCustomerId();
-                    item.getCustomer().setId(customerId);
-                    cs.addCustomerToPreparedStatement(stmtCustomer, (Customer) item.getCustomer());
-                    stmtCustomer.addBatch();
-                    addCustomer = true;
+                    if (!customerIds.contains(customerId))
+                    {
+                        customerIds.add(customerId);
+                        item.getCustomer().setId(customerId);
+                        cs.addCustomerToPreparedStatement(stmtCustomer, (Customer) item.getCustomer());
+                        stmtCustomer.addBatch();
+                        addCustomer = true;
+                    }
                 }
 
                 if (item.getId() != null && this.getById(item.getId()) != null)

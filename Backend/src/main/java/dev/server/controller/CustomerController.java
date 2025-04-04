@@ -94,7 +94,7 @@ public class CustomerController {
                     customer.setId(UUID.randomUUID());
                 }
             }
-            cs.addCustomerBatch(objectList);
+            cs.addBatch(objectList);
 
             return Response.status(Response.Status.CREATED)
                     .type(MediaType.APPLICATION_JSON)
