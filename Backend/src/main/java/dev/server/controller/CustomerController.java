@@ -3,6 +3,7 @@ package dev.server.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
@@ -10,6 +11,7 @@ import dev.hv.Utils;
 import dev.hv.database.services.CustomerService;
 import dev.hv.model.classes.Customer;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import dev.server.Annotations.Secured;
 import dev.server.validator.CustomerJsonSchemaValidatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import java.util.*;
 
 import static dev.hv.Utils.createErrorResponse;
 
+@Secured
 @Path("/customers")
 public class CustomerController {
 
@@ -46,6 +49,10 @@ public class CustomerController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCustomer(String customerJson) throws JsonProcessingException {
         logger.info("Received request to add customer: {}", customerJson);
+
+        if (!AuthorisationService.IsUserAdmin())
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+
         Response validationResponse = validateRequestData(customerJson);
         if (validationResponse != null) return validationResponse;
 
@@ -119,6 +126,11 @@ public class CustomerController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCustomer(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to get customer with ID: {}", id);
+
+        if (!AuthorisationService.CanUserAccessResource(id)) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
         try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
             Customer customer = cs.getById(id);
             logger.info("Customer retrieved successfully: {}", customer);
@@ -137,6 +149,10 @@ public class CustomerController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCustomers() throws JsonProcessingException {
         logger.info("Received request to get all customers");
+
+        if (!AuthorisationService.IsUserAdmin())
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+
         try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
             Collection<Customer> customers = cs.getAll();
             logger.info("Customers retrieved successfully");
@@ -166,6 +182,11 @@ public class CustomerController {
                 logger.warn("Customer not found: {}", customer.getId());
                 return createErrorResponse(Response.Status.NOT_FOUND, ResponseMessages.ControllerNotFound.toString());
             }
+
+            if (!AuthorisationService.CanUserAccessResource(dbCustomer.getId())) {
+                return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+            }
+
             cs.update(customer);
             logger.info("Customer updated successfully: {}", customer);
             return Response.status(Response.Status.OK)
@@ -187,6 +208,11 @@ public class CustomerController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteCustomer(@PathParam("id") UUID id) throws JsonProcessingException {
         logger.info("Received request to delete customer with ID: {}", id);
+
+        if (!AuthorisationService.CanUserAccessResource(id)) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
         try (CustomerService cs = ServiceProvider.Services.getCustomerService();
              ReadingService rs = ServiceProvider.Services.getReadingService()) {
 
