@@ -82,7 +82,7 @@ public class ReadingService extends AbstractBaseService<Reading>
                 id -> whereClauseBuilder.append(" customerId = '")
                         .append(id)
                         .append("'"),
-                () -> whereClauseBuilder.append(" customerId IS NULL"));
+                () -> whereClauseBuilder.append(" customerId LIKE '%' "));
 
         startDate.ifPresentOrElse(
                 date -> whereClauseBuilder.append(" AND dateOfReading BETWEEN '")

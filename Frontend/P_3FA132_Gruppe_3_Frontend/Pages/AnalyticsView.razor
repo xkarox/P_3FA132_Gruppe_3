@@ -1,6 +1,129 @@
 @page "/AnalyticsView"
-<h3>AnalyticsView</h3>
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
+@using P_3FA132_Gruppe_3_Frontend.Pages.Components
+@inherits Blazing.Mvvm.Components.MvvmComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.AnalyticsViewModel>
 
-@code {
-    
-}
+<div class="analytics-widgets">
+    <div class="reading-activity card">
+        @if(ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <ReadingActivity Data="ViewModel.Readings"></ReadingActivity>
+        }
+    </div>
+    <div class="total-readings analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <ReadingType Items="ViewModel.ReadingData"></ReadingType>
+        }
+    </div>
+    <div class="customer-count analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        } 
+        else
+        {
+            <Count TValue="int" Title="Customer Count" Value="ViewModel.CustomerCount"></Count>
+        }
+    </div>
+    <div class="reading-count analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <Count TValue="int" Title="Reading Count" Value="ViewModel.Readings.Count"
+                   IconSvgPath="@ViewModel.ReadingCountSvgPath"></Count>
+        }
+    </div>
+    <div class="recent-reading analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <RecentReading Type="KindOfMeter.WASSER" 
+                           Value="@(ViewModel.LatestWaterReading != null 
+                                    ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                                    : "unavailable")" 
+                           DateOfReading="@(ViewModel.LatestWaterReading != null 
+                                            ? ViewModel.LatestWaterReading.DateOfReading! 
+                                            : DateOnly.MinValue!)"></RecentReading>
+        }
+    </div>
+    <div class="recent-reading analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <RecentReading Type="KindOfMeter.STROM" 
+                           Value="@(ViewModel.LatestWaterReading != null 
+                                      ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                                      : "unavailable")" 
+                           DateOfReading="@(ViewModel.LatestWaterReading != null 
+                                              ? ViewModel.LatestWaterReading.DateOfReading! 
+                                              : DateOnly.MinValue!)"></RecentReading>
+        }
+    </div>
+    <div class="recent-reading analytics-widget-container card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <RecentReading Type="KindOfMeter.HEIZUNG" 
+                           Value="@(ViewModel.LatestWaterReading != null 
+                                      ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                                      : "unavailable")" 
+                           DateOfReading="@(ViewModel.LatestWaterReading != null 
+                                              ? ViewModel.LatestWaterReading.DateOfReading! 
+                                              : DateOnly.MinValue!)"></RecentReading>
+        }
+    </div>
+    <div class="usage card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <Usage Items="ViewModel.UsagePerMonthReadings" KindOfMeter="KindOfMeter.WASSER"></Usage>
+        }
+    </div>
+    <div class="usage card">
+        @if (ViewModel.Loading)
+        {
+            <LoadingSpinner></LoadingSpinner>
+        }
+        else
+        {
+            <Usage Items="ViewModel.UsagePerMonthReadings" KindOfMeter="KindOfMeter.STROM"></Usage>
+        }
+    </div>
+    <div class="usage card">
+            @if (ViewModel.Loading)
+            {
+                <LoadingSpinner></LoadingSpinner>
+            }
+            else
+            {
+                <Usage Items="ViewModel.UsagePerMonthReadings" KindOfMeter="KindOfMeter.HEIZUNG"></Usage>
+            }
+    </div>
+
+</div>
