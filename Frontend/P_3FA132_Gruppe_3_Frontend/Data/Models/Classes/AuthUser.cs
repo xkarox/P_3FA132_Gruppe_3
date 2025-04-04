@@ -69,6 +69,20 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 
             return JsonSerializer.Serialize(authUser, options);
         }
+        
+        public static AuthUser GetDummyAuthUserForDisabledAuthentication()
+        {
+            return new AuthUser()
+            {
+                Id = Guid.Empty,
+                Username = "User",
+                Role = "ADMIN",
+                Permissions = [UserPermissions.READ, 
+                    UserPermissions.DELETE, 
+                    UserPermissions.WRITE, 
+                    UserPermissions.UPDATE]
+            };
+        }
     }
 }
  

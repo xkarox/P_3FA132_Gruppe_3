@@ -14,6 +14,7 @@ using P_3FA132_Gruppe_3_Frontend.Data.Services;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+builder.Services.AddSingleton<IDebugModeService, DebugModeService>();
 
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();

@@ -7,6 +7,7 @@
 @inject DatabaseService DatabaseService
 @inject CustomerService CustomerService
 @inject ReadingService ReadingService
+@inject AuthService  AuthService
 <PageTitle>Digital Property Management</PageTitle>
 
 <div class="home-greeting">
@@ -14,22 +15,10 @@
         </p>
     <AuthorizeView>
         <Authorized>
-            <p>Username</p>
+            <p>@AuthService.AuthenticatedUsername</p>
         </Authorized>
     </AuthorizeView>
 </div>
-
-<AuthorizeView>
-    <Authorized>
-        <button @onclick="SetupDatabase">Delete Data</button>
-        <button @onclick="AddCustomer">Add Customer</button>
-        <button @onclick="AddReading">Add Reading</button>
-        <button @onclick="GetCustomer">Get Customer</button>
-        <button @onclick="GetReading">Get Reading</button>
-        <button @onclick="UpdateReading">UpdateReading</button>
-        <button @onclick="GetAllCustomers">GetAllCustomers</button>
-    </Authorized>
-</AuthorizeView>
 
 @if (!string.IsNullOrEmpty(message))
 {
@@ -60,103 +49,4 @@
             ""substitute"": true
         }
     }";
-
-    private async Task SetupDatabase()
-    {
-        try
-        {
-            var res = await DatabaseService.SetupDatabase();
-            message = res.ToString();
-        }
-        catch (Exception ex)
-        {
-            message = $"Error: {ex.Message}";
-        }
-    }
-
-    private async Task AddCustomer()
-    {
-        try
-        {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
-            var res = await CustomerService.Add(customer);
-            message = res.ToString();
-        }
-        catch (Exception ex)
-        {
-            message = $"Error: {ex.Message}";
-        }
-    }
-
-    private async Task AddReading()
-    {
-        try
-        {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
-            var result = await CustomerService.Add(customer);
-
-            Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = KindOfMeter.STROM };
-            var res = await ReadingService.Add(reading);
-            message = res.ToString();
-        }
-        catch (Exception ex)
-        {
-            message = $"Error: {ex.Message}";
-        }
-    }
-
-
-    private async Task GetCustomer()
-    {
-        try
-        {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
-            var res = await CustomerService.Add(customer);
-
-            var resGet = await CustomerService.Get(res.Id);
-            message = resGet.ToString();
-        }
-        catch (Exception ex)
-        {
-            message = $"Error: {ex.Message}";
-        }
-    }   
-
-    private async Task GetReading()
-    {
-        try
-        {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
-            var result = await CustomerService.Add(customer);
-
-            Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = KindOfMeter.STROM };
-            var res = await ReadingService.Add(reading);
-
-            var resGet = await ReadingService.Get(res.Id);
-            message = resGet.ToString();
-        }
-        catch (Exception ex)
-        {
-            message = $"Error: {ex.Message}";
-        }
-    }
-
-    private async Task UpdateReading()
-    {
-        Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
-        var result = await CustomerService.Add(customer);
-
-        Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = KindOfMeter.STROM };
-        var res = await ReadingService.Add(reading);
-
-        res.MeterId = "Moin";
-        var resUpdate = await ReadingService.Update(res);
-        message = resUpdate.MeterId;
-    }
-
-    private async Task GetAllCustomers()
-    {
-        List<Customer> res = (List<Customer>)await CustomerService.GetAll();
-        message = res.Count.ToString();
-    }
 }

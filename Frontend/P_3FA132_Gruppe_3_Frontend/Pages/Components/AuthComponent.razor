@@ -38,6 +38,11 @@
     [Parameter] public bool Show { get; set; } = false;
     [Parameter] public Func<Task>? OnSuccessfullLogin { get; set; }
 
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await Login();
+    }
+
     static class AuthErrorMessages
     {
         public const string InvalidUsername = "Please input a valid Username";
