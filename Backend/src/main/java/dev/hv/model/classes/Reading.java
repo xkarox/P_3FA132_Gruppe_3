@@ -98,7 +98,7 @@ public class Reading implements IReading
     @Nullable
     public UUID getCustomerId()
     {
-        return this._customerId;
+        return this._customerId != null ? this._customerId : this._customer != null ? this._customer.getId() : null;
     }
 
     @JsonIgnore

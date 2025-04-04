@@ -562,6 +562,30 @@ public class CustomerControllerTest
     }
 
     @Test
+    void addBatch() throws IOException, SQLException, ReflectiveOperationException
+    {
+        CustomerController cc = new CustomerController();
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        CustomerService mockedCs = mock(CustomerService.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(true);
+
+        when(mockedInternalServiceProvider.getCustomerService()).thenReturn(mockedCs);
+        doNothing().when(mockedCs).addBatch(anyList());
+        String jsonString = "[{\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch(null).getStatus());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch("").getStatus());
+
+        jsonString = "[{\"id\":\"c402c76f-be2d-412c-ac63-2065e64f6da6\",\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+
+        doThrow(new SQLException("SQL Error")).when(mockedCs).addBatch(anyList());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+    }
+
+    @Test
     void deleteCustomerByIdThrowsException() throws SQLException, IOException, InterruptedException, ReflectiveOperationException
     {
         UUID id = UUID.randomUUID();

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
@@ -22,8 +23,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ReadingServiceTest
 {
@@ -74,6 +74,98 @@ public class ReadingServiceTest
                 assertEquals(createdCustomer, this._testReading.getCustomer());
 
                 assertThrows(IllegalArgumentException.class, () -> rs.add(this._testReadingWithoutCustomer));
+            }
+        }
+    }
+
+    @Test
+    void addRollback() throws SQLException, IOException, ReflectiveOperationException
+    {
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Connection spyCon = spy(rs._dbConnection.getConnection());
+                doThrow(new SQLException("Test exception")).when(spyCon).commit();
+
+                Field privateConnection = DatabaseConnection.class.getDeclaredField("_connection");
+                privateConnection.setAccessible(true);
+                privateConnection.set(rs._dbConnection, spyCon);
+
+                assertThrows(SQLException.class, () -> rs.add(_testReading));
+                assertEquals(0, cs.getAll().size());
+                assertEquals(0, rs.getAll().size());
+
+                _testReading.setId(UUID.randomUUID());
+            }
+        }
+    }
+
+    @Test
+    void addBatch() throws SQLException, IOException, ReflectiveOperationException
+    {
+        Reading testReading1 = new Reading(UUID.randomUUID()
+                , "Omae wa mou shindeiru!", null
+                , null, LocalDate.now(), KindOfMeter.STROM
+                , 1234.5, "10006660001", false);
+
+        List<Reading> readings = new ArrayList<>(){{
+            add(testReading1);
+        }};
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(null));
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(new ArrayList<>()));
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(readings));
+
+
+                readings.clear();
+                readings.add(_testReading);
+
+                assertDoesNotThrow(() -> rs.addBatch(readings));
+                assertEquals(1, cs.getAll().size());
+                assertEquals(1, rs.getAll().size());
+
+                readings.clear();
+                testReading1.setCustomer(_testCustomer);
+                readings.add(testReading1);
+                rs.addBatch(readings);
+                assertEquals(1, cs.getAll().size());
+                assertEquals(2, rs.getAll().size());
+
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(readings));
+
+                readings.getFirst().getCustomer().setId(UUID.randomUUID());
+                readings.getFirst().setId(UUID.randomUUID());
+                assertDoesNotThrow(() -> rs.addBatch(readings));
+                assertEquals(2, cs.getAll().size());
+                assertEquals(3, rs.getAll().size());
+            }
+        }
+    }
+
+    @Test
+    void addBatchRollback() throws SQLException, IOException, ReflectiveOperationException
+    {
+
+        List<Reading> readings = new ArrayList<>();
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                Connection spyCon = spy(rs._dbConnection.getConnection());
+                doThrow(new SQLException("Test exception")).when(spyCon).commit();
+
+                Field privateConnection = DatabaseConnection.class.getDeclaredField("_connection");
+                privateConnection.setAccessible(true);
+                privateConnection.set(rs._dbConnection, spyCon);
+
+                readings.add(_testReading);
+                assertThrows(SQLException.class, () -> rs.addBatch(readings));
+                assertEquals(0, cs.getAll().size());
+                assertEquals(0, rs.getAll().size());
             }
         }
     }

@@ -654,4 +654,42 @@ public class ReadingControllerTest
     {
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
+
+    @Test
+    void addBatch() throws IOException, SQLException
+    {
+        ReadingController cc = new ReadingController();
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ReadingService mockedCs = mock(ReadingService.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(true);
+
+        when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockedCs);
+        doNothing().when(mockedCs).addBatch(anyList());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(null).getStatus());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch("").getStatus());
+
+        String jsonString = "[\n" +
+                "    {\n" +
+                "    \"id\": null,\n" +
+                "    \"comment\": \"Level is over 9k >.>\",\n" +
+                "    \"customer\": {\n" +
+                "        \"id\":\"33829434-4f9b-41e2-a58c-75e88d4e0b9b\",\n" +
+                "        \"firstName\":\"Latten\",\n" +
+                "        \"lastName\":\"Sep\",\n" +
+                "        \"birthDate\":\"1995-05-06\",\n" +
+                "        \"gender\":\"M\"\n" +
+                "        },\n" +
+                "    \"dateOfReading\": \"2024-01-04\",\n" +
+                "    \"kindOfMeter\": \"WASSER\",\n" +
+                "    \"meterCount\": 625197.7,\n" +
+                "    \"meterId\": \"X1D3-ABCD\",\n" +
+                "    \"substitute\": false\n" +
+                "    }\n" +
+                "]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
+        doThrow(new SQLException("SQL Error")).when(mockedCs).addBatch(anyList());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
+    }
 }

@@ -35,35 +35,117 @@ public class ReadingService extends AbstractBaseService<Reading>
         if (item.getCustomer() == null)
             throw new IllegalArgumentException("Creating a reading without a Customer is not possible.");
 
-        String sqlStatement = "INSERT INTO " + item.getSerializedTableName() +
-                " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount,  meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+        String sqlStatement = RadingSqlQuery(item.getSerializedTableName());
+        boolean commitState = this._dbConnection.getConnection().getAutoCommit();
+        this._dbConnection.getConnection().setAutoCommit(false);
 
-        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement))
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement);
+             PreparedStatement stmtCustomer = this._dbConnection.newPrepareStatement(CustomerService.CustomerSqlQuery(new Customer().getSerializedTableName())))
         {
-            stmt.setString(1, item.getId().toString());
-            stmt.setString(2, item.getComment());
+
 
             String customerId;
+            boolean addCustomer = false;
             try (CustomerService customerService = ServiceProvider.Services.getCustomerService())
             {
                 Customer existingCustomer = customerService.getById(item.getCustomer().getId());
                 if (existingCustomer == null)
                 {
                     // Req. Nr.: 16
-                    customerService.add((Customer) item.getCustomer());
+                    customerService.addCustomerToPreparedStatement(stmtCustomer, (Customer) item.getCustomer());
+                    addCustomer = true;
                 }
                 customerId = item.getCustomer().getId().toString();
             }
+;
+            addReadingToPreparedStatement(stmt, item, customerId);
 
-            stmt.setString(3, customerId);
-            stmt.setDate(4, Date.valueOf(item.getDateOfReading()));
-            stmt.setString(5, String.valueOf(item.getKindOfMeter().ordinal()));
-            stmt.setDouble(6, item.getMeterCount());
-            stmt.setString(7, item.getMeterId());
-            stmt.setBoolean(8, item.getSubstitute());
-            this._dbConnection.executePreparedStatementCommand(stmt, 1);
+            if (addCustomer)
+                stmtCustomer.executeUpdate();
+            stmt.executeUpdate();
+            this._dbConnection.getConnection().commit();
+        } catch (SQLException | IOException | ReflectiveOperationException e) {
+            this._dbConnection.getConnection().rollback();
+            throw new SQLException("Error, rolling back db chnages");
+
+        } finally
+        {
+            this._dbConnection.getConnection().setAutoCommit(commitState);
         }
         return item;
+    }
+
+    public static String RadingSqlQuery(String tableName)
+    {
+        return "INSERT INTO " + tableName +
+                " (id, comment, customerId, dateOfReading, kindOfMeter, meterCount,  meterId, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+    }
+
+    public void addReadingToPreparedStatement(PreparedStatement stmt, Reading item, String customerId) throws SQLException
+    {
+        stmt.setString(1, item.getId().toString());
+        stmt.setString(2, item.getComment());
+        stmt.setString(3, customerId != null ? customerId : item.getCustomerId().toString());
+        stmt.setDate(4, Date.valueOf(item.getDateOfReading()));
+        stmt.setString(5, String.valueOf(item.getKindOfMeter().ordinal()));
+        stmt.setDouble(6, item.getMeterCount());
+        stmt.setString(7, item.getMeterId());
+        stmt.setBoolean(8, item.getSubstitute());
+    }
+
+    public void addBatch(List<Reading> items) throws SQLException
+    {
+        if (items == null || items.isEmpty() || !items.stream().allMatch(reading -> reading.getCustomerId() != null || reading.getCustomer() != null))
+            throw new IllegalArgumentException("Readings are null or empty or some do not container a customerId and thus cannot be inserted.");
+
+        String tableName = items.getFirst().getSerializedTableName();
+        String sqlStatement = RadingSqlQuery(tableName);
+        boolean commitState = this._dbConnection.getConnection().getAutoCommit();
+        this._dbConnection.getConnection().setAutoCommit(false);
+
+        try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement);
+             PreparedStatement stmtCustomer = this._dbConnection.newPrepareStatement(CustomerService.CustomerSqlQuery(new Customer().getSerializedTableName()));
+             CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            boolean addCustomer = false;
+            HashSet<UUID> customerIds = new HashSet<>(); // Keep track which customers have been added to the batch as they cannot be queried from the db
+            for (Reading item : items)
+            {
+                if (item.getCustomerId() == null && item.getCustomer() != null
+                        || cs.getById(item.getCustomerId()) == null && item.getCustomer() != null)
+                {
+                    UUID customerId = item.getCustomerId() == null ? UUID.randomUUID() : item.getCustomerId();
+                    if (!customerIds.contains(customerId))
+                    {
+                        customerIds.add(customerId);
+                        item.getCustomer().setId(customerId);
+                        cs.addCustomerToPreparedStatement(stmtCustomer, (Customer) item.getCustomer());
+                        stmtCustomer.addBatch();
+                        addCustomer = true;
+                    }
+                }
+
+                if (item.getId() != null && this.getById(item.getId()) != null)
+                    throw new IllegalArgumentException("Reading with id " + item.getId() + " already exists.");
+                else
+                    item.setId(UUID.randomUUID());
+
+                addReadingToPreparedStatement(stmt, item, null);
+                stmt.addBatch();
+            }
+            if (addCustomer)
+                stmtCustomer.executeBatch();
+            stmt.executeBatch();
+            this._dbConnection.getConnection().commit();
+
+        } catch (SQLException | IOException | ReflectiveOperationException e) {
+            this._dbConnection.getConnection().rollback();
+            throw new SQLException("Error, rolling back db chnages");
+
+        } finally
+        {
+            this._dbConnection.getConnection().setAutoCommit(commitState);
+        }
     }
 
     public List<Reading> getReadingsByCustomerId(UUID id) throws ReflectiveOperationException, SQLException, IOException
