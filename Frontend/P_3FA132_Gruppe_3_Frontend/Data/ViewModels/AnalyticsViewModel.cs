@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes.Analytics;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 using P_3FA132_Gruppe_3_Frontend.Data.Services;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
@@ -84,7 +85,6 @@ public partial class AnalyticsViewModel(
                 latestReading = reading;
             }
         }
-
         return latestReading;
     }
 

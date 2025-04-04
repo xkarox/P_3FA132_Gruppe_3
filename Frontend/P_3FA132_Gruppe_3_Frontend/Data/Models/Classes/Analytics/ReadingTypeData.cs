@@ -1,3 +1,5 @@
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
+
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes.Analytics;
 
 public class ReadingTypeData

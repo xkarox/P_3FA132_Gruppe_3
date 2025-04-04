@@ -4,6 +4,7 @@ using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 {
