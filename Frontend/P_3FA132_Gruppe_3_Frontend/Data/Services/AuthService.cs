@@ -13,7 +13,7 @@ public class AuthService
     private readonly AuthenticationStateProvider _authStateProvider;
     private bool _authenticationEnabled;
     public string AuthenticatedUsername { get; private set; } = string.Empty;
-    
+    public bool IsAuthenticationEnabled => _authenticationEnabled; 
     public AuthService(IHttpClientFactory httpClientFactory, 
         AuthenticationStateProvider authStateProvider)
     {

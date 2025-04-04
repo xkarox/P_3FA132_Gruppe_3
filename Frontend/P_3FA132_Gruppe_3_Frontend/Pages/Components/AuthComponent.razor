@@ -40,7 +40,8 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        await Login();
+        if(!AuthService.IsAuthenticationEnabled)
+            await Login();
     }
 
     static class AuthErrorMessages

@@ -52,7 +52,6 @@
 
 <div class="grid-controls">
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowId = !ViewModel.ShowReadingColumns.ShowId">Toggle Id</button>
-    <button @onclick="() => ViewModel.ShowReadingColumns.ShowCustomerId = !ViewModel.ShowReadingColumns.ShowCustomerId">Toggle CustomerId</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowKindOfMeter = !ViewModel.ShowReadingColumns.ShowKindOfMeter">Toggle KindOfMeter</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowDateOfReading = !ViewModel.ShowReadingColumns.ShowDateOfReading">Toggle DateOfReading</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowMeterCount = !ViewModel.ShowReadingColumns.ShowMeterCount">Toggle MeterCount</button>
@@ -85,18 +84,6 @@
                 @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
                 class="clickable">
                 @ViewModel.TruncateString(reading.Comment)
-            </span>
-        </TemplateColumn>
-    }
-    @if (ViewModel.ShowReadingColumns.ShowCustomerId)
-    {
-        <TemplateColumn Context="reading" Title="CustomerId">
-            <span
-                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.CustomerId.ToString(), e)); }"
-                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.CustomerId.ToString(), e)); }"
-                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
-                class="clickable">
-                @ViewModel.TruncateString(reading.CustomerId.ToString())
             </span>
         </TemplateColumn>
     }
