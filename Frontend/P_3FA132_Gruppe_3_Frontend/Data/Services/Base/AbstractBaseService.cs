@@ -13,7 +13,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services.Base
 
         public AbstractBaseService(IHttpClientFactory httpClientFactory, string endpointUrl)
         {
-            _httpClient =  httpClientFactory.CreateClient("AuthApi");;
+            _httpClient =  httpClientFactory.CreateClient("AuthApi");
             _endpointUrl = BuildUri(endpointUrl);
         }
 

@@ -11,11 +11,9 @@ public class AuthService
 {
     private readonly HttpClient _httpClient;
     private readonly AuthenticationStateProvider _authStateProvider;
-    private readonly ICookieService _cookieService;
     
     public AuthService(IHttpClientFactory httpClientFactory, 
-        AuthenticationStateProvider authStateProvider,
-        ICookieService cookieService)
+        AuthenticationStateProvider authStateProvider)
     {
         _httpClient = httpClientFactory.CreateClient("AuthApi");
         _authStateProvider = authStateProvider;
