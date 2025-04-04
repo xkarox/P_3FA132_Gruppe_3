@@ -61,7 +61,7 @@ public partial class AnalyticsViewModel(
         LatestGasReading = FindLatestReading(KindOfMeter.HEIZUNG);
         LatestWaterReading = FindLatestReading(KindOfMeter.WASSER);
 
-        UsagePerMonthReadings = GenerateDummyData(100);
+        UsagePerMonthReadings = Readings;
         Loading = false;
     }
 
