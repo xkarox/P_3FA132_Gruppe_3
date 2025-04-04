@@ -215,4 +215,23 @@ public class AuthenticationController
             return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
         }
     }
+
+    @GET
+    @Path("/isEnabled")
+    public Response getAuthStatus () throws JsonProcessingException
+    {
+        logger.info("Received request to get auth db status");
+        try (AuthUserService as = ServiceProvider.getAuthUserService()){
+            boolean exists = as.checkIfAuthDatabaseExists();
+            return Response.ok()
+                    .entity(mapper.writeValueAsString(exists))
+                    .build();
+        } catch (SQLException e){
+            logger.error("Error retrieving auth db status: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.BAD_REQUEST, ResponseMessages.ControllerInternalError.toString());
+        } catch (IOException e){
+            logger.info("Internal server error: {}", e.getMessage(), e);
+            return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ResponseMessages.ControllerInternalError.toString());
+        }
+    }
 }
