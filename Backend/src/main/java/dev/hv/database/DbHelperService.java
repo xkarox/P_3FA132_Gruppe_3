@@ -34,9 +34,17 @@ public class DbHelperService
 
     public List<String> createSqlTableSchemaCommands()
     {
+        return createSqlTableSchemaCommands(new ArrayList<>());
+    }
+
+    public List<String> createSqlTableSchemaCommands(List<IDbItem> additionalTables)
+    {
         List<String> commands = new ArrayList<>();
 
-        for (IDbItem table : _tables)
+        List<IDbItem> allTables = _tables;
+        allTables.addAll(additionalTables);
+
+        for (IDbItem table : allTables)
         {
             String columnDefinition = table.getSerializedStructure();
             String tableName = table.getSerializedTableName();
