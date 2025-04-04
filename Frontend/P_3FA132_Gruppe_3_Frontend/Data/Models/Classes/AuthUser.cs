@@ -14,17 +14,6 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
         public string Role { get; set; }
         public List<UserPermissions>? Permissions { get; set; }
 
-
-        public static AuthUser FromClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
-        {
-            return new AuthUser();
-        }
-
-        public ClaimsPrincipal ToClaimsPrincipal()
-        {
-            return new ClaimsPrincipal();
-        }
-        
         public static AuthUser LoadJson(string jsonData, bool loadDefaultroot = true)
         {
             using var document = JsonDocument.Parse(jsonData);

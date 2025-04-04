@@ -1,10 +1,9 @@
 ﻿@page "/"
 
-@using System.Net
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using Microsoft.AspNetCore.Components.Authorization
-@using P_3FA132_Gruppe_3_Frontend.Data.Authentication
 @inject DatabaseService DatabaseService
 @inject CustomerService CustomerService
 @inject ReadingService ReadingService
@@ -36,6 +35,7 @@
 {
     <p>@message</p>
 }
+
 
 
 @code {
@@ -78,7 +78,7 @@
     {
         try
         {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Data.Models.Gender.M };
+            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
             var res = await CustomerService.Add(customer);
             message = res.ToString();
         }
@@ -92,10 +92,10 @@
     {
         try
         {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Data.Models.Gender.M };
+            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
             var result = await CustomerService.Add(customer);
 
-            Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = Data.Models.KindOfMeter.STROM };
+            Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = KindOfMeter.STROM };
             var res = await ReadingService.Add(reading);
             message = res.ToString();
         }
@@ -110,7 +110,7 @@
     {
         try
         {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Data.Models.Gender.M };
+            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
             var res = await CustomerService.Add(customer);
 
             var resGet = await CustomerService.Get(res.Id);
@@ -126,10 +126,10 @@
     {
         try
         {
-            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Data.Models.Gender.M };
+            Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
             var result = await CustomerService.Add(customer);
 
-            Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = Data.Models.KindOfMeter.STROM };
+            Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = KindOfMeter.STROM };
             var res = await ReadingService.Add(reading);
 
             var resGet = await ReadingService.Get(res.Id);
@@ -143,10 +143,10 @@
 
     private async Task UpdateReading()
     {
-        Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Data.Models.Gender.M };
+        Customer customer = new Customer() { FirstName = "Max", LastName = "Mustermann", Gender = Gender.M };
         var result = await CustomerService.Add(customer);
 
-        Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = Data.Models.KindOfMeter.STROM };
+        Reading reading = new Reading() { Customer = result, DateOfReading = DateOnly.FromDateTime(DateTime.Now), MeterId = "hallo", Substitute = true, MeterCount = 100.0, KindOfMeter = KindOfMeter.STROM };
         var res = await ReadingService.Add(reading);
 
         res.MeterId = "Moin";

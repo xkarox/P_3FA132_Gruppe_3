@@ -1,8 +1,8 @@
 package dev.hv.model.classes;
 
 import dev.hv.ResponseMessages;
-import dev.hv.model.ICustomer;
-import dev.hv.model.decorator.IFieldInfo;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -165,13 +165,12 @@ public class Customer implements ICustomer
     @Override
     public String getSerializedStructure()
     {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("id UUID PRIMARY KEY NOT NULL,");
-        strBuilder.append("firstName VARCHAR(120) NOT NULL,");
-        strBuilder.append("lastName VARCHAR(120) NOT NULL,");
-        strBuilder.append("birthDate DATE,");
-        strBuilder.append("gender int NOT NULL");
-        return strBuilder.toString();
+        String strBuilder = "id UUID PRIMARY KEY NOT NULL," +
+                "firstName VARCHAR(120) NOT NULL," +
+                "lastName VARCHAR(120) NOT NULL," +
+                "birthDate DATE," +
+                "gender int NOT NULL";
+        return strBuilder;
     }
 
     @JsonIgnore

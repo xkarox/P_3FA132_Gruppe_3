@@ -1,7 +1,7 @@
 package dev.hv.model.classes;
 
 import dev.hv.ResponseMessages;
-import dev.hv.model.ICustomer.Gender;
+import dev.hv.model.interfaces.ICustomer.Gender;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
