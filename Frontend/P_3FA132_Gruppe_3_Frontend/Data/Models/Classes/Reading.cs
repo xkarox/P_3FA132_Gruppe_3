@@ -72,7 +72,6 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                     {
                         Id = root.GetProperty("id").GetGuid(),
                         Comment = root.GetProperty("comment").ValueKind == JsonValueKind.Null ? null : root.GetProperty("comment").GetString(),
-                        // CustomerId = root.GetProperty("customerId").ValueKind == JsonValueKind.Null ? null : root.GetProperty("customerId").GetGuid(),
                         Customer = root.GetProperty("customer").ValueKind == JsonValueKind.Null ? null : Customer.LoadJson(root.ToString()),
                         DateOfReading = root.GetProperty("dateOfReading").ValueKind == JsonValueKind.Null ? null : DateOnly.Parse(root.GetProperty("dateOfReading").GetString()),
                         KindOfMeter = Enum.Parse<KindOfMeter>(root.GetProperty("kindOfMeter").GetString()),

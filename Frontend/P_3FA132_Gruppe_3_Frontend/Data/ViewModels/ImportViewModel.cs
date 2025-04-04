@@ -63,11 +63,11 @@ public partial class ImportViewModel(
             var fileType = DetectFileType(stringContent, extension);
             if (fileType == "customers")
             {
-                responses = await exportService.ExportCustomer(stringContent, extension);
+                responses = await exportService.ImportCustomer(stringContent, extension);
             }
             else if (fileType == "readings")
             {
-                responses = await exportService.ExportReading(stringContent, extension);
+                responses = await exportService.ImportReading(stringContent, extension);
             }
             
 
