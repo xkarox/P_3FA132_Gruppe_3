@@ -9,10 +9,6 @@
 <div class="overlay @(Show ? "visible" : "hidden")"></div>
 <div class="@(Show ? "visible" : "hidden") auth-component">
     <h3>Login</h3>
-    @* @if (LoginCallback == null) *@
-    @* { *@
-    @*     <p class="error-message">@LoginCallbackNullMessage</p> *@
-    @* } *@
 
     <label for="username-input">Username</label>
     <input id="username-input" @bind="Username" />
@@ -41,7 +37,6 @@
 
     [Parameter] public bool Show { get; set; } = false;
     [Parameter] public Func<Task>? OnSuccessfullLogin { get; set; }
-    // [Parameter] public Func<string, string, Task<AuthUser?>>? LoginCallback { get; set; }
 
     static class AuthErrorMessages
     {
