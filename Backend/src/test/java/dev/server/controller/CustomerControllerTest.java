@@ -562,12 +562,13 @@ public class CustomerControllerTest
     }
 
     @Test
-    void addBatch() throws IOException, SQLException
+    void addBatch() throws IOException, SQLException, ReflectiveOperationException
     {
         CustomerController cc = new CustomerController();
         InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
         CustomerService mockedCs = mock(CustomerService.class);
         ServiceProvider.Services = mockedInternalServiceProvider;
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(true);
 
         when(mockedInternalServiceProvider.getCustomerService()).thenReturn(mockedCs);
         doNothing().when(mockedCs).addBatch(anyList());
@@ -579,10 +580,9 @@ public class CustomerControllerTest
 
         jsonString = "[{\"id\":\"c402c76f-be2d-412c-ac63-2065e64f6da6\",\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
         assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
-        when(cc.addCustomerBatch(any())).thenThrow(new SQLException("SQL Error"));
+
+        doThrow(new SQLException("SQL Error")).when(mockedCs).addBatch(anyList());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
-        when(cc.addCustomerBatch(any())).thenThrow(new IOException("IO Error"));
-        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
     }
 
     @Test

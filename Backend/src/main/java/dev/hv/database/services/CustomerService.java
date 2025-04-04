@@ -104,7 +104,7 @@ public class CustomerService extends AbstractBaseService<Customer>
         try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
             stmt.setString(1, item.getFirstName());
             stmt.setString(2, item.getLastName());
-            stmt.setDate(4, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
+            stmt.setDate(3, item.getBirthDate() != null ? Date.valueOf(item.getBirthDate()) : null);
             stmt.setInt(4, item.getGender().ordinal());
             stmt.setString(5, item.getId().toString());
 

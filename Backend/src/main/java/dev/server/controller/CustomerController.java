@@ -88,6 +88,10 @@ public class CustomerController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addCustomerBatch(String batchCustomers) throws JsonProcessingException
     {
+        if (!AuthorisationService.IsUserAdmin()) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
         logger.info("Received request to add customers: {}", batchCustomers);
         try (CustomerService cs = ServiceProvider.Services.getCustomerService())
         {

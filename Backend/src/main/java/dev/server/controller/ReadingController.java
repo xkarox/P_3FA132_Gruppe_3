@@ -7,7 +7,6 @@ import dev.hv.ResponseMessages;
 import dev.hv.Utils;
 import dev.hv.database.services.AuthorisationService;
 import dev.hv.model.interfaces.IReading;
-import dev.hv.model.IReading;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.provider.ServiceProvider;
 import dev.hv.database.services.ReadingService;
@@ -88,6 +87,9 @@ public class ReadingController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addReadingBatch(String batchReadings) throws JsonProcessingException
     {
+        if (!AuthorisationService.IsUserAdmin()) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
         logger.info("Received request to add readings: {}", batchReadings);
         try (ReadingService rs = ServiceProvider.Services.getReadingService())
         {

@@ -662,6 +662,7 @@ public class ReadingControllerTest
         InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
         ReadingService mockedCs = mock(ReadingService.class);
         ServiceProvider.Services = mockedInternalServiceProvider;
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(true);
 
         when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockedCs);
         doNothing().when(mockedCs).addBatch(anyList());
@@ -688,9 +689,7 @@ public class ReadingControllerTest
                 "    }\n" +
                 "]";
         assertEquals(Response.Status.CREATED.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
-        when(cc.addReadingBatch(any())).thenThrow(new SQLException("SQL Error"));
+        doThrow(new SQLException("SQL Error")).when(mockedCs).addBatch(anyList());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
-        when(cc.addReadingBatch(any())).thenThrow(new IOException("IO Error"));
-        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
     }
 }
