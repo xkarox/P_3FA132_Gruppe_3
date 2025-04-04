@@ -171,6 +171,67 @@ public class ReadingServiceTest
     }
 
     @Test
+    void addBatch2() throws SQLException, IOException, ReflectiveOperationException
+    {
+        List<Reading> readings = new ArrayList<>();
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                readings.add(_testReading);
+
+                rs.addBatch(readings);
+
+                _testReading.setCustomer(_testCustomer);
+                _testReading.setId(UUID.randomUUID());
+
+                readings.clear();
+                rs.add(_testReading);
+                readings.add(_testReading);
+
+                assertThrows(IllegalArgumentException.class, () -> rs.addBatch(readings));
+
+                Reading reading = new Reading();
+                reading.setDateOfReading(LocalDate.now());
+                reading.setKindOfMeter(KindOfMeter.STROM);
+                reading.setMeterCount(1234.5);
+                reading.setSubstitute(true);
+                reading.setCustomer(_testCustomer);
+                readings.clear();
+                readings.add(reading);
+                assertThrows(SQLException.class, () -> rs.addBatch(readings));
+            }
+        }
+    }
+
+    @Test
+    void addBatch3() throws SQLException, IOException, ReflectiveOperationException
+    {
+        List<Reading> readings = new ArrayList<>();
+        try (CustomerService cs = ServiceProvider.Services.getCustomerService())
+        {
+            try (ReadingService rs = ServiceProvider.Services.getReadingService())
+            {
+                this._testReading = new Reading(UUID.randomUUID()
+                        , "Omae wa mou shindeiru!", null
+                        , null, LocalDate.now(), KindOfMeter.STROM
+                        , 1234.5, "10006660001", false);
+
+
+                _testReading.setCustomer(_testCustomer);
+                readings.add(_testReading);
+                _testReading.setId(UUID.randomUUID());
+                readings.add(_testReading);
+                Customer customer = new Customer(null, "asd", "asd", LocalDate.now(), Gender.U);
+                _testReading.setCustomer(customer);
+                readings.add(_testReading);
+
+                assertDoesNotThrow(() -> rs.addBatch(readings));
+            }
+        }
+    }
+
+    @Test
     void addSqlTest() throws SQLException
     {
         DatabaseConnection mockConnection = mock(DatabaseConnection.class);
@@ -257,7 +318,17 @@ public class ReadingServiceTest
             rs.remove(reading2);
 
         }
+    }
 
+    @Test
+    void getReadingsByCustomerIdNull() throws ReflectiveOperationException, SQLException, IOException
+    {
+        DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+        when(mockConnection.getAllObjectsFromDbTableWithFilter(any(), anyString()))
+                .thenReturn(new ArrayList<>());
+
+        var result = new ReadingService(mockConnection).getReadingsByCustomerId(null);
+        assertTrue(result.isEmpty(), "Because the id is null");
     }
 
     @Test
@@ -328,6 +399,22 @@ public class ReadingServiceTest
 
             Collection<Reading> readings =  rs.queryReadings(Optional.ofNullable(customerId), Optional.empty(), Optional.empty(), Optional.ofNullable(meterType));
             assertEquals(1, readings.size());
+            assertTrue(readings.contains(this._testReading));
+        }
+    }
+
+    @Test
+    void queryReadings2() throws SQLException, IOException, ReflectiveOperationException
+    {
+        KindOfMeter meterType = this._testReading.getKindOfMeter();
+        try (ReadingService rs = ServiceProvider.Services.getReadingService())
+        {
+            rs.add(this._testReading);
+            this._testReading.setId(UUID.randomUUID());
+            rs.add(this._testReading);
+
+            Collection<Reading> readings =  rs.queryReadings(Optional.ofNullable(null), Optional.empty(), Optional.empty(), Optional.ofNullable(meterType));
+            assertEquals(2, readings.size());
             assertTrue(readings.contains(this._testReading));
         }
     }
