@@ -31,10 +31,7 @@ public class AuthService
     {
         if (!await AuthenticationEnabled())
         {
-            var dummy = AuthUser.GetDummyAuthUserForDisabledAuthentication();
-            ((CustomAuthStateProvider)_authStateProvider)
-                .NotifyUserAuthentication(dummy);
-            AuthenticatedUsername = dummy.Username;
+            SetUpDisabledAuth();
             return true;
         }
 
@@ -66,6 +63,17 @@ public class AuthService
     public void Logout()
     {
         ((CustomAuthStateProvider)_authStateProvider).NotifyUserLogout();
+    }
+
+    private async void SetUpDisabledAuth()
+    {
+        if (!await AuthenticationEnabled())
+        {
+            var dummy = AuthUser.GetDummyAuthUserForDisabledAuthentication();
+            ((CustomAuthStateProvider)_authStateProvider)
+                .NotifyUserAuthentication(dummy);
+            AuthenticatedUsername = dummy.Username;
+        }
     }
 
 }

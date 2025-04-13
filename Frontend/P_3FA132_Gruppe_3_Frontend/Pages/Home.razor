@@ -10,7 +10,7 @@
         </p>
     <AuthorizeView>
         <Authorized>
-            <p>@AuthService.AuthenticatedUsername</p>
+            <p>@(AuthService.AuthenticatedUsername ?? "User")</p>
         </Authorized>
     </AuthorizeView>
 </div>
@@ -18,4 +18,14 @@
 
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await AuthService.AuthenticationEnabled())
+        {
+            await AuthService.Login(null, null);
+            StateHasChanged();
+        }
+        await base.OnInitializedAsync();
+    }
+
 }
