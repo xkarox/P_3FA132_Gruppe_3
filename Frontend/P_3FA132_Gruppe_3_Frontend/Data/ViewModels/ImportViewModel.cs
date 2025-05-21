@@ -11,7 +11,7 @@ using P_3FA132_Gruppe_3_Frontend.Data.Services;
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
 public partial class ImportViewModel(
-    ExportService exportService,
+    ExportImportService exportImportService,
     ReadingService readingService,
     CustomerService customerService) : ViewModelBase
 {
@@ -63,11 +63,11 @@ public partial class ImportViewModel(
             var fileType = DetectFileType(stringContent, extension);
             if (fileType == "customers")
             {
-                responses = await exportService.ImportCustomer(stringContent, extension);
+                responses = await exportImportService.ImportCustomer(stringContent, extension);
             }
             else if (fileType == "readings")
             {
-                responses = await exportService.ImportReading(stringContent, extension);
+                responses = await exportImportService.ImportReading(stringContent, extension);
             }
             
 

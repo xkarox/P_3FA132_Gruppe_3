@@ -20,7 +20,7 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ReadingService>();
 
 builder.Services.AddScoped<UtilityService>();
-builder.Services.AddScoped<ExportService>();
+builder.Services.AddScoped<ExportImportService>();
 
 // Register MVVM 
 builder.Services.AddMvvm(options =>

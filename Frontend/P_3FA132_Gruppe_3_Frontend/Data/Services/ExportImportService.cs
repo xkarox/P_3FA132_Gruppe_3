@@ -8,13 +8,13 @@ using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services;
 
-public class ExportService
+public class ExportImportService
 {
     private readonly HttpClient _httpClient;
     private const string CustomerUrl = "http://localhost:8080/customers";
     private const string ReadingUrl = "http://localhost:8080/readings";
 
-    public ExportService(HttpClient httpClient)
+    public ExportImportService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }

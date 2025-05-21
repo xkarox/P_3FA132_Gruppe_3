@@ -1,39 +1,39 @@
 ﻿@page "/ExportView"
+@using P_3FA132_Gruppe_3_Frontend.Data.ViewModels
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ExportViewModel>
 
 <h3>ExportView</h3>
 
 <div class="buttons">
     <div class="button-row">
-        <button class="btn @(ViewModel.ButtonSelected == 'R' ? "selected" : "")" @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync('R')">Reading</button>
-        <button class="btn @(ViewModel.ButtonSelected == 'C' ? "selected" : "")" @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync('C')">Customer</button>
+        <button class="btn @(ViewModel.ButtonSelected == ExportViewModel.ClassEnum.Reading ? "selected" : "")" @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync(ExportViewModel.ClassEnum.Reading)">Reading</button>
+        <button class="btn @(ViewModel.ButtonSelected == ExportViewModel.ClassEnum.Customer ? "selected" : "")" @onclick="() => ViewModel.SelectedButtonCommand.ExecuteAsync(ExportViewModel.ClassEnum.Customer)">Customer</button>
     </div>
-    @if (ViewModel.ButtonSelected.Equals('R'))
+    @if (ViewModel.ButtonSelected.Equals(ExportViewModel.ClassEnum.Reading))
     {
         <div class="button-row">
-            <button class="btn @(ViewModel.KindOfMeterSelected == 'S' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('S')">Strom</button>
-            <button class="btn @(ViewModel.KindOfMeterSelected == 'W' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('W')">Wasser</button>
-            <button class="btn @(ViewModel.KindOfMeterSelected == 'H' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('H')">Heizung</button>
-            <button class="btn @(ViewModel.KindOfMeterSelected == 'U' ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync('U')">Undefined</button>
+            <button class="btn @(ViewModel.KindOfMeterSelected == ExportViewModel.KindOfMeterEnum.Strom ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync(ExportViewModel.KindOfMeterEnum.Strom)">Strom</button>
+            <button class="btn @(ViewModel.KindOfMeterSelected == ExportViewModel.KindOfMeterEnum.Wasser ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync(ExportViewModel.KindOfMeterEnum.Wasser)">Wasser</button>
+            <button class="btn @(ViewModel.KindOfMeterSelected == ExportViewModel.KindOfMeterEnum.Heizung ? "selected" : "")" @onclick="() => ViewModel.SelectKindOfMeterCommand.ExecuteAsync(ExportViewModel.KindOfMeterEnum.Heizung)">Heizung</button>
         </div>
     }
     @if (ViewModel.ButtonSelected switch
              {
-                 'C' => true,
-                 'R' when new[] { 'S', 'W', 'H', 'U' }.Contains(ViewModel.KindOfMeterSelected) => true,
+                 ExportViewModel.ClassEnum.Customer => true,
+                 ExportViewModel.ClassEnum.Reading when new[] { ExportViewModel.KindOfMeterEnum.Strom, ExportViewModel.KindOfMeterEnum.Wasser, ExportViewModel.KindOfMeterEnum.Heizung }.Contains(ViewModel.KindOfMeterSelected) => true,
                  _ => false
              })
     {
         <div class="button-row">
-            <button class="btn @(ViewModel.FormatSelected == 'X' ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync('X')">XML</button>
-            <button class="btn @(ViewModel.FormatSelected == 'J' ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync('J')">Json</button>
-            <button class="btn @(ViewModel.FormatSelected == 'C' ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync('C')">Csv</button>
+            <button class="btn @(ViewModel.FileFormatSelected == ExportViewModel.FileFormatEnum.Xml ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync(ExportViewModel.FileFormatEnum.Xml)">XML</button>
+            <button class="btn @(ViewModel.FileFormatSelected == ExportViewModel.FileFormatEnum.Json ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync(ExportViewModel.FileFormatEnum.Json)">Json</button>
+            <button class="btn @(ViewModel.FileFormatSelected == ExportViewModel.FileFormatEnum.Csv ? "selected" : "")" @onclick="() => ViewModel.SelectFormatCommand.ExecuteAsync(ExportViewModel.FileFormatEnum.Csv)">Csv</button>
         </div>
     }
     @if (ViewModel.ButtonSelected switch
              {
-                 'C' when new[] { 'X', 'J', 'C' }.Contains(ViewModel.FormatSelected) => true,
-                 'R' when new[] { 'S', 'W', 'H', 'U' }.Contains(ViewModel.KindOfMeterSelected) && new[] { 'X', 'J', 'C' }.Contains(ViewModel.FormatSelected) => true,
+                 ExportViewModel.ClassEnum.Customer when new[] { ExportViewModel.FileFormatEnum.Xml, ExportViewModel.FileFormatEnum.Json, ExportViewModel.FileFormatEnum.Csv }.Contains(ViewModel.FileFormatSelected) => true,
+                 ExportViewModel.ClassEnum.Reading when new[] { ExportViewModel.KindOfMeterEnum.Strom, ExportViewModel.KindOfMeterEnum.Wasser, ExportViewModel.KindOfMeterEnum.Heizung}.Contains(ViewModel.KindOfMeterSelected) && new[] { ExportViewModel.FileFormatEnum.Xml, ExportViewModel.FileFormatEnum.Json, ExportViewModel.FileFormatEnum.Csv }.Contains(ViewModel.FileFormatSelected) => true,
                  _ => false
              })
     {

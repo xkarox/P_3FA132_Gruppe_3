@@ -8,13 +8,40 @@ using P_3FA132_Gruppe_3_Frontend.Data.Services;
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
 public partial class ExportViewModel(
-    ExportService exportService,
+    ExportImportService exportImportService,
     IJSRuntime jsRuntime) : ViewModelBase
 {
-    [ObservableProperty] private char _buttonSelected;
-    [ObservableProperty] private char _formatSelected;
-    [ObservableProperty] private char _kindOfMeterSelected;
 
+    public ClassEnum ButtonSelected { get; private set; } = ClassEnum.Null;
+    public KindOfMeterEnum KindOfMeterSelected { get; private set; } = KindOfMeterEnum.Null;
+    public FileFormatEnum FileFormatSelected { get; private set; } = FileFormatEnum.Null;
+
+
+    public enum ClassEnum
+    {
+        Reading,
+        Customer,
+        Null
+    }
+
+    public enum KindOfMeterEnum
+    {
+        Strom,
+        Wasser,
+        Heizung,
+        Null
+    }
+
+    public enum FileFormatEnum
+    {
+        Xml,
+        Json,
+        Csv,
+        Null
+    }
+    
+    
+    
     public override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -25,90 +52,78 @@ public partial class ExportViewModel(
     {
         var values = "";
         var fileName = "";
-        if (ButtonSelected.Equals('R'))
+        if (ButtonSelected.Equals(ClassEnum.Reading))
         {
-            if (FormatSelected.Equals('X'))
+            if (FileFormatSelected.Equals(FileFormatEnum.Xml))
             {
                 switch (KindOfMeterSelected)
                 {
-                    case 'H':
-                        values = await exportService.CreateAllReadings(KindOfMeter.HEIZUNG, "xml");
+                    case KindOfMeterEnum.Heizung:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.HEIZUNG, "xml");
                         fileName = "heizung.xml";
                         break;
-                    case 'W':
-                        values = await exportService.CreateAllReadings(KindOfMeter.WASSER, "xml");
+                    case KindOfMeterEnum.Wasser:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.WASSER, "xml");
                         fileName = "wasser.xml";
                         break;
-                    case 'S':
-                        values = await exportService.CreateAllReadings(KindOfMeter.STROM, "xml");
+                    case KindOfMeterEnum.Strom:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.STROM, "xml");
                         fileName = "strom.xml";
                         break;
-                    case 'U':
-                        values = await exportService.CreateAllReadings(KindOfMeter.UNBEKANNT, "xml");
-                        fileName = "unbekannt.xml";
-                        break;
                 }
             }
-            else if (FormatSelected.Equals('J'))
+            else if (FileFormatSelected.Equals(FileFormatEnum.Json))
             {
                 switch (KindOfMeterSelected)
                 {
-                    case 'H':
-                        values = await exportService.CreateAllReadings(KindOfMeter.HEIZUNG, "json");
+                    case KindOfMeterEnum.Heizung:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.HEIZUNG, "json");
                         fileName = "heizung.json";
                         break;
-                    case 'W':
-                        values = await exportService.CreateAllReadings(KindOfMeter.WASSER, "json");
+                    case KindOfMeterEnum.Wasser:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.WASSER, "json");
                         fileName = "wasser.json";
                         break;
-                    case 'S':
-                        values = await exportService.CreateAllReadings(KindOfMeter.STROM, "json");
+                    case KindOfMeterEnum.Strom:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.STROM, "json");
                         fileName = "strom.json";
-                        break;
-                    case 'U':
-                        values = await exportService.CreateAllReadings(KindOfMeter.UNBEKANNT, "json");
-                        fileName = "unbekannt.json";
                         break;
                 }
             }
-            else if (FormatSelected.Equals('C'))
+            else if (FileFormatSelected.Equals(FileFormatEnum.Csv))
             {
                 switch (KindOfMeterSelected)
                 {
-                    case 'H':
-                        values = await exportService.CreateAllReadings(KindOfMeter.HEIZUNG, "csv");
+                    case KindOfMeterEnum.Heizung:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.HEIZUNG, "csv");
                         fileName = "heizung.csv";
                         break;
-                    case 'W':
-                        values = await exportService.CreateAllReadings(KindOfMeter.WASSER, "csv");
+                    case KindOfMeterEnum.Wasser:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.WASSER, "csv");
                         fileName = "wasser.csv";
                         break;
-                    case 'S':
-                        values = await exportService.CreateAllReadings(KindOfMeter.STROM, "csv");
+                    case KindOfMeterEnum.Strom:
+                        values = await exportImportService.CreateAllReadings(KindOfMeter.STROM, "csv");
                         fileName = "strom.csv";
-                        break;
-                    case 'U':
-                        values = await exportService.CreateAllReadings(KindOfMeter.UNBEKANNT, "csv");
-                        fileName = "unbekannt.csv";
                         break;
                 }
             }
         }
-        else if (ButtonSelected.Equals('C'))
+        else if (ButtonSelected.Equals(ClassEnum.Customer))
         {
-            if (FormatSelected.Equals('X'))
+            if (FileFormatSelected.Equals(FileFormatEnum.Xml))
             {
-                values = await exportService.CreateAllCustomers("xml");
+                values = await exportImportService.CreateAllCustomers("xml");
                 fileName = "customers.xml";
             }
-            else if (FormatSelected.Equals('J'))
+            else if (FileFormatSelected.Equals(FileFormatEnum.Json))
             {
-                values = await exportService.CreateAllCustomers("json");
+                values = await exportImportService.CreateAllCustomers("json");
                 fileName = "customers.json";
             }
-            else if (FormatSelected.Equals('C'))
+            else if (FileFormatSelected.Equals(FileFormatEnum.Csv))
             {
-                values = await exportService.CreateAllCustomers("csv");
+                values = await exportImportService.CreateAllCustomers("csv");
                 fileName = "customers.csv";
             }
         }
@@ -117,22 +132,22 @@ public partial class ExportViewModel(
     }
 
     [RelayCommand]
-    private async Task SelectedButton(char button)
+    private async Task SelectedButton(ClassEnum classEnum)
     {
-        ButtonSelected = button;
-        KindOfMeterSelected = '\0';
-        FormatSelected = '\0';
+        ButtonSelected = classEnum;
+        KindOfMeterSelected = KindOfMeterEnum.Null;
+        FileFormatSelected = FileFormatEnum.Null;
     }
 
     [RelayCommand]
-    private async Task SelectKindOfMeter(char kindOfMeter)
+    private async Task SelectKindOfMeter(KindOfMeterEnum kindOfMeter)
     {
         KindOfMeterSelected = kindOfMeter;
     }
 
     [RelayCommand]
-    private async Task SelectFormat(char format)
+    private async Task SelectFormat(FileFormatEnum format)
     {
-        FormatSelected = format;
+        FileFormatSelected = format;
     }
 }
