@@ -173,7 +173,7 @@ class InternalServiceProviderTest
         }
     }
 
-    /*
+
     @Test
     // ToDo: Test with multiple allowed connections
     void MultithreadingQueueingTest() throws InterruptedException
@@ -218,7 +218,7 @@ class InternalServiceProviderTest
         assertNull(capturedError.get());
     }
 
-     */
+
 
     @Test
     void ThreadInterruptTest() throws InterruptedException
