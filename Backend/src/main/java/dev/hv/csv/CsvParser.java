@@ -340,7 +340,7 @@ public class CsvParser
 
     public List<Reading> createCustomReadingsFromCsv() throws ReflectiveOperationException, SQLException, IOException
     {
-        CustomerService cs = ServiceProvider.Services.getCustomerService();
+        this.cs = ServiceProvider.Services.getCustomerService();
         List<Reading> readings = new ArrayList<>();
         Iterable<List<String>> customReadingValues = getCustomReadingValues();
 
