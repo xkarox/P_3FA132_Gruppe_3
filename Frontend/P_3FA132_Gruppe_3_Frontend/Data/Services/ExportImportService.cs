@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Components.Forms;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Services;
 
