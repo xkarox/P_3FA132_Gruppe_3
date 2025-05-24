@@ -10,7 +10,7 @@
         </p>
     <AuthorizeView>
         <Authorized>
-            <p>@(AuthService.AuthenticatedUsername ?? "User")</p>
+            <p>@(AuthService.AuthenticatedUsername == null || AuthService.AuthenticatedUsername == string.Empty ? AuthService.AuthenticatedUsername : "User")</p>
         </Authorized>
     </AuthorizeView>
 </div>

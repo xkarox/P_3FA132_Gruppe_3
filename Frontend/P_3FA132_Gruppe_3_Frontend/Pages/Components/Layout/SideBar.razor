@@ -3,6 +3,7 @@
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inject IJSRuntime JSRuntime
 @inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 <nav class="sidebar">
     <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
@@ -81,6 +82,7 @@
     {
         AuthService.Logout();
         showComp = false;
+        NavigationManager.NavigateTo("/");
         StateHasChanged();
     }
 

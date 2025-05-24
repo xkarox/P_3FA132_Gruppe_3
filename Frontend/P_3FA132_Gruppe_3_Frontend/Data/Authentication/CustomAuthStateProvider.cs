@@ -7,7 +7,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Authentication;
 
 public class CustomAuthStateProvider : AuthenticationStateProvider
 {
-    private AuthUser _currentUser;
+    private AuthUser? _currentUser;
     
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
@@ -41,6 +41,7 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
     public void NotifyUserLogout()
     {
         _currentUser = null;
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        var state = GetAuthenticationStateAsync();
+        NotifyAuthenticationStateChanged(state);
     }
 }
