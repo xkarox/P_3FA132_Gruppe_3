@@ -131,6 +131,7 @@ public partial class ReadingManagementViewModel(
             if (customer == null) return;
             NewReading.Customer = customer;
             NewReading.DateOfReading ??= new DateOnly();
+            NewReading.MeterId ??= "Unknown";
 
             var returnedReading = await readingService.Add(NewReading);
             if (returnedReading != null)
@@ -171,6 +172,15 @@ public partial class ReadingManagementViewModel(
     {
         if (string.IsNullOrEmpty(value)) return value;
         return value.Length <= MaxStringLength ? value : value[..MaxStringLength] + "...";
+    }
+    
+    [RelayCommand]
+    public void AddReadingButtonCallback()
+    {
+        if (ReadingQuery!.Customer is not null)
+        {
+            NewReading = new Reading(){ CustomerId = Guid.Parse(ReadingQuery!.Customer) };
+        }
     }
 }
 

@@ -5,7 +5,7 @@
 @using P_3FA132_Gruppe_3_Frontend.Pages.Components
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ReadingManagementViewModel>
 @inject UtilityService UtilityService
-
+@* Add reading form *@
 <div class="overlay @(ViewModel.NewReading != null ? "visible" : "hidden")"></div>
 <EntityManagement 
     Item="ViewModel.NewReading"
@@ -16,6 +16,7 @@
     ReadOnlyProperties="ViewModel.ReadOnlyProperties"
 />
 
+@* Edit reading form  *@
 <div class="overlay @(ViewModel.SelectedReading != null ? "visible" : "hidden")"></div>
 <EntityManagement
     Item="ViewModel.SelectedReading"
@@ -58,7 +59,7 @@
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowComment = !ViewModel.ShowReadingColumns.ShowComment">Toggle Comment</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowMeterId = !ViewModel.ShowReadingColumns.ShowMeterId">Toggle MeterId</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowSubstitute = !ViewModel.ShowReadingColumns.ShowSubstitute">Toggle Substitute</button>
-    <button @onclick="() => { ViewModel.NewReading = new Reading(){ CustomerId = Guid.Parse(ViewModel.ReadingQuery!.Customer) }; }" class="add-button"> Add Reading </button>
+    <button @onclick="ViewModel.AddReadingButtonCallbackCommand.Execute" class="add-button"> Add Reading </button>
 </div>
 
 
