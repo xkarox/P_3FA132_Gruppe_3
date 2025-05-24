@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.hv.csv.CsvParser;
 import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.database.services.CustomerService;
-import dev.hv.model.ICustomer;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
 import dev.hv.model.interfaces.IDbItem;
@@ -230,7 +230,7 @@ public class SerializerTest
 
         assertNotNull(reading);
         assertEquals(reading.getDateOfReading().toString(), "2024-03-25");
-        assertEquals(reading.getCustomerId(), null);
+        assertEquals(reading.getCustomerId(), UUID.fromString("ec617965-88b4-4721-8158-ee36c38e4db3"));
         assertEquals(reading.getMeterId(), "112233");
         assertEquals(reading.getComment(), "Test");
         assertEquals(reading.getMeterCount(), 100);
@@ -249,7 +249,7 @@ public class SerializerTest
 
         assertNotNull(reading);
         assertEquals(reading.getDateOfReading().toString(), "2024-03-25");
-        assertEquals(reading.getCustomerId(), null);
+        assertEquals(reading.getCustomerId(), UUID.fromString("ec617965-88b4-4721-8158-ee36c38e4db3"));
         assertEquals(reading.getMeterId(), "112233");
         assertEquals(reading.getComment(), "Test");
         assertEquals(reading.getMeterCount(), 100);

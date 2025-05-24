@@ -7,7 +7,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.Serializer;
 import dev.hv.Utils;
 import dev.hv.csv.CsvParser;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.ReadingWrapper;
 import dev.hv.database.services.AuthorisationService;
@@ -60,7 +60,7 @@ public class ReadingController
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addReading(String readingJson) throws JsonProcessingException
+    public Response addReading(String readingJson) throws IOException, SQLException
     {
         logger.info("Received request to add reading: {}", readingJson);
         Response invalid = this.validateRequestData(readingJson);
@@ -72,8 +72,6 @@ public class ReadingController
         try (ReadingService rs = ServiceProvider.Services.getReadingService()) {
             readingJson = Utils.unpackFromJsonString(readingJson, Reading.class);
             Reading reading = Utils.getObjectMapper().readValue(readingJson, Reading.class);
-            if (reading.getId() == null)
-            {
 
             if (!AuthorisationService.CanUserAccessResource(reading.getCustomerId())) {
                 return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
