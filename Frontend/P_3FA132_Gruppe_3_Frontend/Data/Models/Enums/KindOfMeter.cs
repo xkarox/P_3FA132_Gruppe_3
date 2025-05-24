@@ -1,4 +1,4 @@
-﻿namespace P_3FA132_Gruppe_3_Frontend.Data.Models
+﻿namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
 {
     public enum KindOfMeter
     {
@@ -16,8 +16,8 @@
             {
                 "HEIZUNG" => KindOfMeter.HEIZUNG,
                 "STROM" => KindOfMeter.STROM,
-                "UNBEKANNT" => KindOfMeter.UNBEKANNT,
                 "WASSER" => KindOfMeter.WASSER,
+                "UNBEKANNT" => KindOfMeter.UNBEKANNT,
                 _ => KindOfMeter.UNBEKANNT
             };
         }

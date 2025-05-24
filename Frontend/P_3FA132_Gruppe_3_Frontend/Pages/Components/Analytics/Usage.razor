@@ -1,0 +1,84 @@
+@using System.Diagnostics
+@using P_3FA132_Gruppe_3_Frontend.Data.Enums
+@using P_3FA132_Gruppe_3_Frontend.Data.Models
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
+@using PSC.Blazor.Components.Chartjs.Interfaces
+<Chart Config="_config"></Chart>
+
+@code {
+    [EditorRequired] [Parameter] public List<Reading> Items { get; set; }
+    [EditorRequired] [Parameter] public KindOfMeter KindOfMeter { get; set; }
+
+    private string? BackgroundColor;
+    
+    private BarChartConfig _config;
+    private string[] monthLabels = new []
+    {
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    };
+  
+ 
+    protected override void OnInitialized()
+    {
+        BackgroundColor = MeterColor.GetByEnumValue(KindOfMeter);
+        _config = new BarChartConfig()
+        {
+            Options = new Options()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                Plugins = new Plugins()
+                {
+                    Title = new Title
+                    {
+                        Display = true,
+                        Text = $"Usage for {KindOfMeter.ToString()}"
+                    },
+                    Legend = new Legend
+                    {
+                        Position = LegendPosition.Bar,
+                        Display = true,
+                    },
+                }
+            },
+            
+        };
+        
+        var data = CalculateAverageUsagePerMonth();
+        BarDataset dataset1 = new BarDataset()
+        {
+            Label = $"Usage for {KindOfMeter.ToString()}",
+            Data = data,
+            BackgroundColor = [BackgroundColor],
+            BorderColor = [BackgroundColor],
+            BorderWidth = 10,
+        };
+
+        foreach (var month in monthLabels)
+        {
+            _config.Data.Labels.Add(month);
+        }
+        _config.Data.Datasets.Add(dataset1);
+        Console.WriteLine();
+    }
+    
+
+    private List<decimal?> CalculateAverageUsagePerMonth()
+    {
+        var avgPerMonth = new decimal?[12];
+        for (var i = 0; i < 12; i++)
+        {
+            var i1 = i;
+            var currentReadings = Items.Where(reading => reading.DateOfReading!.Value.Month == i1 + 1 && reading.KindOfMeter == KindOfMeter);
+            var readingCount = currentReadings.Count();
+            var sum = currentReadings.Sum(reading => reading.MeterCount);
+            if (readingCount == 0)
+                readingCount = 1;
+            Console.WriteLine($"{sum} / {readingCount}");
+            avgPerMonth[i] = (int)(sum / readingCount);
+        }
+        return avgPerMonth.ToList();
+    }
+}

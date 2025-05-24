@@ -4,7 +4,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.intefaces.IBasicCrud;
 import dev.hv.database.provider.InternalServiceProvider;
-import dev.hv.model.IId;
+import dev.hv.model.interfaces.IId;
 import dev.hv.model.interfaces.IDbItem;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public abstract class AbstractBaseService<T extends IDbItem & IId> implements IB
 
     public void remove(T item) throws SQLException
     {
-        if (item.getId() == null)
+        if (item == null || item.getId() == null)
             throw new IllegalArgumentException("Cannot delete a item without id"); // ToDo: better handling
 
         String sqlStatement = "DELETE FROM " + item.getSerializedTableName() + " WHERE id = ?";
@@ -53,7 +53,7 @@ public abstract class AbstractBaseService<T extends IDbItem & IId> implements IB
         try (PreparedStatement stmt = this._dbConnection.newPrepareStatement(sqlStatement)) {
             stmt.setString(1, item.getId().toString());
 
-            this._dbConnection.executePreparedStatementCommand(stmt, 1);
+            this._dbConnection.executePreparedStatementCommand(stmt);
         }
     }
 

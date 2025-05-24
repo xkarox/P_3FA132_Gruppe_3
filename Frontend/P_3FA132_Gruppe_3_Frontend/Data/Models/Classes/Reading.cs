@@ -2,7 +2,11 @@
 using System.Text;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 {
@@ -61,10 +65,14 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
         {
             using var document = JsonDocument.Parse(jsonData);
             JsonElement root;
-            if (loadDefaultRoot)
+            try
+            {
                 root = document.RootElement.GetProperty("reading");
-            else
+            }
+            catch
+            {
                 root = document.RootElement;
+            }
 
             var reading = new Reading
             {
@@ -73,11 +81,12 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                 //CustomerId = root.GetProperty("customerId").ValueKind == JsonValueKind.Null ? null : root.GetProperty("customerId").GetGuid(),
                 Customer = root.GetProperty("customer").ValueKind == JsonValueKind.Null ? null : Customer.LoadJson(root.ToString()),
                 DateOfReading = root.GetProperty("dateOfReading").ValueKind == JsonValueKind.Null ? null : DateOnly.Parse(root.GetProperty("dateOfReading").GetString()),
-                KindOfMeter = Enum.Parse<KindOfMeter>(root.GetProperty("kindOfMeter").GetString()),
+                KindOfMeter = Enum.Parse<KindOfMeter>(root.GetProperty("kindOfMeter").GetString() ?? "DEFAULT"),
                 MeterCount = root.GetProperty("meterCount").GetDouble(),
-                MeterId = root.GetProperty("meterId").GetString(),
+                MeterId = root.GetProperty("meterId").GetString() ?? "defaultID",
                 Substitute = root.GetProperty("substitute").GetBoolean()
             };
+
             return reading;
         }
 

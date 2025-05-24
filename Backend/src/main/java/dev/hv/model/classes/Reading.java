@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hv.ResponseMessages;
 import dev.hv.database.services.CustomerService;
-import dev.hv.model.ICustomer;
-import dev.hv.model.IReading;
-import dev.hv.model.decorator.IFieldInfo;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IReading;
+import dev.hv.model.interfaces.IFieldInfo;
 import dev.hv.model.interfaces.IDbItem;
 import dev.provider.ServiceProvider;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -114,7 +114,7 @@ public class Reading implements IReading
     @Nullable
     public UUID getCustomerId()
     {
-        return this._customerId;
+        return this._customerId != null ? this._customerId : this._customer != null ? this._customer.getId() : null;
     }
 
     @JsonIgnore

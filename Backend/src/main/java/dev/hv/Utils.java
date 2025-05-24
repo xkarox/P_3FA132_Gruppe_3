@@ -1,6 +1,7 @@
 package dev.hv;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import dev.hv.model.interfaces.IId;
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.hv.model.IId;
 import com.fasterxml.jackson.core.JsonProcessingException;

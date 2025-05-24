@@ -1,5 +1,4 @@
 using Blazing.Mvvm;
-
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using P_3FA132_Gruppe_3_Frontend;
@@ -21,6 +20,7 @@ builder.Services.AddScoped<ReadingService>();
 
 builder.Services.AddScoped<UtilityService>();
 builder.Services.AddScoped<ExportImportService>();
+
 
 // Register MVVM 
 builder.Services.AddMvvm(options =>

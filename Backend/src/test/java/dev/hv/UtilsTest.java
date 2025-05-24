@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import dev.hv.model.ICustomer;
-import dev.hv.model.IId;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;

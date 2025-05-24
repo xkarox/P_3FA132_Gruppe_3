@@ -2,18 +2,21 @@ package dev.server.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.hv.ResponseMessages;
+import dev.hv.database.DbHelperService;
+import dev.hv.database.DbTestHelper;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.csv.CsvParser;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
-import dev.hv.model.IId;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.IId;
+import dev.hv.model.interfaces.IReading;
 import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.model.classes.Customer;
-import dev.hv.model.ICustomer.Gender;
+import dev.hv.model.interfaces.ICustomer.Gender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dev.server.Server;
@@ -36,6 +40,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.Provider;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -54,6 +59,7 @@ public class CustomerControllerTest
     private HttpClient _httpClient;
     private Customer _customer;
     private ObjectMapper _objMapper;
+    private static MockedStatic<AuthorisationService> _mockAuthorisationService;
 
 
     Customer getTestCustomer()
@@ -83,14 +89,18 @@ public class CustomerControllerTest
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.startServer(" ");
+        _mockAuthorisationService = mockStatic(AuthorisationService.class);
     }
 
     @AfterAll
-    static void afterAl()
+    static void afterAll() throws IOException
     {
+        ServiceProvider.Services.dbConnectionPropertiesOverwrite(DbHelperService.loadProperties(DbTestHelper.loadTestDbProperties()));
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.stopServer();
+
+        _mockAuthorisationService.close();
     }
 
 
@@ -129,7 +139,7 @@ public class CustomerControllerTest
         String restartServer = System.getenv("SkipServerRestart");
         if (!Objects.equals(restartServer, "True"))
             Server.stopServer();
-        ServiceProvider.Services = new InternalServiceProvider(100, 10, 10);
+        ServiceProvider.Services = new InternalServiceProvider(100, 100, 10);
     }
 
     @Test
@@ -555,9 +565,32 @@ public class CustomerControllerTest
     }
 
     @Test
+    void addBatch() throws IOException, SQLException, ReflectiveOperationException
+    {
+        CustomerController cc = new CustomerController();
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        CustomerService mockedCs = mock(CustomerService.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(true);
+
+        when(mockedInternalServiceProvider.getCustomerService()).thenReturn(mockedCs);
+        doNothing().when(mockedCs).addBatch(anyList());
+        String jsonString = "[{\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch(null).getStatus());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch("").getStatus());
+
+        jsonString = "[{\"id\":\"c402c76f-be2d-412c-ac63-2065e64f6da6\",\"firstName\":\"Latten\",\"lastName\":\"Sep\",\"birthDate\":\"1995-05-06\",\"gender\":\"M\"}]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+
+        doThrow(new SQLException("SQL Error")).when(mockedCs).addBatch(anyList());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addCustomerBatch(jsonString).getStatus());
+    }
+
+    @Test
     void deleteCustomerByIdThrowsException() throws SQLException, IOException, InterruptedException, ReflectiveOperationException
     {
-
         UUID id = UUID.randomUUID();
         String url = _url + "/" + id;
 
@@ -767,5 +800,37 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void auth() throws IOException, InterruptedException, ReflectiveOperationException, SQLException
+    {
+        Customer mockCustomer = mock(Customer.class);
+
+        CustomerService mockedCs = mock(CustomerService.class);
+
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        when(mockedInternalServiceProvider.getCustomerService()).thenReturn(mockedCs);
+        when(mockedCs.getById(any())).thenReturn(mockCustomer);
+
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(false);
+        _mockAuthorisationService.when(() -> AuthorisationService.CanUserAccessResource(any())).thenReturn(false);
+
+
+        String jsonString = Utils.packIntoJsonString(this._customer, Customer.class);
+
+        CustomerController cs = new CustomerController();
+
+        assertUnauthorized(cs.addCustomer(jsonString));
+        assertUnauthorized(cs.getCustomer(UUID.randomUUID()));
+        assertUnauthorized(cs.getCustomers());
+        assertUnauthorized(cs.updateCustomer(jsonString));
+        assertUnauthorized(cs.deleteCustomer(UUID.randomUUID()));
+    }
+
+    private void assertUnauthorized(Response response)
+    {
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 }

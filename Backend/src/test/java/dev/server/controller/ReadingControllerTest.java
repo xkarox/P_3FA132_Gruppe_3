@@ -1,17 +1,18 @@
 package dev.server.controller;
 
 import dev.hv.ResponseMessages;
+import dev.hv.database.services.AuthorisationService;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
-import dev.hv.model.IId;
+import dev.hv.model.interfaces.IId;
 import dev.provider.ServiceProvider;
 import dev.hv.Utils;
 import dev.hv.database.DatabaseConnection;
 import dev.hv.database.provider.InternalServiceProvider;
 import dev.hv.model.classes.Customer;
 import dev.hv.model.classes.Reading;
-import dev.hv.model.ICustomer;
-import dev.hv.model.IReading;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IReading;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
 import dev.server.Server;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.net.URI;
@@ -50,6 +52,8 @@ public class ReadingControllerTest
     Customer _customer;
     Reading _reading;
     ObjectMapper _objMapper;
+    private static MockedStatic<AuthorisationService> _mockAuthorisationService;
+
 
     Customer getTestCustomer()
     {
@@ -92,14 +96,16 @@ public class ReadingControllerTest
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.startServer("http://localhost:8080/");
+        _mockAuthorisationService = mockStatic(AuthorisationService.class);
     }
 
     @AfterAll
-    static void afterAl()
+    static void afterAll()
     {
         String restartServer = System.getenv("SkipServerRestart");
         if (Objects.equals(restartServer, "True"))
             Server.stopServer();
+        _mockAuthorisationService.close();
     }
 
     @BeforeEach
@@ -1074,5 +1080,73 @@ public class ReadingControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void auth() throws IOException, InterruptedException, ReflectiveOperationException, SQLException
+    {
+        Reading mockReading = mock(Reading.class);
+        ReadingService mockRs = mock(ReadingService.class);
+
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockRs);
+        when(mockRs.getById(any())).thenReturn(mockReading);
+
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(false);
+        _mockAuthorisationService.when(() -> AuthorisationService.CanUserAccessResource(any())).thenReturn(false);
+
+        String jsonString = Utils.packIntoJsonString(this._reading, Reading.class);
+
+        ReadingController rs = new ReadingController();
+
+        assertUnauthorized(rs.addReading(jsonString));
+        assertUnauthorized(rs.updateReading(jsonString));
+        assertUnauthorized(rs.getReading(UUID.randomUUID()));
+        assertUnauthorized(rs.deleteReading(UUID.randomUUID()));
+        assertUnauthorized(rs.getReadings(null, null, null, null));
+    }
+
+    private void assertUnauthorized(Response response)
+    {
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    void addBatch() throws IOException, SQLException
+    {
+        ReadingController cc = new ReadingController();
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ReadingService mockedCs = mock(ReadingService.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        _mockAuthorisationService.when(AuthorisationService::IsUserAdmin).thenReturn(true);
+
+        when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockedCs);
+        doNothing().when(mockedCs).addBatch(anyList());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(null).getStatus());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch("").getStatus());
+
+        String jsonString = "[\n" +
+                "    {\n" +
+                "    \"id\": null,\n" +
+                "    \"comment\": \"Level is over 9k >.>\",\n" +
+                "    \"customer\": {\n" +
+                "        \"id\":\"33829434-4f9b-41e2-a58c-75e88d4e0b9b\",\n" +
+                "        \"firstName\":\"Latten\",\n" +
+                "        \"lastName\":\"Sep\",\n" +
+                "        \"birthDate\":\"1995-05-06\",\n" +
+                "        \"gender\":\"M\"\n" +
+                "        },\n" +
+                "    \"dateOfReading\": \"2024-01-04\",\n" +
+                "    \"kindOfMeter\": \"WASSER\",\n" +
+                "    \"meterCount\": 625197.7,\n" +
+                "    \"meterId\": \"X1D3-ABCD\",\n" +
+                "    \"substitute\": false\n" +
+                "    }\n" +
+                "]";
+        assertEquals(Response.Status.CREATED.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
+        doThrow(new SQLException("SQL Error")).when(mockedCs).addBatch(anyList());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), cc.addReadingBatch(jsonString).getStatus());
     }
 }

@@ -1,0 +1,32 @@
+.count-widget {
+    padding: 0.6rem 1.25rem;
+    margin: 1.25rem;
+    width: fit-content;
+}
+
+.count-widget-title {
+    line-height: 1;
+    text-align: right;
+}
+
+.count-widget-value-container {
+    text-align: right;
+}
+
+.count-widget-value {
+    font-size: 3rem;
+    margin: 1rem 0;
+    line-height: 1;
+}
+
+.count-widget-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.count-widget-icon-container svg {
+    width: 3rem;
+    height: 3rem;
+    vertical-align: middle;
+}
