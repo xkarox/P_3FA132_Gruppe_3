@@ -2,6 +2,7 @@ package dev.hv.database.services;
 
 import dev.hv.database.DbHelperService;
 import dev.hv.model.classes.Customer;
+import dev.hv.model.classes.Reading;
 import dev.provider.ServiceProvider;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -47,7 +48,6 @@ public class CryptoService
                 {
                     return userName;
                 }
-
             }
         }
         throw new RuntimeException("Could not create a new username.");
