@@ -1,4 +1,5 @@
-﻿
+
+using System.Security.Claims;
 using Newtonsoft.Json.Linq;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 using System.Text.Json;
@@ -10,7 +11,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
     {
         public Guid Id { get; set; }
         public string Username { get; set; }
-        public UserRole Role { get; set; }
+        public string Role { get; set; }
         public List<UserPermissions>? Permissions { get; set; }
 
         public static AuthUser LoadJson(string jsonData, bool loadDefaultroot = true)
@@ -22,7 +23,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
             {
                 Id = root.GetProperty("id").GetGuid(),
                 Username = root.GetProperty("username").GetString(),
-                Role = root.GetProperty("role").GetString().ToRole(),
+                Role = root.GetProperty("role").GetString(),
                 Permissions = root.GetProperty("permissions").EnumerateArray().Select(p => p.GetString().ToUserPermissions()).ToList()
             };
 
@@ -67,6 +68,20 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
             };
 
             return JsonSerializer.Serialize(authUser, options);
+        }
+        
+        public static AuthUser GetDummyAuthUserForDisabledAuthentication()
+        {
+            return new AuthUser()
+            {
+                Id = Guid.Empty,
+                Username = "User",
+                Role = "ADMIN",
+                Permissions = [UserPermissions.READ, 
+                    UserPermissions.DELETE, 
+                    UserPermissions.WRITE, 
+                    UserPermissions.UPDATE]
+            };
         }
     }
 }

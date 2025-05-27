@@ -7,7 +7,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services
 {
     public class ReadingService : AbstractCrudService<Reading>
     {
-        public ReadingService(HttpClient httpClient) : base(httpClient, "readings")
+        public ReadingService(IHttpClientFactory httpClientFactory) : base(httpClientFactory, "readings")
         {
         }
 

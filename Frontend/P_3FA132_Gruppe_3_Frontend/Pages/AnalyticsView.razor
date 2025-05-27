@@ -71,11 +71,11 @@
         else
         {
             <RecentReading Type="KindOfMeter.STROM" 
-                           Value="@(ViewModel.LatestWaterReading != null 
-                                      ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                           Value="@(ViewModel.LatestElectricityReading != null 
+                                      ? ViewModel.LatestElectricityReading.MeterCount.ToString("N") 
                                       : "unavailable")" 
-                           DateOfReading="@(ViewModel.LatestWaterReading != null 
-                                              ? ViewModel.LatestWaterReading.DateOfReading! 
+                           DateOfReading="@(ViewModel.LatestElectricityReading != null 
+                                              ? ViewModel.LatestElectricityReading.DateOfReading! 
                                               : DateOnly.MinValue!)"></RecentReading>
         }
     </div>
@@ -87,11 +87,11 @@
         else
         {
             <RecentReading Type="KindOfMeter.HEIZUNG" 
-                           Value="@(ViewModel.LatestWaterReading != null 
-                                      ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                           Value="@(ViewModel.LatestGasReading != null 
+                                      ? ViewModel.LatestGasReading.MeterCount.ToString("N") 
                                       : "unavailable")" 
-                           DateOfReading="@(ViewModel.LatestWaterReading != null 
-                                              ? ViewModel.LatestWaterReading.DateOfReading! 
+                           DateOfReading="@(ViewModel.LatestGasReading != null 
+                                              ? ViewModel.LatestGasReading.DateOfReading! 
                                               : DateOnly.MinValue!)"></RecentReading>
         }
     </div>

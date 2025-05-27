@@ -42,6 +42,7 @@ public partial class AnalyticsViewModel(
         Loading = true;
         
         var customers = await customerService.GetAll();
+        customers = customers ?? new List<Customer>();
         CustomerCount = customers!.Count();
 
         var readings = await readingService.GetAll();

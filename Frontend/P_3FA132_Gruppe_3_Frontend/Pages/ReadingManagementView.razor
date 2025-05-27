@@ -1,14 +1,11 @@
 @page "/ReadingManagementView"
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using P_3FA132_Gruppe_3_Frontend.Data.Models
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
 @using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums
 @using P_3FA132_Gruppe_3_Frontend.Pages.Components
 @inherits Blazing.Mvvm.Components.MvvmOwningComponentBase<P_3FA132_Gruppe_3_Frontend.Data.ViewModels.ReadingManagementViewModel>
 @inject UtilityService UtilityService
-
-<h3>ReadingManagementView</h3>
-
+@* Add reading form *@
 <div class="overlay @(ViewModel.NewReading != null ? "visible" : "hidden")"></div>
 <EntityManagement 
     Item="ViewModel.NewReading"
@@ -19,6 +16,7 @@
     ReadOnlyProperties="ViewModel.ReadOnlyProperties"
 />
 
+@* Edit reading form  *@
 <div class="overlay @(ViewModel.SelectedReading != null ? "visible" : "hidden")"></div>
 <EntityManagement
     Item="ViewModel.SelectedReading"
@@ -55,14 +53,13 @@
 
 <div class="grid-controls">
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowId = !ViewModel.ShowReadingColumns.ShowId">Toggle Id</button>
-    <button @onclick="() => ViewModel.ShowReadingColumns.ShowCustomerId = !ViewModel.ShowReadingColumns.ShowCustomerId">Toggle CustomerId</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowKindOfMeter = !ViewModel.ShowReadingColumns.ShowKindOfMeter">Toggle KindOfMeter</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowDateOfReading = !ViewModel.ShowReadingColumns.ShowDateOfReading">Toggle DateOfReading</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowMeterCount = !ViewModel.ShowReadingColumns.ShowMeterCount">Toggle MeterCount</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowComment = !ViewModel.ShowReadingColumns.ShowComment">Toggle Comment</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowMeterId = !ViewModel.ShowReadingColumns.ShowMeterId">Toggle MeterId</button>
     <button @onclick="() => ViewModel.ShowReadingColumns.ShowSubstitute = !ViewModel.ShowReadingColumns.ShowSubstitute">Toggle Substitute</button>
-    <button @onclick="() => { ViewModel.NewReading = new Reading(){ CustomerId = Guid.Parse(ViewModel.ReadingQuery!.Customer) }; }" class="add-button"> Add Reading </button>
+    <button @onclick="ViewModel.AddReadingButtonCallbackCommand.Execute" class="add-button"> Add Reading </button>
 </div>
 
 
@@ -88,18 +85,6 @@
                 @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
                 class="clickable">
                 @ViewModel.TruncateString(reading.Comment)
-            </span>
-        </TemplateColumn>
-    }
-    @if (ViewModel.ShowReadingColumns.ShowCustomerId)
-    {
-        <TemplateColumn Context="reading" Title="CustomerId">
-            <span
-                @onclick="(e) => { ViewModel.CopyValueCommand.Execute((reading.CustomerId.ToString(), e)); }"
-                @onmouseenter="(e) => { ViewModel.ShowFullStringCommand.Execute((reading.CustomerId.ToString(), e)); }"
-                @onmouseleave="async () => { ViewModel.RemoveFullStringNotificationCommand.Execute(null); }"
-                class="clickable">
-                @ViewModel.TruncateString(reading.CustomerId.ToString())
             </span>
         </TemplateColumn>
     }

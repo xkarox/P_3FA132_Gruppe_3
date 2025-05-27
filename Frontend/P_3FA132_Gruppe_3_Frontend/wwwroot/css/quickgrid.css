@@ -44,6 +44,7 @@
 }
 
 .quickgrid button {
+    background-image: linear-gradient(to bottom right, var(--color-primary), var(--color-extra));
     margin: 0.5rem;
 }
 
@@ -84,7 +85,7 @@
 .grid-controls button {
     background-color: var(--bg-light);
     color: var(--text-color);
-    border: 1px solid var(--color-primary);
+    /*border: 1px solid var(--color-primary);*/
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-size: 0.875rem;

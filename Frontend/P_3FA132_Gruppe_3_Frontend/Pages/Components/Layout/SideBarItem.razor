@@ -1,5 +1,5 @@
 <div class="SideBarItem">
-    <NavLink href="@Href" class="navLink">
+    <NavLink href="@Href" class="navLink" @onclick="OnClickFunc">
         <div class="icon-text-container">
             @* <Iconify Icon="@IconName" class="iconify-icon"></Iconify> *@
             <div class="iconify-icon">
@@ -37,6 +37,20 @@
                         <path class="icon" d="m5.05 22.375l-1.4-1.425L6.6 18H4.35v-2H10v5.65H8v-2.225zM12 22v-8H4V4q0-.825.588-1.412T6 2h8l6 6v12q0 .825-.587 1.413T18 22zm1-13h5l-5-5l5 5l-5-5z" />
                     </svg>
                 }
+
+                @if (IconName.Equals("login"))
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 21v-2h7V5h-7V3h7q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21zm-2-4l-1.375-1.45l2.55-2.55H3v-2h8.175l-2.55-2.55L10 7l5 5z"/>
+                    </svg>
+                }
+
+                @if (IconName.Equals("logout"))
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 21v-2h7V5h-7V3h7q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21zm-2-4l-1.375-1.45l2.55-2.55H3v-2h8.175l-2.55-2.55L10 7l5 5z"/>
+                    </svg>
+                }
             </div>
             <p class="text">@Text</p>
         </div>
@@ -54,4 +68,7 @@
     
     [Parameter]
     public string Href { get; set; }
+    
+    [Parameter]
+    public Func<Task> OnClickFunc { get; set; }
 }

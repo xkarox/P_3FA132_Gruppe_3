@@ -1,4 +1,11 @@
-﻿@inherits LayoutComponentBase
+﻿@using P_3FA132_Gruppe_3_Frontend.Pages.Components
+@inherits LayoutComponentBase
+@inject IDebugModeService DebugModeService 
+
+@if (DebugModeService.IsDebugMode)
+{
+    @* <DebugMonitor></DebugMonitor> *@
+}
 
 <div class="page">
     <HeaderRow Text="Digital Property Management"></HeaderRow>
