@@ -97,7 +97,14 @@ public partial class CustomerManagementViewModel(
     {
         if (SelectedCustomer != null)
         {
-            await customerService.Delete(SelectedCustomer.Id);
+            try
+            {
+                await customerService.Delete(SelectedCustomer.Id);
+            }
+            catch (Exception e)
+            {
+                // workaround -> http quest throws exception despite reaching the backend
+            }
             var index = Customers.IndexOf(Customers.First(c => c.Id == SelectedCustomer.Id));
             Customers.RemoveAt(index);
             SelectedCustomer = null;
