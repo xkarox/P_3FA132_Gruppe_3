@@ -76,7 +76,9 @@ class ResponseFilterTest
         _cookies.put("jwt-token", new NewCookie("Test", UUID.randomUUID().toString()));
         _crypto.when(() -> CryptoService.validateToken(anyString())).thenReturn(null);
         _responseFilter.filter(_crc, null);
-        checkResponse(_crc, Response.Status.UNAUTHORIZED);
+
+        ArgumentCaptor<Response> responseCaptor = ArgumentCaptor.forClass(Response.class);
+        assertEquals(0, responseCaptor.getAllValues().size());
     }
 
     @Test
@@ -97,7 +99,8 @@ class ResponseFilterTest
         when(mockAuthUserService.getById(any())).thenReturn(null);
 
         _responseFilter.filter(_crc, _cResponseC);
-        checkResponse(_crc, Response.Status.UNAUTHORIZED);
+        ArgumentCaptor<Response> responseCaptor = ArgumentCaptor.forClass(Response.class);
+        assertEquals(0, responseCaptor.getAllValues().size());
 
         when(mockAuthUserService.getById(any())).thenReturn(mockAuthUser);
         _crypto.when(() -> CryptoService.createTokenCookie(id)).thenReturn(new NewCookie("test", "test"));

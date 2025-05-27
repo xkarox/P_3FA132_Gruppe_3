@@ -144,7 +144,7 @@ class CryptoServiceTest {
     @Test
     void validateToken_InvalidToken() {
         // Überprüfen dass eine Exception geworfen wird bei ungültigem Token
-        assertThrows(Exception.class, () -> CryptoService.validateToken("ungültiger.token.string"));
+        assertNull(CryptoService.validateToken("ungültiger.token.string"));
     }
 
     @Test
