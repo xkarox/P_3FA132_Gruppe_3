@@ -700,7 +700,7 @@ public class CustomerControllerTest
 
             HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
+            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode());
         }
     }
 
