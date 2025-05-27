@@ -9,7 +9,6 @@ import jakarta.annotation.Priority;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.Cookie;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.slf4j.MDC;
@@ -41,10 +40,12 @@ public class JwtFilter implements ContainerRequestFilter {
         String token = tokenCookie.getValue();
         try {
             String userId = CryptoService.validateToken(token);
+            if (userId == null)
+                return;
             try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
                 var user = authUserService.getById(UUID.fromString(userId));
                 if(user == null || user.getId() == null){
-                    requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                    // requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
                     return;
                 }
 
@@ -56,7 +57,8 @@ public class JwtFilter implements ContainerRequestFilter {
                         .toArray(String[]::new)));
             }
         } catch (ReflectiveOperationException | SQLException | IOException e) {
-            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            // requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            return;
         }
     }
 }

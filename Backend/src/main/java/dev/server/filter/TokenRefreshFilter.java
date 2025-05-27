@@ -35,6 +35,8 @@ public class TokenRefreshFilter implements ContainerResponseFilter
         String token = tokenCookie.getValue();
         try {
             String userId = CryptoService.validateToken(token);
+            if (userId == null)
+                return;
             try(AuthUserService authUserService = ServiceProvider.getAuthUserService()){
                 var user = authUserService.getById(UUID.fromString(userId));
                 if(user == null || user.getId() == null){
