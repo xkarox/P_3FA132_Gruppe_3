@@ -6,7 +6,7 @@
 @inject NavigationManager NavigationManager
 
 <nav class="sidebar">
-    <SideBarItem Text="Dashboard" IconName="dashboard"  Href="/"/>
+    <SideBarItem Text="Home" IconName="dashboard"  Href="/"/>
     <AuthorizeView>
         <Authorized>
             <SideBarItem Text="Customer Management" IconName="customers" Href="/CustomerManagementView"/>
@@ -19,7 +19,10 @@
     
     <AuthorizeView>
         <Authorized>
-            <SideBarItem Text="Logout" IconName="logout" OnClickFunc="@Logout"/>
+            @if (AuthService.AuthnEnabled)
+            {
+                <SideBarItem Text="Logout" IconName="logout" OnClickFunc="@Logout"/>
+            }
         </Authorized>
         <NotAuthorized>
             <SideBarItem Text="Login" IconName="login" OnClickFunc="@OpenLoginModal"/>
@@ -93,7 +96,7 @@
 
     public Task OpenLoginModal()
     {
-        showComp = true;
+        showComp = !showComp;
         Console.WriteLine($"ShowComp = {showComp}");
         StateHasChanged();
         return Task.CompletedTask;

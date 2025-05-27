@@ -80,7 +80,7 @@
 
     private Task Close()
     {
-        Show = false;
+        Show = !Show;
         return Task.CompletedTask;
     }
 }

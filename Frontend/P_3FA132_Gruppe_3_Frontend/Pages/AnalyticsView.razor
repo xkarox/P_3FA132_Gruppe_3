@@ -71,8 +71,8 @@
         else
         {
             <RecentReading Type="KindOfMeter.STROM" 
-                           Value="@(ViewModel.LatestWaterReading != null 
-                                      ? ViewModel.LatestWaterReading.MeterCount.ToString("N") 
+                           Value="@(ViewModel.LatestElectricityReading != null 
+                                      ? ViewModel.LatestElectricityReading.MeterCount.ToString("N") 
                                       : "unavailable")" 
                            DateOfReading="@(ViewModel.LatestElectricityReading != null 
                                               ? ViewModel.LatestElectricityReading.DateOfReading! 

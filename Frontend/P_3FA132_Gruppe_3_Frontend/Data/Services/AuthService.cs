@@ -9,6 +9,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services;
 
 public class AuthService
 {
+    public bool AuthnEnabled { get; set; }
     private readonly HttpClient _httpClient;
     private readonly AuthenticationStateProvider _authStateProvider;
 
@@ -24,6 +25,7 @@ public class AuthService
     public async Task<bool> AuthenticationEnabled()
     {
         var result=  await _httpClient.GetFromJsonAsync<bool>("/auth/isEnabled");
+        AuthnEnabled = result;
         return result;
     }
 
