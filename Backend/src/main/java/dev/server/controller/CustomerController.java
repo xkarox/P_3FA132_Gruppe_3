@@ -168,8 +168,10 @@ public class CustomerController
     {
         logger.info("Received request to get all customers");
 
-        if (!AuthorisationService.IsUserAdmin())
+        if (!AuthorisationService.IsUserAdmin()) {
             return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
 
         try (CustomerService cs = ServiceProvider.Services.getCustomerService()) {
             Collection<Customer> customers = cs.getAll();
