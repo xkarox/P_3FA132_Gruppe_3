@@ -34,7 +34,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mockStatic;
 
@@ -134,8 +135,7 @@ public class DatabaseControllerTest
                 .build();
 
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertNotNull(response.statusCode());
-        //assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode(), "Should return status code 200 OK");
     }
 
     @Test
