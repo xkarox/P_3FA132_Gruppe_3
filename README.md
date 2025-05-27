@@ -29,7 +29,9 @@ CREATE DATABASE homeautomation;
 
 Erstellen Sie einen dedizierten Benutzer mit den notwendigen Rechten:
 ```sql
-CREATE USER 'homeautomation_user'@'homeautomation' IDENTIFIED BY 'secure_password'; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE ON homeautomation.* TO 'homeautomation_user'@'homeautomation'; FLUSH PRIVILEGES;
+CREATE USER 'homeautomation_user'@'localhost' IDENTIFIED BY 'homeautomation_pass';
+GRANT SELECT, INSERT, UPDATE, DELETE, DROP, CREATE ON homeautomation_test.* TO 'homeautomation_user'@'localhost';
+FLUSH PRIVILEGES;
 ```
 ## **Backend Konfiguration**
 
