@@ -1,24 +1,51 @@
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using P_3FA132_Gruppe_3_Frontend.Data.Services
 @inject IJSRuntime JSRuntime
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 <nav class="sidebar">
-    <SideBarItem Text="Dashboard" IconName="dashboard" Href="/"/>
-    <SideBarItem Text="Customer Management" IconName="customers" Href="/CustomerManagementView"/>
-    <SideBarItem Text="Reading Management" IconName="readings" Href="/ReadingManagementView"/>
-    <SideBarItem Text="Analytics" IconName="analytics" Href="/AnalyticsView"/>
-    <SideBarItem Text="Import" IconName="import" Href="/ImportView"/>
-    <SideBarItem Text="Export" IconName="export" Href="/ExportView"/>
+    <SideBarItem Text="Home" IconName="dashboard"  Href="/"/>
+    <AuthorizeView>
+        <Authorized>
+            <SideBarItem Text="Customer Management" IconName="customers" Href="/CustomerManagementView"/>
+            <SideBarItem Text="Import/Export" IconName="Importexport"  Href="/ImportExportView"/>
+            <SideBarItem Text="Analytics" IconName="analytics"  Href="/AnalyticsView"/>
+
+            <SideBarItem Text="Reading Management" IconName="readings"  Href="/ReadingManagementView"/>
+            <SideBarItem Text="Import" IconName="import" Href="/ImportView"/>
+                <SideBarItem Text="Export" IconName="export" Href="/ExportView"/>
+        </Authorized>
+    </AuthorizeView>
+
+    <AuthorizeView>
+        <Authorized>
+            @if (AuthService.AuthnEnabled)
+            {
+                <SideBarItem Text="Logout" IconName="logout" OnClickFunc="@Logout"/>
+            }
+        </Authorized>
+        <NotAuthorized>
+            <SideBarItem Text="Login" IconName="login" OnClickFunc="@OpenLoginModal"/>
+        </NotAuthorized>
+    </AuthorizeView>
 </nav>
+
+<AuthComponent Show="@showComp"/>
 
 <style>
     .sidebar {
-        width: 3.4rem;
+        width: 5.4rem;
+        min-width: 5.4rem;
         padding: 1rem;
         transition: width 0.3s ease-in-out;
         overflow: hidden;
+        max-height: 100vh;
     }
-
+    
     .sidebar:hover {
-        width: 12rem;
+        width: 15rem;
         transition: width 0.3s ease-in-out;
     }
 </style>
@@ -39,12 +66,12 @@
     private ElementReference _sidebarElement;
     private bool _isHovered;
     private DotNetObjectReference<SideBar> _dotNetRef = null!;
+    public bool showComp = false;
 
     [JSInvokable]
     public void SetHoverState(bool hoverState)
     {
         _isHovered = hoverState;
-        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -56,15 +83,24 @@
         }
     }
 
+    public async Task Logout()
+    {
+        AuthService.Logout();
+        showComp = false;
+        NavigationManager.NavigateTo("/");
+        StateHasChanged();
+    }
+
     public void Dispose()
     {
         _dotNetRef?.Dispose();
     }
 
-    public Task callback()
+    public Task OpenLoginModal()
     {
-        Console.WriteLine("'clicked'");
+        showComp = !showComp;
+        Console.WriteLine($"ShowComp = {showComp}");
+        StateHasChanged();
         return Task.CompletedTask;
     }
-
 }

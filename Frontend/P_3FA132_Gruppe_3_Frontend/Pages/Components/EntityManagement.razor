@@ -164,6 +164,24 @@ else
                 builder.AddAttribute(3, "readonly", "true");
                 builder.CloseElement();
             }
+            else if (property.PropertyType == typeof(Double))
+            {
+                builder.OpenElement(0, "input");
+                builder.AddAttribute(1, "type", "text");
+                builder.AddAttribute(2, "value", propertyValue?.ToString() ?? "");
+                builder.AddAttribute(3, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
+                {
+                    if (double.TryParse(e.Value?.ToString(), out double result))
+                    {
+                        property.SetValue(Item, result);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Could not parse '{e.Value}' to a double.");
+                    }
+                }));
+                builder.CloseElement();
+            }
             else
             {
                 builder.OpenElement(0, "input");

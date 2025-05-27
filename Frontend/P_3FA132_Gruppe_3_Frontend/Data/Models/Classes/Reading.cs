@@ -4,8 +4,6 @@ using System.Text.Json;
 using Newtonsoft.Json.Linq;
 using P_3FA132_Gruppe_3_Frontend.Data.Models;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json.Linq;
-using System.Text.Json;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
@@ -82,7 +80,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                 Comment = root.GetProperty("comment").ValueKind == JsonValueKind.Null ? null : root.GetProperty("comment").GetString(),
                 Customer = root.GetProperty("customer").ValueKind == JsonValueKind.Null ? null : Customer.LoadJson(root.ToString()),
                 DateOfReading = root.GetProperty("dateOfReading").ValueKind == JsonValueKind.Null ? null : DateOnly.Parse(root.GetProperty("dateOfReading").GetString()),
-                KindOfMeter = Enum.Parse<KindOfMeter>(root.GetProperty("kindOfMeter").GetString() ?? "DEFAULT"),
+                KindOfMeter = root.GetProperty("kindOfMeter").GetString().ToKindOfMeter(),
                 MeterCount = root.GetProperty("meterCount").GetDouble(),
                 MeterId = root.GetProperty("meterId").GetString() ?? "defaultID",
                 Substitute = root.GetProperty("substitute").GetBoolean()

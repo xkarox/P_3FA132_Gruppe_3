@@ -1,14 +1,25 @@
 ﻿@page "/"
 
 @using P_3FA132_Gruppe_3_Frontend.Data.Services
-@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
-@using P_3FA132_Gruppe_3_Frontend.Pages.Components
-@inject DatabaseService DatabaseService
-@inject CustomerService CustomerService
-@inject ReadingService ReadingService
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthService  AuthService
+<PageTitle>Digital Property Management</PageTitle>
 
-<PageTitle>Home</PageTitle>
+<div class="home-greeting">
+    <p>Servus.
+        </p>
+</div>
+
 
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await AuthService.AuthenticationEnabled())
+        {
+            await AuthService.Login(null, null);
+            StateHasChanged();
+        }
+        await base.OnInitializedAsync();
+    }
 }

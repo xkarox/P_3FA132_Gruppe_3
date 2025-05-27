@@ -1,12 +1,13 @@
+using System.Collections.ObjectModel;
 using Blazing.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.AspNetCore.Components.Web;
-using P_3FA132_Gruppe_3_Frontend.Data.Models;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;  
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes;
-using P_3FA132_Gruppe_3_Frontend.Data.Services;
-using System.Collections.ObjectModel;
+using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
+using P_3FA132_Gruppe_3_Frontend.Data.Services;  
 namespace P_3FA132_Gruppe_3_Frontend.Data.ViewModels;
 
 public partial class ReadingManagementViewModel(
@@ -52,7 +53,7 @@ public partial class ReadingManagementViewModel(
     public override async void OnInitialized()
     {
         Readings = new ObservableCollection<Reading>();
-        PaginationState = new PaginationState() { ItemsPerPage = 15 };
+        PaginationState = new PaginationState() { ItemsPerPage = 7 };
         ReadingQuery = new ReadingQuery();
         Customers = await customerService.GetAll() ?? new List<Customer>();
 
@@ -130,6 +131,7 @@ public partial class ReadingManagementViewModel(
             if (customer == null) return;
             NewReading.Customer = customer;
             NewReading.DateOfReading ??= new DateOnly();
+            NewReading.MeterId ??= "Unknown";
 
             var returnedReading = await readingService.Add(NewReading);
             if (returnedReading != null)
@@ -170,6 +172,15 @@ public partial class ReadingManagementViewModel(
     {
         if (string.IsNullOrEmpty(value)) return value;
         return value.Length <= MaxStringLength ? value : value[..MaxStringLength] + "...";
+    }
+    
+    [RelayCommand]
+    public void AddReadingButtonCallback()
+    {
+        if (ReadingQuery!.Customer is not null)
+        {
+            NewReading = new Reading(){ CustomerId = Guid.Parse(ReadingQuery!.Customer) };
+        }
     }
 }
 

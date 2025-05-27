@@ -1,4 +1,4 @@
-﻿
+
 public enum Gender
 {
     D, // divers
@@ -6,6 +6,7 @@ public enum Gender
     U, // unbekannt
     W // weiblich
 }
+
 public static class GenderExtensions
 {
     public static string ToEmoji(this Gender gender)

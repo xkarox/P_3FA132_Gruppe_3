@@ -1,0 +1,86 @@
+@using BitzArt.Blazor.Cookies
+@using Microsoft.AspNetCore.Components.Authorization
+@using P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
+@using P_3FA132_Gruppe_3_Frontend.Data.Services
+@inject AuthService AuthService
+@inject NavigationManager NavManager
+
+
+<div class="overlay @(Show ? "visible" : "hidden")"></div>
+<div class="@(Show ? "visible" : "hidden") auth-component">
+    <h3>Login</h3>
+
+    <label for="username-input">Username</label>
+    <input id="username-input" @bind="Username" />
+
+    <label for="password-input">Password</label>
+    <input id="password-input" type="password" @bind="Password" />
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <p class="error-message">@ErrorMessage</p>
+    }
+    <button id="login-button" @onclick="Login">
+        Login
+    </button>
+
+    <button id="close-button" @onclick="Close">
+        X
+    </button>
+</div>
+
+@code {
+    private string Username { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    private string ErrorMessage { get; set; } = string.Empty;
+    private string LoginCallbackNullMessage { get; set; } = "No LoginCallback provided";
+
+    [Parameter] public bool Show { get; set; } = false;
+    [Parameter] public Func<Task>? OnSuccessfullLogin { get; set; }
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        AutoLogin();
+        return base.SetParametersAsync(parameters);
+    }
+
+    static class AuthErrorMessages
+    {
+        public const string InvalidUsername = "Please input a valid Username";
+        public const string InvalidPassword = "Please input a valid Password";
+        public const string LoginFailed = "Login Failed - Please check credentials";
+    }
+
+    private async Task AutoLogin()
+    {
+        if(!await AuthService.AuthenticationEnabled())
+            await Login();
+    }
+
+    private async Task Login()
+    {
+        try
+        {
+            var success = await AuthService.Login(Username, Password);
+            if (success)
+            {
+                Show = false;
+                NavManager.NavigateTo("/");
+            }
+            else
+            {
+                ErrorMessage = "Invalid username or password";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"AuthComponent: Login error: {ex.Message}";
+        }
+    }
+
+    private Task Close()
+    {
+        Show = !Show;
+        return Task.CompletedTask;
+    }
+}

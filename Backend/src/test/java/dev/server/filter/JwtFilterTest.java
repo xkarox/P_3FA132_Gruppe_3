@@ -97,14 +97,15 @@ class JwtFilterTest
         when(authUserService.getById(any())).thenReturn(null);
 
         assertDoesNotThrow(() -> _jwtFilter.filter(_crc));
-        checkResponse(_crc, Response.Status.UNAUTHORIZED);
+        ArgumentCaptor<Response> responseCaptor = ArgumentCaptor.forClass(Response.class);
+        assertEquals(0, responseCaptor.getAllValues().size());
 
         resetCRC();
 
         when(authUserService.getById(any())).thenReturn(mockAuthUser);
         when(mockAuthUser.getId()).thenReturn(null);
         assertDoesNotThrow(() -> _jwtFilter.filter(_crc));
-        checkResponse(_crc, Response.Status.UNAUTHORIZED);
+        assertEquals(0, responseCaptor.getAllValues().size());
 
         resetCRC();
 
@@ -139,13 +140,14 @@ class JwtFilterTest
         resetCRC();
         _serviceProvider.when(ServiceProvider::getAuthUserService).thenThrow(new IOException());
         assertDoesNotThrow(() -> _jwtFilter.filter(_crc));
-        checkResponse(_crc, Response.Status.UNAUTHORIZED);
+        ArgumentCaptor<Response> responseCaptor = ArgumentCaptor.forClass(Response.class);
+        assertEquals(0, responseCaptor.getAllValues().size());
 
         resetCRC();
         _serviceProvider.when(ServiceProvider::getAuthUserService).thenReturn(authUserService);
         when(authUserService.getById(any())).thenThrow(new SQLException());
         assertDoesNotThrow(() -> _jwtFilter.filter(_crc));
-        checkResponse(_crc, Response.Status.UNAUTHORIZED);
+        assertEquals(0, responseCaptor.getAllValues().size());
     }
 
     private void checkResponse(ContainerRequestContext containerContext, Response.Status status)

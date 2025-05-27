@@ -7,7 +7,7 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Services
 {
     public class CustomerService : AbstractCrudService<Customer>
     {
-        public CustomerService(HttpClient httpClient) : base(httpClient, "customers")
+        public CustomerService(IHttpClientFactory httpClientFactory) : base(httpClientFactory, "customers")
         {
         }
         
