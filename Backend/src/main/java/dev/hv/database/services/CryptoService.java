@@ -97,12 +97,19 @@ public class CryptoService
 
     public static String validateToken(String token)
     {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try{
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+
     }
 
     public static NewCookie createTokenCookie(UUID id)

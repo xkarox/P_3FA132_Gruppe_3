@@ -28,7 +28,7 @@ public class PermissionFilter implements ContainerRequestFilter
         if (AuthorisationService.IsUserAdmin())
             return;
 
-        if (MDC.get("permissions").isBlank()){
+        if (MDC.get("permissions") == null || MDC.get("permissions").isEmpty()) {
             containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
             return;
         }
