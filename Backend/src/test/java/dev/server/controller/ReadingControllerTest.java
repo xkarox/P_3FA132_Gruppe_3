@@ -34,10 +34,7 @@ import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -504,6 +501,22 @@ public class ReadingControllerTest
         Map<String, Object> body = _objMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
         assertEquals(responseMessage.toString(), body.get("message"));
     }
+    @Test
+    void getReadingsTo() throws IOException, InterruptedException, SQLException, ReflectiveOperationException
+    {
+        Reading mockReading = mock(Reading.class);
+        ReadingService mockRs = mock(ReadingService.class);
+
+        InternalServiceProvider mockedInternalServiceProvider = mock(InternalServiceProvider.class);
+        ServiceProvider.Services = mockedInternalServiceProvider;
+        when(mockedInternalServiceProvider.getReadingService()).thenReturn(mockRs);
+        when(mockRs.getAll()).thenReturn(List.of(mockReading));
+
+        ReadingController rs = new ReadingController();
+
+        assertEquals(Response.Status.OK.getStatusCode(), rs.getReadings(null, null, null, null).getStatus());
+    }
+
     @Test
     void getReadings() throws IOException, InterruptedException, SQLException
     {
