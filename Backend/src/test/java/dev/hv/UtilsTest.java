@@ -143,4 +143,28 @@ public class UtilsTest
         assertEquals(9999, reading2Node.get("meterCount").asInt(), "Meter count for reading 2 should be 9999");
         assertTrue(reading2Node.get("substitute").asBoolean(), "Reading 2 should be a substitute");
     }
+
+    @Test
+    void formatContentTypeJsonTest() {
+        String result = Utils.formatContentType("application/json");
+        assertEquals("json", result);
+    }
+
+    @Test
+    void formatContentTypeXmlTest() {
+        String result = Utils.formatContentType("application/xml");
+        assertEquals("xml", result);
+    }
+
+    @Test
+    void formatContentTypeCsvTest() {
+        String result = Utils.formatContentType("text/plain");
+        assertEquals("csv", result);
+    }
+
+    @Test
+    void formatContentTypeUnknownTest() {
+        String result = Utils.formatContentType("unknown");
+        assertEquals("", result);
+    }
 }

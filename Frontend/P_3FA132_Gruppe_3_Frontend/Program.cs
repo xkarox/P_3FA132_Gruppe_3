@@ -34,6 +34,7 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ReadingService>();
 
 builder.Services.AddScoped<UtilityService>();
+builder.Services.AddScoped<ExportImportService>();
 
 
 builder.Services.AddMvvm(options =>

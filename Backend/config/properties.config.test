@@ -1,11 +1,3 @@
-erikm.db.url = localhost:3306/homeautomation_test
-erikm.db.user = erik_testing
-erikm.db.pw = testing_password
-
-chris.db.url = localhost:3306/homeautomation_test
-chris.db.user = root
-chris.db.pw = root
-
-xkroax.db.url = localhost:3306/homeautomation_test
-xkroax.db.user = xkarox
-xkroax.db.pw = 1234
+user.db.url =
+user.db.user =
+user.db.pw =

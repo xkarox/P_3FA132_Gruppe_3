@@ -2,15 +2,27 @@ package dev.hv;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import dev.hv.model.interfaces.IId;
+import com.fasterxml.jackson.databind.JsonNode;
+import dev.hv.model.interfaces.IId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.hv.model.classes.Customer;
+import dev.hv.model.classes.CustomerWrapper;
 import dev.hv.model.classes.Reading;
+import dev.hv.model.classes.ReadingWrapper;
+import dev.server.validator.CustomerJsonSchemaValidatorService;
+import dev.server.validator.ReadingJsonSchemaValidationService;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -20,12 +32,14 @@ public class Utils
     {
         if (!result.equals(expectedValue))
         {
-            String resultString = "Expected: " +
-                    expectedValue +
-                    ", but got: " +
-                    result +
-                    " | " +
-                    errorMessage.toString();
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.append("Expected: ");
+            strBuilder.append(expectedValue);
+            strBuilder.append(", but got: ");
+            strBuilder.append(result);
+            strBuilder.append(" | ");
+            strBuilder.append(errorMessage.toString());
+            String resultString = strBuilder.toString();
             throw new IllegalArgumentException(resultString);
         }
     }
@@ -121,8 +135,7 @@ public class Utils
                     .entity(Utils.getObjectMapper().writeValueAsString(errorResponse))
                     .type(MediaType.APPLICATION_JSON)
                     .build();
-        }
-        catch (JsonProcessingException e)
+        } catch (JsonProcessingException e)
         {
             Map<String, String> response = new HashMap<>();
             response.put("message", ResponseMessages.ControllerInternalError.toString());
@@ -133,4 +146,16 @@ public class Utils
         }
     }
 
+    public static String formatContentType(String contentType) {
+        if (contentType.contains("text/plain")) {
+            return "csv";
+        }
+        else if (contentType.contains("application/xml")) {
+            return "xml";
+        }
+        else if (contentType.contains("application/json")) {
+            return "json";
+        }
+        return "";
+    }
 }

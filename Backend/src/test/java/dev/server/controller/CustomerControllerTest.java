@@ -5,6 +5,7 @@ import dev.hv.ResponseMessages;
 import dev.hv.database.DbHelperService;
 import dev.hv.database.DbTestHelper;
 import dev.hv.database.services.AuthorisationService;
+import dev.hv.csv.CsvParser;
 import dev.hv.database.services.CustomerService;
 import dev.hv.database.services.ReadingService;
 import dev.hv.model.interfaces.IId;
@@ -27,6 +28,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -610,6 +613,193 @@ public class CustomerControllerTest
         HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode(), "Should return status code 500 internal server error");
 
+    }
+
+
+    @Test
+    void exportCustomersXmlTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/exportCustomers?fileType=xml";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void exportCustomersJsonTest() throws IOException, InterruptedException
+    {
+        {
+            String url = _url + "/exportCustomers?fileType=json";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void exportCustomersCsvTest() throws IOException, InterruptedException
+    {
+        {
+            String url = _url + "/exportCustomers?fileType=csv";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void exportCustomersUnsupportedMediaTypeTest() throws IOException, InterruptedException
+    {
+        {
+            String url = _url + "/exportCustomers?fileType=undefined";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void exportCustomersBadRequestTest() throws IOException, InterruptedException
+    {
+        {
+            String url = _url + "/exportCustomers?fileType=";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.statusCode());
+        }
+    }
+
+    @Test
+    void validateCustomersXmlTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        String validXml = "<CustomerWrapper>\n" +
+                "    <Customers>\n" +
+                "        <Id>ec617965-88b4-4721-8158-ee36c38e4db3</Id>\n" +
+                "        <FirstName>Anna</FirstName>\n" +
+                "        <LastName>Test</LastName>\n" +
+                "        <Gender>W</Gender>\n" +
+                "        <BirthDate>1962-02-21</BirthDate>\n" +
+                "    </Customers>\n" +
+                "</CustomerWrapper>";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/xml")
+                .POST(HttpRequest.BodyPublishers.ofString(validXml))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void validateCustomersJsonTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        String validJson = "{\"customers\": [{\"id\": \"ec617965-88b4-4721-8158-ee36c38e4db3\", \"firstName\": \"Anna\", \"lastName\": \"Test\", \"gender\": \"W\", \"birthDate\": \"1962-02-21\"}]}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(validJson))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void validateCustomersCsvTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        String validCsv = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n" +
+                "ec617965-88b4-4721-8158-ee36c38e4db3,Frau,Anna,Test,21.02.1962\n";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "text/plain")
+                .POST(HttpRequest.BodyPublishers.ofString(validCsv))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void validateCustomersMissingContentTypeTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        String validCsv = "UUID,Anrede,Vorname,Nachname,Geburtsdatum\n" +
+                "ec617965-88b4-4721-8158-ee36c38e4db3,Frau,Anna,Test,21.02.1962\n";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "")
+                .POST(HttpRequest.BodyPublishers.ofString(validCsv))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
+    }
+
+    @Test
+    void validateCustomersMissingBodyTypeTest() throws IOException, InterruptedException
+    {
+        String url = _url + "/validateCustomers";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "text/plain")
+                .POST(HttpRequest.BodyPublishers.ofString(""))
+                .build();
+
+        HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.statusCode());
     }
 
     @Test

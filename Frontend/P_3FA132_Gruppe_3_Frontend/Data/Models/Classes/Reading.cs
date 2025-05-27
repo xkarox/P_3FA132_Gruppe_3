@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
+using P_3FA132_Gruppe_3_Frontend.Data.Models;
+using System.Text.Json.Serialization;
 using P_3FA132_Gruppe_3_Frontend.Data.Models.Enums;
 
 namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
@@ -71,9 +72,11 @@ namespace P_3FA132_Gruppe_3_Frontend.Data.Models.Classes
                 root = document.RootElement;
             }
 
+            root.TryGetProperty("id", out JsonElement prop);
+            var id = prop.GetString();
             var reading = new Reading
             {
-                Id = root.GetProperty("id").GetGuid(),
+                Id = string.IsNullOrEmpty(id) ? Guid.Empty : Guid.Parse(id),
                 Comment = root.GetProperty("comment").ValueKind == JsonValueKind.Null ? null : root.GetProperty("comment").GetString(),
                 Customer = root.GetProperty("customer").ValueKind == JsonValueKind.Null ? null : Customer.LoadJson(root.ToString()),
                 DateOfReading = root.GetProperty("dateOfReading").ValueKind == JsonValueKind.Null ? null : DateOnly.Parse(root.GetProperty("dateOfReading").GetString()),
