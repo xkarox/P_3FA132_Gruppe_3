@@ -333,6 +333,10 @@ public class ReadingController
     {
         try
         {
+            if (!AuthorisationService.IsUserAdmin()) {
+                return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+            }
+
             if (fileType == null || fileType.isEmpty())
             {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing Content-Type header").build();
@@ -411,6 +415,10 @@ public class ReadingController
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateReadings(@HeaderParam("Content-Type") String contentType, String fileContent) throws IOException, JAXBException, ReflectiveOperationException, SQLException
     {
+        if (!AuthorisationService.IsUserAdmin()) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
         if (contentType.trim().isEmpty() || fileContent.trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(ResponseMessages.ControllerBadRequest.toString()).build();

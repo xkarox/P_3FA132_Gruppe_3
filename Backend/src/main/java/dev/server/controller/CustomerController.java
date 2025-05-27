@@ -275,9 +275,12 @@ public class CustomerController
     {
         try
         {
+            if (!AuthorisationService.IsUserAdmin()) {
+                return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+            }
             if (fileType == null || fileType.isEmpty())
             {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Missing Content-Type header").build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Missing Content-Type header").build();
             }
             switch (fileType)
             {
@@ -345,6 +348,10 @@ public class CustomerController
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateCustomers(@HeaderParam("Content-Type") String contentType, String fileContent) throws IOException, JAXBException, ReflectiveOperationException, SQLException
     {
+        if (!AuthorisationService.IsUserAdmin()) {
+            return createErrorResponse(Response.Status.UNAUTHORIZED, ResponseMessages.ControllerUnauthorized.toString());
+        }
+
         if (contentType.trim().isEmpty() || fileContent.trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(ResponseMessages.ControllerBadRequest.toString()).build();
